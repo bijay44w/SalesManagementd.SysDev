@@ -28,37 +28,37 @@ namespace SalesManagement_SysDev
 
         private void ShowMessage(string message)
         {
-            MessageBox.Show(message, "商品管理");
+            
         }
 
         private void card_ProductRegister_MouseLeftButtonUp(
             object sender, MouseButtonEventArgs e)
         {
-            ShowMessage("商品登録画面");
+            
         }
 
         private void card_ProductUpdate_MouseLeftButtonUp(
             object sender, MouseButtonEventArgs e)
         {
-            ShowMessage("商品更新画面");
+            
         }
 
         private void card_ProductList_MouseLeftButtonUp(
             object sender, MouseButtonEventArgs e)
         {
-            ShowMessage("商品一覧画面");
+            
         }
 
         private void card_ProductSearch_MouseLeftButtonUp(
             object sender, MouseButtonEventArgs e)
         {
-            ShowMessage("商品検索画面");
+          
         }
 
         private void card_ProductHide_MouseLeftButtonUp(
             object sender, MouseButtonEventArgs e)
         {
-            ShowMessage("商品非表示画面");
+            
         }
     }
 }

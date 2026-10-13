@@ -893,15 +893,87 @@ namespace SalesManagement_SysDev
 
             switch (tag)
             {
+
+
                 case "03": // 顧客管理
-                    MainContentArea.Content = null;
-                    MainContentArea.Visibility = Visibility.Collapsed;
-                    CustomerContent.Visibility = Visibility.Visible;
+                    CustomerContent.Visibility = Visibility.Collapsed;
+
+                    var customer = new Customer();
+
+                    // 顧客登録カードを押したら、既存の登録画面を開く
+                    customer.ClientRegisterRequested += (s, args) =>
+                    {
+                        OpenClientRegisterModal();
+                    };
+
+                    MainContentArea.Content = customer;
+                    MainContentArea.Visibility = Visibility.Visible;
                     break;
+
 
                 case "04": // 商品管理
                     CustomerContent.Visibility = Visibility.Collapsed;
                     MainContentArea.Content = new Product();
+                    MainContentArea.Visibility = Visibility.Visible;
+                    break;
+
+                case "05": // 在庫管理
+                    CustomerContent.Visibility = Visibility.Collapsed;
+                    MainContentArea.Content = new Inventory();
+                    MainContentArea.Visibility = Visibility.Visible;
+                    break;
+               
+                case "06": // 社員管理
+                    CustomerContent.Visibility = Visibility.Collapsed;
+                    MainContentArea.Content = new Employee();
+                    MainContentArea.Visibility = Visibility.Visible;
+                    break;
+
+                case "07": // 売上管理
+                    CustomerContent.Visibility = Visibility.Collapsed;
+                    MainContentArea.Content = new Sales();
+                    MainContentArea.Visibility = Visibility.Visible;
+                    break;
+
+                case "08": // 受注管理
+                    CustomerContent.Visibility = Visibility.Collapsed;
+                    MainContentArea.Content = new Order();
+                    MainContentArea.Visibility = Visibility.Visible;
+                    break;
+
+                case "09": // 注文管理
+                    CustomerContent.Visibility = Visibility.Collapsed;
+                    MainContentArea.Content = new OrderManagement();
+                    MainContentArea.Visibility = Visibility.Visible;
+                    break;
+
+                case "10": // 発注管理
+                    CustomerContent.Visibility = Visibility.Collapsed;
+                    MainContentArea.Content = new PurchaseOrder();
+                    MainContentArea.Visibility = Visibility.Visible;
+                    break;
+
+                case "11": // 入庫管理 
+                    CustomerContent.Visibility = Visibility.Collapsed;
+                    MainContentArea.Content = new Receiving();
+                    MainContentArea.Visibility = Visibility.Visible;
+                    break;
+
+                case "12": // 出庫管理 
+                    CustomerContent.Visibility = Visibility.Collapsed;
+                    MainContentArea.Content = new Shipping();
+                    MainContentArea.Visibility = Visibility.Visible;
+                    break;
+
+                case "13": // 入荷管理 
+                    CustomerContent.Visibility = Visibility.Collapsed;
+                    MainContentArea.Content = new Arrival();
+                    MainContentArea.Visibility = Visibility.Visible;
+                    break;
+
+                case "14": // 出荷管理 
+                    CustomerContent.Visibility = Visibility.Collapsed;
+                    MainContentArea.Content = new Shipment();
                     MainContentArea.Visibility = Visibility.Visible;
                     break;
             }
