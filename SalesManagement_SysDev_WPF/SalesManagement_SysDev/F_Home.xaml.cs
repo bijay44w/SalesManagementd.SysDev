@@ -5,6 +5,8 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 
+ // test 
+
 namespace SalesManagement_SysDev
 {
     public partial class F_Home : Window
@@ -33,7 +35,7 @@ namespace SalesManagement_SysDev
         {
             if (_loggedInEmployee != null)
             {
-                txt_UserDisplay.Text = $"{_loggedInEmployee.EmName} 様";
+                txt_UserDisplay.Text = $"{_loggedInEmployee.EmName} 様";　
                 txt_Welcome.Text = $"ようこそ、{_loggedInEmployee.EmName} 様";
 
                 string officeName = _loggedInEmployee.So?.SoName ?? $"営業所 #{_loggedInEmployee.SoId}";
