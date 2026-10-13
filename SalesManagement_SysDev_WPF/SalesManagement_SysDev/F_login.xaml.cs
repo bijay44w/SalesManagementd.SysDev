@@ -22,6 +22,22 @@ namespace SalesManagement_SysDev
         public F_login()
         {
             InitializeComponent();
+
+            // ponytail: first run on a new PC (cloned from GitHub) has no DB -> create + seed via the existing handlers.
+            try
+            {
+                using var context = new SalesManagementContext();
+                if (context.Database.EnsureCreated())
+                {
+                    btn_CleateDabase_Click(this, new RoutedEventArgs());
+                    btn_InsertSampleData_Click(this, new RoutedEventArgs());
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"データベースを作成できませんでした。SQL Server LocalDB がインストールされているか確認してください。\n({ex.Message})",
+                    "データベースエラー", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         #region Login Input Event Handlers & Watermarks
