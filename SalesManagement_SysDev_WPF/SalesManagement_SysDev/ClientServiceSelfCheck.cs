@@ -95,8 +95,9 @@ namespace SalesManagement_SysDev
 
                 // ----------------------------------------------------
                 // TEST 3.3 顧客一覧表示機能: 登録されている顧客情報を一覧で表示する。
+                // （顧客管理フラグ=0の有効レコードのみ表示、フラグ=2は除外）
                 // ----------------------------------------------------
-                var allClients = service.GetAllClients(includeHidden: true);
+                var allClients = service.GetAllClients(includeHidden: false);
                 if (allClients == null || allClients.Count == 0)
                 {
                     Console.WriteLine("[FAIL 3.3] 顧客一覧の取得結果が空です。");
@@ -104,33 +105,41 @@ namespace SalesManagement_SysDev
                 }
                 if (!allClients.Any(x => x.ClId == createdId))
                 {
-                    Console.WriteLine($"[FAIL 3.3] 顧客一覧に登録したテスト顧客(ID: {createdId})が含まれていません。");
+                    Console.WriteLine($"[FAIL 3.3] 有効顧客一覧に登録したテスト顧客(ID: {createdId})が含まれていません。");
                     return 1;
                 }
-                Console.WriteLine($"[PASS 3.3 顧客一覧表示機能] 顧客一覧取得成功 (総件数: {allClients.Count}件)");
+                // Verify no records with flag == 2 are returned
+                if (allClients.Any(x => x.ClFlag == 2))
+                {
+                    Console.WriteLine("[FAIL 3.3] 顧客一覧に非表示フラグ(ClFlag = 2)の顧客が含まれています。");
+                    return 1;
+                }
+                Console.WriteLine($"[PASS 3.3 顧客一覧表示機能] 顧客一覧取得成功 (有効件数: {allClients.Count}件, 非表示フラグ2は正常に除外)");
                 passedTests++;
 
                 // ----------------------------------------------------
                 // TEST 3.4 顧客検索機能: 入力された顧客情報を抽出する。
+                // （顧客管理フラグ=0の有効レコードに限定）
                 // ----------------------------------------------------
-                var searchResults = service.SearchClients(clName: updatedName);
+                var searchResults = service.SearchClients(clName: updatedName, includeHidden: false);
                 if (searchResults == null || searchResults.Count == 0 || !searchResults.Any(x => x.ClId == createdId))
                 {
                     Console.WriteLine($"[FAIL 3.4] 顧客名「{updatedName}」の検索に失敗しました。");
                     return 1;
                 }
 
-                var searchById = service.SearchClients(clId: createdId);
+                var searchById = service.SearchClients(clId: createdId, includeHidden: false);
                 if (searchById.Count != 1 || searchById[0].ClId != createdId)
                 {
                     Console.WriteLine($"[FAIL 3.4] 顧客ID「{createdId}」の検索に失敗しました。");
                     return 1;
                 }
-                Console.WriteLine($"[PASS 3.4 顧客検索機能] 顧客検索成功 (抽出件数: {searchResults.Count}件)");
+                Console.WriteLine($"[PASS 3.4 顧客検索機能] 顧客検索成功 (抽出件数: {searchResults.Count}件, 有効レコード限定)");
                 passedTests++;
 
                 // ----------------------------------------------------
                 // TEST 3.5 顧客非表示機能（フラグ）: 選択された項目の顧客管理フラグを0から2に更新する。
+                // （物理SQL DELETEは行わず論理非表示化）
                 // ----------------------------------------------------
                 var hideResult = service.SetClientHiddenFlag(createdId, "テスト非表示処理");
                 if (!hideResult.Success)
@@ -145,7 +154,31 @@ namespace SalesManagement_SysDev
                     Console.WriteLine($"[FAIL 3.5] 顧客管理フラグが2に更新されていません。現在のフラグ: {hiddenClient?.ClFlag}");
                     return 1;
                 }
-                Console.WriteLine($"[PASS 3.5 顧客非表示機能] 顧客管理フラグを 0 -> 2 (非表示) に更新成功");
+
+                // Verify that 3.3 (List) and 3.4 (Search) now exclude this soft-deleted customer
+                var listAfterHide = service.GetAllClients(includeHidden: false);
+                if (listAfterHide.Any(x => x.ClId == createdId))
+                {
+                    Console.WriteLine($"[FAIL 3.5] 非表示設定(ClFlag=2)後も一覧(3.3)に対象顧客が含まれています。");
+                    return 1;
+                }
+
+                var searchAfterHide = service.SearchClients(clId: createdId, includeHidden: false);
+                if (searchAfterHide.Any(x => x.ClId == createdId))
+                {
+                    Console.WriteLine($"[FAIL 3.5] 非表示設定(ClFlag=2)後も検索(3.4)に対象顧客がヒットします。");
+                    return 1;
+                }
+
+                // Verify physical existence still in DB when includeHidden: true
+                var listWithHidden = service.GetAllClients(includeHidden: true);
+                if (!listWithHidden.Any(x => x.ClId == createdId))
+                {
+                    Console.WriteLine($"[FAIL 3.5] 物理削除されてしまっています。レコードがDBに存在しません。");
+                    return 1;
+                }
+
+                Console.WriteLine($"[PASS 3.5 顧客非表示機能] 顧客管理フラグを 0 -> 2 (非表示) に更新成功。物理削除なし＆一覧・検索からの除外を確認。");
                 passedTests++;
 
                 Console.WriteLine("==================================================");

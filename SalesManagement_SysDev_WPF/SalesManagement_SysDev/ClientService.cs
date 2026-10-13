@@ -171,8 +171,9 @@ namespace SalesManagement_SysDev
 
         /// <summary>
         /// 3.3 顧客一覧表示機能: 登録されている顧客情報を一覧で表示する。
+        /// 顧客管理フラグが0の有効レコードのみ抽出（非表示フラグ2を除外）。
         /// </summary>
-        public List<MClient> GetAllClients(bool includeHidden = true)
+        public List<MClient> GetAllClients(bool includeHidden = false)
         {
             try
             {
@@ -181,7 +182,7 @@ namespace SalesManagement_SysDev
 
                 if (!includeHidden)
                 {
-                    query = query.Where(x => x.ClFlag != 2);
+                    query = query.Where(x => x.ClFlag == 0);
                 }
 
                 return query.OrderBy(x => x.ClId).ToList();
@@ -194,8 +195,9 @@ namespace SalesManagement_SysDev
 
         /// <summary>
         /// 3.4 顧客検索機能: 入力された顧客情報を抽出する。
+        /// 顧客管理フラグが0の有効レコードに限定して抽出。
         /// </summary>
-        public List<MClient> SearchClients(int? clId = null, string? clName = null, int? soId = null, string? phone = null, bool includeHidden = true)
+        public List<MClient> SearchClients(int? clId = null, string? clName = null, int? soId = null, string? phone = null, bool includeHidden = false)
         {
             try
             {
@@ -226,7 +228,7 @@ namespace SalesManagement_SysDev
 
                 if (!includeHidden)
                 {
-                    query = query.Where(x => x.ClFlag != 2);
+                    query = query.Where(x => x.ClFlag == 0);
                 }
 
                 return query.OrderBy(x => x.ClId).ToList();

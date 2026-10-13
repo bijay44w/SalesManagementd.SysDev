@@ -8,11 +8,11 @@
         WindowStartupLocation="CenterScreen"
         WindowStyle="None"
         FontFamily="Segoe UI, Meiryo, 'Yu Gothic UI', sans-serif"
-        Background="#1976D2">
+        Background="#FFFFFF">
 
     <!-- Enable custom title bar & window resizing -->
     <WindowChrome.WindowChrome>
-        <WindowChrome CaptionHeight="40"
+        <WindowChrome CaptionHeight="54"
                       ResizeBorderThickness="6"
                       CornerRadius="0"
                       GlassFrameThickness="0"
@@ -24,10 +24,10 @@
         <Style x:Key="WindowControlButtonStyle" TargetType="Button">
             <Setter Property="WindowChrome.IsHitTestVisibleInChrome" Value="True" />
             <Setter Property="Background" Value="Transparent" />
-            <Setter Property="Foreground" Value="#FFFFFF" />
+            <Setter Property="Foreground" Value="#64748B" />
             <Setter Property="BorderThickness" Value="0" />
-            <Setter Property="Width" Value="46" />
-            <Setter Property="Height" Value="40" />
+            <Setter Property="Width" Value="44" />
+            <Setter Property="Height" Value="54" />
             <Setter Property="Cursor" Value="Hand" />
             <Setter Property="Template">
                 <Setter.Value>
@@ -37,10 +37,11 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="border" Property="Background" Value="#1E88E5" />
+                                <Setter TargetName="border" Property="Background" Value="#F1F5F9" />
+                                <Setter Property="Foreground" Value="#0F172A" />
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="border" Property="Background" Value="#1565C0" />
+                                <Setter TargetName="border" Property="Background" Value="#E2E8F0" />
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -50,6 +51,7 @@
 
         <!-- Window Close Button Style -->
         <Style x:Key="WindowCloseButtonStyle" TargetType="Button" BasedOn="{StaticResource WindowControlButtonStyle}">
+            <Setter Property="Width" Value="48" />
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
@@ -59,9 +61,11 @@
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
                                 <Setter TargetName="border" Property="Background" Value="#E81123" />
+                                <Setter Property="Foreground" Value="#FFFFFF" />
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
                                 <Setter TargetName="border" Property="Background" Value="#C4101E" />
+                                <Setter Property="Foreground" Value="#FFFFFF" />
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -72,7 +76,7 @@
         <!-- Sidebar Navigation Button Style (Normal) -->
         <Style x:Key="SidebarButtonStyle" TargetType="Button">
             <Setter Property="Background" Value="Transparent" />
-            <Setter Property="Foreground" Value="#B4D4F8" />
+            <Setter Property="Foreground" Value="#E2E8F0" />
             <Setter Property="BorderThickness" Value="0" />
             <Setter Property="Height" Value="42" />
             <Setter Property="Margin" Value="0,2" />
@@ -86,11 +90,7 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="bd" Property="Background" Value="#155BB5" />
-                                <Setter Property="Foreground" Value="#FFFFFF" />
-                            </Trigger>
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="bd" Property="Background" Value="#124E9C" />
+                                <Setter TargetName="bd" Property="Background" Value="#2563EB" />
                                 <Setter Property="Foreground" Value="#FFFFFF" />
                             </Trigger>
                         </ControlTemplate.Triggers>
@@ -105,7 +105,7 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Border Background="#2B7CE9" CornerRadius="8" Padding="14,0">
+                        <Border Background="#2563EB" CornerRadius="8" Padding="14,0">
                             <ContentPresenter VerticalAlignment="Center" />
                         </Border>
                     </ControlTemplate>
@@ -116,15 +116,15 @@
         <!-- Modern Action Card Style -->
         <Style x:Key="ActionCardBorderStyle" TargetType="Border">
             <Setter Property="Background" Value="#FFFFFF" />
-            <Setter Property="CornerRadius" Value="12" />
+            <Setter Property="CornerRadius" Value="18" />
             <Setter Property="BorderBrush" Value="#E2E8F0" />
             <Setter Property="BorderThickness" Value="1" />
-            <Setter Property="Padding" Value="20,18" />
+            <Setter Property="Padding" Value="24,22" />
             <Setter Property="Margin" Value="8" />
             <Setter Property="Cursor" Value="Hand" />
             <Setter Property="Effect">
                 <Setter.Value>
-                    <DropShadowEffect Color="#000000" Opacity="0.04" BlurRadius="12" ShadowDepth="2" Direction="270" />
+                    <DropShadowEffect Color="#0F172A" Opacity="0.04" BlurRadius="20" ShadowDepth="4" Direction="270" />
                 </Setter.Value>
             </Setter>
             <Style.Triggers>
@@ -132,7 +132,7 @@
                     <Setter Property="BorderBrush" Value="#93C5FD" />
                     <Setter Property="Effect">
                         <Setter.Value>
-                            <DropShadowEffect Color="#1976D2" Opacity="0.12" BlurRadius="16" ShadowDepth="4" Direction="270" />
+                            <DropShadowEffect Color="#2563EB" Opacity="0.12" BlurRadius="22" ShadowDepth="6" Direction="270" />
                         </Setter.Value>
                     </Setter>
                 </Trigger>
@@ -141,10 +141,10 @@
 
         <!-- Circular Action Arrow Button Style -->
         <Style x:Key="CircleArrowButtonStyle" TargetType="Border">
-            <Setter Property="Width" Value="30" />
-            <Setter Property="Height" Value="30" />
-            <Setter Property="CornerRadius" Value="15" />
-            <Setter Property="Background" Value="#E0EEFD" />
+            <Setter Property="Width" Value="36" />
+            <Setter Property="Height" Value="36" />
+            <Setter Property="CornerRadius" Value="18" />
+            <Setter Property="Background" Value="#EFF6FF" />
             <Setter Property="HorizontalAlignment" Value="Right" />
             <Setter Property="VerticalAlignment" Value="Bottom" />
         </Style>
@@ -154,65 +154,91 @@
         <!-- Application Layout Grid -->
         <Grid.RowDefinitions>
             <!-- Top Title Bar -->
-            <RowDefinition Height="40" />
+            <RowDefinition Height="54" />
             <!-- Main Content Area -->
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
         <!-- ======================================================== -->
-        <!-- Top Title Bar                                            -->
+        <!-- Top Title Bar (White Background with Subtle Divider)     -->
         <!-- ======================================================== -->
-        <Grid Grid.Row="0" Background="#1976D2">
-            <!-- Left: System Identity and User Pill -->
-            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="14,0,0,0">
-                <!-- User Profile Badge / Clickable for Account Settings -->
-                <Border x:Name="border_UserPill"
-                        WindowChrome.IsHitTestVisibleInChrome="True"
-                        Cursor="Hand"
-                        ToolTip="アカウント確認・パスワード変更"
-                        MouseLeftButtonUp="border_UserPill_MouseLeftButtonUp">
-                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <!-- Rounded User Silhouette Icon -->
-                        <Border Width="26" Height="26" CornerRadius="6" Background="#FFFFFF" Margin="0,0,10,0">
-                            <Path Fill="#1976D2" Width="14" Height="14" Stretch="Uniform"
-                                  Data="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
-                        </Border>
-                        <TextBlock Text="販売管理システム" FontSize="15" FontWeight="SemiBold" Foreground="#FFFFFF" VerticalAlignment="Center" />
-                    </StackPanel>
-                </Border>
+        <Border Grid.Row="0" Background="#FFFFFF" BorderBrush="#E5E7EB" BorderThickness="0,0,0,1">
+            <Grid>
+                <!-- Left: App Identity (Blue Logo Box + Title) -->
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="20,0,0,0">
+                    <!-- Rounded Blue App Icon Badge -->
+                    <Border Width="36" Height="36" CornerRadius="8" Background="#2563EB" Margin="0,0,12,0">
+                        <Path Fill="#FFFFFF" Width="20" Height="20" Stretch="Uniform"
+                              Data="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z" />
+                    </Border>
+                    <TextBlock Text="販売管理システム" FontSize="17.5" FontWeight="Bold" Foreground="#0F172A" VerticalAlignment="Center" />
+                </StackPanel>
 
                 <!-- Hidden Employee Display elements to keep code-behind functional -->
                 <TextBlock x:Name="txt_UserDisplay" Visibility="Collapsed" />
                 <TextBlock x:Name="txt_Welcome" Visibility="Collapsed" />
                 <TextBlock x:Name="txt_UserDetail" Visibility="Collapsed" />
-            </StackPanel>
 
-            <!-- Right: Window Chrome Buttons (Minimize, Maximize, Close) -->
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                <!-- Minimize Button -->
-                <Button Style="{StaticResource WindowControlButtonStyle}" Click="btn_Minimize_Click" ToolTip="最小化">
-                    <Path Fill="#FFFFFF" Width="10" Height="2" Stretch="Fill" Data="M0,0 L10,0" Stroke="#FFFFFF" StrokeThickness="1.5" />
-                </Button>
+                <!-- Right: User Avatar + Position Dropdown + Window Chrome Buttons -->
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                    <!-- User Profile Dropdown Pill -->
+                    <Border x:Name="border_UserPill"
+                            WindowChrome.IsHitTestVisibleInChrome="True"
+                            Cursor="Hand"
+                            Padding="6,4,12,4"
+                            CornerRadius="20"
+                            Background="Transparent"
+                            ToolTip="アカウント確認・パスワード変更"
+                            MouseLeftButtonUp="border_UserPill_MouseLeftButtonUp">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <!-- Circular Blue Avatar -->
+                            <Border Width="30" Height="30" CornerRadius="15" Background="#2563EB" Margin="0,0,8,0">
+                                <Path Fill="#FFFFFF" Width="15" Height="15" Stretch="Uniform"
+                                      Data="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+                            </Border>
 
-                <!-- Maximize / Restore Button -->
-                <Button Style="{StaticResource WindowControlButtonStyle}" Click="btn_Maximize_Click" ToolTip="最大化">
-                    <Path Stroke="#FFFFFF" StrokeThickness="1.5" Width="10" Height="10" Stretch="Fill" Data="M0,0 H10 V10 H0 Z" />
-                </Button>
+                            <!-- Role Title (default: 管理者) -->
+                            <TextBlock x:Name="txt_UserRoleDisplay" Text="管理者" FontSize="14" FontWeight="SemiBold" Foreground="#1E293B" VerticalAlignment="Center" Margin="0,0,6,0" />
 
-                <!-- Close Button -->
-                <Button Style="{StaticResource WindowCloseButtonStyle}" Click="btn_Close_Click" ToolTip="閉じる">
-                    <Path Stroke="#FFFFFF" StrokeThickness="1.5" Width="10" Height="10" Stretch="Fill" Data="M0,0 L10,10 M10,0 L0,10" />
-                </Button>
-            </StackPanel>
-        </Grid>
+                            <!-- Down Chevron Arrow -->
+                            <Path Fill="#64748B" Width="10" Height="6" Stretch="Uniform" VerticalAlignment="Center"
+                                  Data="M7 10l5 5 5-5z" />
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Divider -->
+                    <Separator Width="1" Height="24" Background="#E2E8F0" Margin="4,0,8,0" />
+
+                    <!-- Window Chrome Controls (Minimize, Maximize, Close) -->
+                    <!-- Minimize Button -->
+                    <Button Style="{StaticResource WindowControlButtonStyle}" Click="btn_Minimize_Click" ToolTip="最小化">
+                        <Path Fill="{Binding RelativeSource={RelativeSource AncestorType=Button}, Path=Foreground}"
+                              Stroke="{Binding RelativeSource={RelativeSource AncestorType=Button}, Path=Foreground}"
+                              StrokeThickness="1.5" Width="10" Height="2" Stretch="Fill" Data="M0,0 L10,0" />
+                    </Button>
+
+                    <!-- Maximize / Restore Button -->
+                    <Button Style="{StaticResource WindowControlButtonStyle}" Click="btn_Maximize_Click" ToolTip="最大化">
+                        <Path Stroke="{Binding RelativeSource={RelativeSource AncestorType=Button}, Path=Foreground}"
+                              StrokeThickness="1.5" Width="10" Height="10" Stretch="Fill" Data="M0,0 H10 V10 H0 Z" />
+                    </Button>
+
+                    <!-- Close Button -->
+                    <Button Style="{StaticResource WindowCloseButtonStyle}" Click="btn_Close_Click" ToolTip="閉じる">
+                        <Path Stroke="{Binding RelativeSource={RelativeSource AncestorType=Button}, Path=Foreground}"
+                              StrokeThickness="1.5" Width="10" Height="10" Stretch="Fill" Data="M0,0 L10,10 M10,0 L0,10" />
+                    </Button>
+                </StackPanel>
+            </Grid>
+        </Border>
 
         <!-- ======================================================== -->
         <!-- Main Body (Sidebar + Content Canvas)                     -->
         <!-- ======================================================== -->
-        <Grid Grid.Row="1" Background="#0C4A9E">
+        <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
                 <!-- Left Sidebar -->
-                <ColumnDefinition Width="185" />
+                <ColumnDefinition Width="200" />
                 <!-- Content Area -->
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
@@ -220,84 +246,52 @@
             <!-- ==================================================== -->
             <!-- Left Navigation Sidebar                              -->
             <!-- ==================================================== -->
-            <Grid Grid.Column="0" Margin="10,16,10,16">
-                <!-- Top Navigation List -->
-                <StackPanel VerticalAlignment="Top">
-                    <!-- 1. 顧客管理 (ACTIVE / SELECTED) -->
-                    <Button Style="{StaticResource SidebarActiveButtonStyle}">
-                        <StackPanel Orientation="Horizontal">
-                            <Path Fill="#FFFFFF" Width="18" Height="18" Stretch="Uniform" Margin="0,0,12,0"
-                                  Data="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z" />
-                            <TextBlock Text="顧客管理" FontSize="13.5" FontWeight="SemiBold" VerticalAlignment="Center" />
-                        </StackPanel>
-                    </Button>
+            <Grid Grid.Column="0">
+                <!-- Rich Blue Gradient Background -->
+                <Grid.Background>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                        <GradientStop Color="#184DAA" Offset="0" />
+                        <GradientStop Color="#103B8D" Offset="1" />
+                    </LinearGradientBrush>
+                </Grid.Background>
 
-                    <!-- 3. 商品管理 -->
-                    <Button Style="{StaticResource SidebarButtonStyle}">
-                        <StackPanel Orientation="Horizontal">
-                            <Path Fill="{Binding RelativeSource={RelativeSource AncestorType=Button}, Path=Foreground}"
-                                  Width="18" Height="18" Stretch="Uniform" Margin="0,0,12,0"
-                                  Data="M19.4 6.7L12.5 2.2a1 1 0 00-1 0L4.6 6.7A1 1 0 004 7.6v8.8a1 1 0 00.6.9l6.9 4.5a1 1 0 001 0l6.9-4.5a1 1 0 00.6-.9V7.6a1 1 0 00-.6-.9zM12 4.1l5.4 3.5-2.4 1.5-5.4-3.5L12 4.1zM5.8 8.4l5.2 3.4v7.1L5.8 15.5V8.4zm7.2 10.5V11.8l5.2-3.4v7.1l-5.2 3.4z" />
-                            <TextBlock Text="商品管理" FontSize="13.5" FontWeight="Normal" VerticalAlignment="Center" />
-                        </StackPanel>
-                    </Button>
-
-                    <!-- 4. 受注管理 -->
-                    <Button Style="{StaticResource SidebarButtonStyle}">
-                        <StackPanel Orientation="Horizontal">
-                            <Path Fill="{Binding RelativeSource={RelativeSource AncestorType=Button}, Path=Foreground}"
-                                  Width="18" Height="18" Stretch="Uniform" Margin="0,0,12,0"
-                                  Data="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z" />
-                            <TextBlock Text="受注管理" FontSize="13.5" FontWeight="Normal" VerticalAlignment="Center" />
-                        </StackPanel>
-                    </Button>
-
-                    <!-- 5. 売上管理 -->
-                    <Button Style="{StaticResource SidebarButtonStyle}">
-                        <StackPanel Orientation="Horizontal">
-                            <Path Fill="{Binding RelativeSource={RelativeSource AncestorType=Button}, Path=Foreground}"
-                                  Width="18" Height="18" Stretch="Uniform" Margin="0,0,12,0"
-                                  Data="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6h-6z M4 20h16v2H4z" />
-                            <TextBlock Text="売上管理" FontSize="13.5" FontWeight="Normal" VerticalAlignment="Center" />
-                        </StackPanel>
-                    </Button>
-
-                    <!-- 6. 在庫管理 -->
-                    <Button Style="{StaticResource SidebarButtonStyle}">
-                        <StackPanel Orientation="Horizontal">
-                            <Path Fill="{Binding RelativeSource={RelativeSource AncestorType=Button}, Path=Foreground}"
-                                  Width="18" Height="18" Stretch="Uniform" Margin="0,0,12,0"
-                                  Data="M12 2l8 4.5v9L12 20l-8-4.5v-9L12 2zm0 2.2L6 7.6l6 3.4 6-3.4-6-3.4z M5.5 9.1v6.2l5.5 3.1v-6.2L5.5 9.1zm13 0l-5.5 3.1v6.2l5.5-3.1V9.1z" />
-                            <TextBlock Text="在庫管理" FontSize="13.5" FontWeight="Normal" VerticalAlignment="Center" />
-                        </StackPanel>
-                    </Button>
-
-                    <!-- 7. マスタ管理 -->
-                    <Button Style="{StaticResource SidebarButtonStyle}">
-                        <StackPanel Orientation="Horizontal">
-                            <Path Fill="{Binding RelativeSource={RelativeSource AncestorType=Button}, Path=Foreground}"
-                                  Width="18" Height="18" Stretch="Uniform" Margin="0,0,12,0"
-                                  Data="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z" />
-                            <TextBlock Text="マスタ管理" FontSize="13.5" FontWeight="Normal" VerticalAlignment="Center" />
-                        </StackPanel>
-                    </Button>
-                </StackPanel>
-
-                <!-- Bottom: ログアウト -->
-                <Button x:Name="btn_Logout" Style="{StaticResource SidebarButtonStyle}" VerticalAlignment="Bottom" Click="btn_Logout_Click">
-                    <StackPanel Orientation="Horizontal">
-                        <Path Fill="{Binding RelativeSource={RelativeSource AncestorType=Button}, Path=Foreground}"
-                              Width="18" Height="18" Stretch="Uniform" Margin="0,0,12,0"
-                              Data="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z" />
-                        <TextBlock Text="ログアウト" FontSize="13.5" FontWeight="Normal" VerticalAlignment="Center" />
+                <!-- Sidebar Content Container -->
+                <Grid Margin="12,16,12,20">
+                    <!-- Top Navigation List -->
+                    <StackPanel VerticalAlignment="Top">
+                        <!-- 1. 顧客管理 (ACTIVE / SELECTED) -->
+                        <Button Style="{StaticResource SidebarActiveButtonStyle}">
+                            <StackPanel Orientation="Horizontal">
+                                <Path Fill="#FFFFFF" Width="18" Height="18" Stretch="Uniform" Margin="0,0,12,0"
+                                      Data="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z" />
+                                <TextBlock Text="顧客管理" FontSize="14" FontWeight="SemiBold" VerticalAlignment="Center" />
+                            </StackPanel>
+                        </Button>
                     </StackPanel>
-                </Button>
+
+                    <!-- Bottom: ログアウト -->
+                    <Button x:Name="btn_Logout" Style="{StaticResource SidebarButtonStyle}" VerticalAlignment="Bottom" Click="btn_Logout_Click">
+                        <StackPanel Orientation="Horizontal">
+                            <Path Fill="#E2E8F0" Width="18" Height="18" Stretch="Uniform" Margin="0,0,12,0"
+                                  Data="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z" />
+                            <TextBlock Text="ログアウト" FontSize="13.5" FontWeight="Normal" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
+                </Grid>
             </Grid>
 
             <!-- ==================================================== -->
-            <!-- Main Content Area with Rounded Top-Left Corner       -->
+            <!-- Main Content Area                                    -->
             <!-- ==================================================== -->
-            <Border Grid.Column="1" Background="#F4F7FC" CornerRadius="16,0,0,0">
+            <Grid Grid.Column="1">
+                <!-- Soft Ambient Background Gradient -->
+                <Grid.Background>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                        <GradientStop Color="#F4F8FD" Offset="0" />
+                        <GradientStop Color="#ECF2FB" Offset="1" />
+                    </LinearGradientBrush>
+                </Grid.Background>
+
                 <Grid>
                     <Grid.RowDefinitions>
                         <!-- Section Header Area -->
@@ -307,22 +301,22 @@
                     </Grid.RowDefinitions>
 
                     <!-- Section Header -->
-                    <StackPanel Grid.Row="0" Orientation="Horizontal" VerticalAlignment="Center" Margin="32,26,32,16">
+                    <StackPanel Grid.Row="0" Orientation="Horizontal" VerticalAlignment="Center" Margin="36,30,36,18">
                         <!-- Header Icon Badge (Circle) -->
-                        <Border Background="#E0EEFD" Width="52" Height="52" CornerRadius="26" Margin="0,0,16,0">
-                            <Path Fill="#1976D2" Width="26" Height="26" Stretch="Uniform"
+                        <Border Background="#DBEAFE" Width="54" Height="54" CornerRadius="27" Margin="0,0,16,0">
+                            <Path Fill="#2563EB" Width="26" Height="26" Stretch="Uniform"
                                   Data="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z" />
                         </Border>
 
                         <!-- Header Titles -->
                         <StackPanel VerticalAlignment="Center">
-                            <TextBlock Text="顧客管理" FontSize="24" FontWeight="Bold" Foreground="#0F172A" />
-                            <TextBlock Text="顧客の情報を管理する。" FontSize="12.5" Foreground="#64748B" Margin="0,4,0,0" />
+                            <TextBlock Text="顧客管理" FontSize="25" FontWeight="Bold" Foreground="#0F172A" />
+                            <TextBlock Text="顧客の情報を管理し、スムーズな取引をサポートします。" FontSize="13" Foreground="#64748B" Margin="0,5,0,0" />
                         </StackPanel>
                     </StackPanel>
 
-                    <!-- 3x2 Action Cards Grid -->
-                    <Grid Grid.Row="1" Margin="24,0,24,24">
+                    <!-- 3x2 Action Cards Grid (5 Cards matching screenshot layout) -->
+                    <Grid Grid.Row="1" Margin="26,0,36,30">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="*" />
@@ -341,17 +335,18 @@
                             <Grid>
                                 <StackPanel VerticalAlignment="Top">
                                     <!-- Circular Icon Badge -->
-                                    <Border Background="#E0EEFD" Width="44" Height="44" CornerRadius="22" HorizontalAlignment="Left" Margin="0,0,0,12">
-                                        <Path Fill="#1976D2" Width="20" Height="20" Stretch="Uniform"
+                                    <Border Background="#EFF6FF" Width="44" Height="44" CornerRadius="22" HorizontalAlignment="Left" Margin="0,0,0,14">
+                                        <Path Fill="#2563EB" Width="20" Height="20" Stretch="Uniform"
                                               Data="M15 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm-9-2V7H4v3H1v2h3v3h2v-3h3v-2H6zm9 4c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
                                     </Border>
-                                    <TextBlock Text="顧客登録" FontSize="17" FontWeight="Bold" Foreground="#1976D2" Margin="0,0,0,6" />
-                                    <TextBlock Text="入力された顧客情報を&#x0a;顧客テーブルに登録する。" FontSize="11.5" Foreground="#64748B" LineHeight="18" TextWrapping="Wrap" />
+                                    <TextBlock Text="顧客登録" FontSize="17.5" FontWeight="Bold" Foreground="#0F172A" Margin="0,0,0,8" />
+                                    <TextBlock Text="新しい顧客の情報を入力し、&#x0a;登録します。" FontSize="12" Foreground="#64748B" LineHeight="19" TextWrapping="Wrap" />
                                 </StackPanel>
 
-                                <!-- Bottom Right Action Chevron -->
+                                <!-- Bottom Right Action Circle Arrow Button -->
                                 <Border Style="{StaticResource CircleArrowButtonStyle}">
-                                    <Path Fill="#1976D2" Width="10" Height="10" Stretch="Uniform" Data="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z" />
+                                    <Path Fill="#2563EB" Width="13" Height="13" Stretch="Uniform"
+                                          Data="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z" />
                                 </Border>
                             </Grid>
                         </Border>
@@ -364,17 +359,18 @@
                             <Grid>
                                 <StackPanel VerticalAlignment="Top">
                                     <!-- Circular Icon Badge -->
-                                    <Border Background="#E0EEFD" Width="44" Height="44" CornerRadius="22" HorizontalAlignment="Left" Margin="0,0,0,12">
-                                        <Path Fill="#1976D2" Width="19" Height="19" Stretch="Uniform"
-                                              Data="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4zm7.25-1.71l-1.54-1.54c-.2-.2-.51-.2-.71 0l-1.25 1.25 2.25 2.25 1.25-1.25c.2-.2.2-.51 0-.71zM14.5 14.5l-4.5 4.5V21h2l4.5-4.5-2-2z" />
+                                    <Border Background="#EFF6FF" Width="44" Height="44" CornerRadius="22" HorizontalAlignment="Left" Margin="0,0,0,14">
+                                        <Path Fill="#2563EB" Width="19" Height="19" Stretch="Uniform"
+                                              Data="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" />
                                     </Border>
-                                    <TextBlock Text="顧客更新" FontSize="17" FontWeight="Bold" Foreground="#1976D2" Margin="0,0,0,6" />
-                                    <TextBlock Text="顧客テーブルにある顧客情報を&#x0a;更新する。" FontSize="11.5" Foreground="#64748B" LineHeight="18" TextWrapping="Wrap" />
+                                    <TextBlock Text="顧客更新" FontSize="17.5" FontWeight="Bold" Foreground="#0F172A" Margin="0,0,0,8" />
+                                    <TextBlock Text="既存の顧客情報を検索し、&#x0a;内容を編集・更新します。" FontSize="12" Foreground="#64748B" LineHeight="19" TextWrapping="Wrap" />
                                 </StackPanel>
 
-                                <!-- Bottom Right Action Chevron -->
+                                <!-- Bottom Right Action Circle Arrow Button -->
                                 <Border Style="{StaticResource CircleArrowButtonStyle}">
-                                    <Path Fill="#1976D2" Width="10" Height="10" Stretch="Uniform" Data="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z" />
+                                    <Path Fill="#2563EB" Width="13" Height="13" Stretch="Uniform"
+                                          Data="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z" />
                                 </Border>
                             </Grid>
                         </Border>
@@ -387,17 +383,18 @@
                             <Grid>
                                 <StackPanel VerticalAlignment="Top">
                                     <!-- Circular Icon Badge -->
-                                    <Border Background="#E0EEFD" Width="44" Height="44" CornerRadius="22" HorizontalAlignment="Left" Margin="0,0,0,12">
-                                        <Path Fill="#1976D2" Width="20" Height="20" Stretch="Uniform"
+                                    <Border Background="#EFF6FF" Width="44" Height="44" CornerRadius="22" HorizontalAlignment="Left" Margin="0,0,0,14">
+                                        <Path Fill="#2563EB" Width="19" Height="19" Stretch="Uniform"
                                               Data="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z" />
                                     </Border>
-                                    <TextBlock Text="顧客一覧表示" FontSize="17" FontWeight="Bold" Foreground="#1976D2" Margin="0,0,0,6" />
-                                    <TextBlock Text="登録されている顧客情報を&#x0a;一覧で表示する。" FontSize="11.5" Foreground="#64748B" LineHeight="18" TextWrapping="Wrap" />
+                                    <TextBlock Text="顧客一覧表示" FontSize="17.5" FontWeight="Bold" Foreground="#0F172A" Margin="0,0,0,8" />
+                                    <TextBlock Text="登録されている顧客情報を&#x0a;一覧で表示します。" FontSize="12" Foreground="#64748B" LineHeight="19" TextWrapping="Wrap" />
                                 </StackPanel>
 
-                                <!-- Bottom Right Action Chevron -->
+                                <!-- Bottom Right Action Circle Arrow Button -->
                                 <Border Style="{StaticResource CircleArrowButtonStyle}">
-                                    <Path Fill="#1976D2" Width="10" Height="10" Stretch="Uniform" Data="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z" />
+                                    <Path Fill="#2563EB" Width="13" Height="13" Stretch="Uniform"
+                                          Data="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z" />
                                 </Border>
                             </Grid>
                         </Border>
@@ -410,77 +407,52 @@
                             <Grid>
                                 <StackPanel VerticalAlignment="Top">
                                     <!-- Circular Icon Badge -->
-                                    <Border Background="#E0EEFD" Width="44" Height="44" CornerRadius="22" HorizontalAlignment="Left" Margin="0,0,0,12">
-                                        <Path Fill="#1976D2" Width="20" Height="20" Stretch="Uniform"
+                                    <Border Background="#EFF6FF" Width="44" Height="44" CornerRadius="22" HorizontalAlignment="Left" Margin="0,0,0,14">
+                                        <Path Fill="#2563EB" Width="19" Height="19" Stretch="Uniform"
                                               Data="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" />
                                     </Border>
-                                    <TextBlock Text="顧客検索" FontSize="17" FontWeight="Bold" Foreground="#1976D2" Margin="0,0,0,6" />
-                                    <TextBlock Text="入力された顧客情報を&#x0a;抽出する。" FontSize="11.5" Foreground="#64748B" LineHeight="18" TextWrapping="Wrap" />
+                                    <TextBlock Text="顧客検索" FontSize="17.5" FontWeight="Bold" Foreground="#0F172A" Margin="0,0,0,8" />
+                                    <TextBlock Text="顧客の名前またはIDで検索し、&#x0a;該当する情報を表示します。" FontSize="12" Foreground="#64748B" LineHeight="19" TextWrapping="Wrap" />
                                 </StackPanel>
 
-                                <!-- Bottom Right Action Chevron -->
+                                <!-- Bottom Right Action Circle Arrow Button -->
                                 <Border Style="{StaticResource CircleArrowButtonStyle}">
-                                    <Path Fill="#1976D2" Width="10" Height="10" Stretch="Uniform" Data="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z" />
+                                    <Path Fill="#2563EB" Width="13" Height="13" Stretch="Uniform"
+                                          Data="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z" />
                                 </Border>
                             </Grid>
                         </Border>
 
                         <!-- ============================================ -->
-                        <!-- Card 5: 顧客非表示（フラグ） (Row 1, Col 1)   -->
+                        <!-- Card 5: 顧客非表示 (フラグ) (Row 1, Col 1)    -->
                         <!-- ============================================ -->
                         <Border Grid.Row="1" Grid.Column="1" Style="{StaticResource ActionCardBorderStyle}"
                                 MouseLeftButtonUp="card_ClientHide_MouseLeftButtonUp">
                             <Grid>
                                 <StackPanel VerticalAlignment="Top">
                                     <!-- Circular Icon Badge -->
-                                    <Border Background="#E0EEFD" Width="44" Height="44" CornerRadius="22" HorizontalAlignment="Left" Margin="0,0,0,12">
-                                        <Path Fill="#1976D2" Width="20" Height="20" Stretch="Uniform"
+                                    <Border Background="#EFF6FF" Width="44" Height="44" CornerRadius="22" HorizontalAlignment="Left" Margin="0,0,0,14">
+                                        <Path Fill="#2563EB" Width="19" Height="19" Stretch="Uniform"
                                               Data="M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 3.44-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l2.16 2.16C10.74 7.13 11.35 7 12 7zM2 4.27l2.28 2.28.46.46C3.08 8.3 1.78 10.02 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3 .22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53-2.76 0-5-2.24-5-5 0-.79.2-1.53.53-2.2zm4.31-.78l3.15 3.15.02-.16c0-1.66-1.34-3-3-3l-.17.01z" />
                                     </Border>
-                                    <TextBlock Text="顧客非表示（フラグ）" FontSize="17" FontWeight="Bold" Foreground="#1976D2" Margin="0,0,0,6" />
-                                    <TextBlock Text="選択された項目の顧客管理フラグを&#x0a;０から２に更新する。" FontSize="11.5" Foreground="#64748B" LineHeight="18" TextWrapping="Wrap" />
+                                    <TextBlock Text="顧客非表示 (フラグ)" FontSize="17.5" FontWeight="Bold" Foreground="#0F172A" Margin="0,0,0,8" />
+                                    <TextBlock Text="選択された顧客の情報を&#x0a;非表示にします（論理削除）。" FontSize="12" Foreground="#64748B" LineHeight="19" TextWrapping="Wrap" />
                                 </StackPanel>
 
-                                <!-- Bottom Right Action Chevron -->
+                                <!-- Bottom Right Action Circle Arrow Button -->
                                 <Border Style="{StaticResource CircleArrowButtonStyle}">
-                                    <Path Fill="#1976D2" Width="10" Height="10" Stretch="Uniform" Data="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z" />
+                                    <Path Fill="#2563EB" Width="13" Height="13" Stretch="Uniform"
+                                          Data="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z" />
                                 </Border>
                             </Grid>
                         </Border>
 
-                        <!-- ============================================ -->
-                        <!-- Slot 6: Decorative Graphic (Row 1, Col 2)   -->
-                        <!-- ============================================ -->
-                        <Grid Grid.Row="1" Grid.Column="2" Margin="8" ClipToBounds="True">
-                            <!-- Background Soft Wave Circles -->
-                            <Canvas Width="200" Height="150" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                <!-- Outer faint halo -->
-                                <Ellipse Canvas.Left="15" Canvas.Top="5" Width="170" Height="140" Fill="#E6F0FC" Opacity="0.6" />
-                                <Ellipse Canvas.Left="30" Canvas.Top="15" Width="145" Height="125" Fill="#DCEBFA" Opacity="0.5" />
-
-                                <!-- Stylized Group of Avatars -->
-                                <!-- Left Avatar -->
-                                <Ellipse Canvas.Left="55" Canvas.Top="52" Width="24" Height="24" Fill="#6BA5E7" />
-                                <Path Canvas.Left="45" Canvas.Top="80" Fill="#6BA5E7" Data="M 10,0 C 0,0 -8,12 -8,28 L 28,28 C 28,12 20,0 10,0 Z" />
-
-                                <!-- Center Front Avatar (Larger) -->
-                                <Ellipse Canvas.Left="87" Canvas.Top="40" Width="28" Height="28" Fill="#5A98E2" />
-                                <Path Canvas.Left="75" Canvas.Top="74" Fill="#5A98E2" Data="M 12,0 C 0,0 -10,14 -10,34 L 34,34 C 34,14 24,0 12,0 Z" />
-
-                                <!-- Right Avatar -->
-                                <Ellipse Canvas.Left="123" Canvas.Top="52" Width="24" Height="24" Fill="#6BA5E7" />
-                                <Path Canvas.Left="113" Canvas.Top="80" Fill="#6BA5E7" Data="M 10,0 C 0,0 -8,12 -8,28 L 28,28 C 28,12 20,0 10,0 Z" />
-
-                                <!-- Floating Round Badge with Plus Symbol -->
-                                <Ellipse Canvas.Left="130" Canvas.Top="84" Width="34" Height="34" Fill="#5B9BD5" />
-                                <Path Canvas.Left="141" Canvas.Top="95" Stroke="#FFFFFF" StrokeThickness="2.5" StrokeStartLineCap="Round" StrokeEndLineCap="Round"
-                                      Data="M 6,0 L 6,12 M 0,6 L 12,6" />
-                            </Canvas>
-                        </Grid>
+                        <!-- Slot 6: Empty matching screenshot -->
+                        <Grid Grid.Row="1" Grid.Column="2" />
 
                     </Grid>
                 </Grid>
-            </Border>
+            </Grid>
         </Grid>
 
         <!-- ======================================================== -->
@@ -750,8 +722,8 @@
                             </Grid>
                         </Border>
 
-                        <!-- Hidden flag checkbox -->
-                        <CheckBox x:Name="chk_ListIncludeHidden" Grid.Column="1" Content="非表示項目(フラグ2)も含める" VerticalAlignment="Center" Margin="0,0,12,0" FontSize="12" Click="chk_ListIncludeHidden_Click" />
+                        <!-- Hidden flag checkbox (defaults to False to show ONLY active records flag=0) -->
+                        <CheckBox x:Name="chk_ListIncludeHidden" Grid.Column="1" Content="非表示項目(フラグ2)も含める" IsChecked="False" VerticalAlignment="Center" Margin="0,0,12,0" FontSize="12" Click="chk_ListIncludeHidden_Click" />
 
                         <!-- Refresh button -->
                         <Button Grid.Column="2" Content="再読み込み" Height="36" Padding="14,0" Background="#1976D2" Foreground="#FFFFFF" FontWeight="SemiBold" FontSize="12.5" Cursor="Hand" Click="btn_ListRefresh_Click" />

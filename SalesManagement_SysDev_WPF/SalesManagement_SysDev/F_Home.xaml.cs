@@ -40,6 +40,17 @@ namespace SalesManagement_SysDev
                 string positionName = _loggedInEmployee.Po?.PoName ?? $"役職 #{_loggedInEmployee.PoId}";
 
                 txt_UserDetail.Text = $"所属: {officeName} ｜ 役職: {positionName} ｜ 社員ID: {_loggedInEmployee.EmId}";
+
+                if (txt_UserRoleDisplay != null)
+                {
+                    txt_UserRoleDisplay.Text = !string.IsNullOrEmpty(_loggedInEmployee.Po?.PoName)
+                        ? _loggedInEmployee.Po.PoName
+                        : "管理者";
+                }
+            }
+            else if (txt_UserRoleDisplay != null)
+            {
+                txt_UserRoleDisplay.Text = "管理者";
             }
         }
 
@@ -292,7 +303,7 @@ namespace SalesManagement_SysDev
         private void OpenClientListModal()
         {
             txt_ListFilterKeyword.Text = "";
-            chk_ListIncludeHidden.IsChecked = true;
+            chk_ListIncludeHidden.IsChecked = false;
             modal_ClientList.Visibility = Visibility.Visible;
             LoadClientList();
         }
@@ -669,7 +680,7 @@ namespace SalesManagement_SysDev
             }
             string? phone = string.IsNullOrWhiteSpace(srch_txt_ClPhone.Text) ? null : srch_txt_ClPhone.Text.Trim();
 
-            var results = _clientService.SearchClients(clId, name, soId, phone, includeHidden: true);
+            var results = _clientService.SearchClients(clId, name, soId, phone, includeHidden: false);
             var displayList = results.Select(c => ToDisplayModel(c)).ToList();
             dg_ClientSearchResults.ItemsSource = displayList;
             srch_txt_Count.Text = $"抽出件数: {displayList.Count} 件";

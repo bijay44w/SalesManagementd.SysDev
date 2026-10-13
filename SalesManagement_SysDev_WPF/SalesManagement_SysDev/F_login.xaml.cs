@@ -162,8 +162,8 @@ namespace SalesManagement_SysDev
 
                 if (employee == null)
                 {
-                    _failedAttempts++;
-                    CheckFailedAttempts(idInput, "指定された社員IDは登録されていません。");
+                    ShowError($"社員ID「{idInput}」はデータベースに登録されていません。\n実在する社員番号を入力してください。");
+                    txt_EmployeeId.Focus();
                     return;
                 }
 
@@ -176,7 +176,7 @@ namespace SalesManagement_SysDev
                 if (employee.EmPassword != passwordInput)
                 {
                     _failedAttempts++;
-                    CheckFailedAttempts(idInput, "パスワードが正しくありません。");
+                    CheckFailedAttempts(idInput, "パスワードがデータベースの登録情報と一致しません。");
                     return;
                 }
 
