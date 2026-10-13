@@ -11,6 +11,7 @@ namespace SalesManagement_SysDev
     public partial class F_login : Window
     {
         private bool _isPasswordRevealed = false;
+        private bool _isResetCurrentPasswordRevealed = false;
         private bool _isNewPasswordRevealed = false;
         private bool _isConfirmPasswordRevealed = false;
 
@@ -254,6 +255,10 @@ namespace SalesManagement_SysDev
             watermark_ResetId.Visibility = string.IsNullOrEmpty(prefilledId) ? Visibility.Visible : Visibility.Collapsed;
 
             // Clear password fields
+            txt_ResetCurrentPassword.Password = "";
+            txt_ResetCurrentPasswordRevealed.Text = "";
+            watermark_ResetCurrentPassword.Visibility = Visibility.Visible;
+
             txt_NewPassword.Password = "";
             txt_NewPasswordRevealed.Text = "";
             watermark_NewPassword.Visibility = Visibility.Visible;
@@ -271,7 +276,7 @@ namespace SalesManagement_SysDev
             }
             else
             {
-                txt_NewPassword.Focus();
+                txt_ResetCurrentPassword.Focus();
             }
         }
 
@@ -315,6 +320,76 @@ namespace SalesManagement_SysDev
                     : Visibility.Collapsed;
             }
             ClearResetError();
+        }
+
+        // Current Password Field Events (Reset view)
+        private void txt_ResetCurrentPassword_PasswordChanged(object sender, RoutedEventArgs e)
+        {
+            if (!_isResetCurrentPasswordRevealed && watermark_ResetCurrentPassword != null)
+            {
+                watermark_ResetCurrentPassword.Visibility = string.IsNullOrEmpty(txt_ResetCurrentPassword.Password)
+                    ? Visibility.Visible
+                    : Visibility.Collapsed;
+            }
+            ClearResetError();
+        }
+
+        private void txt_ResetCurrentPassword_GotFocus(object sender, RoutedEventArgs e)
+        {
+            border_ResetCurrentPassword.BorderBrush = _focusBorderBrush;
+        }
+
+        private void txt_ResetCurrentPassword_LostFocus(object sender, RoutedEventArgs e)
+        {
+            border_ResetCurrentPassword.BorderBrush = _normalBorderBrush;
+        }
+
+        private void txt_ResetCurrentPasswordRevealed_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (_isResetCurrentPasswordRevealed && watermark_ResetCurrentPassword != null)
+            {
+                watermark_ResetCurrentPassword.Visibility = string.IsNullOrEmpty(txt_ResetCurrentPasswordRevealed.Text)
+                    ? Visibility.Visible
+                    : Visibility.Collapsed;
+            }
+            ClearResetError();
+        }
+
+        private void txt_ResetCurrentPasswordRevealed_GotFocus(object sender, RoutedEventArgs e)
+        {
+            border_ResetCurrentPassword.BorderBrush = _focusBorderBrush;
+        }
+
+        private void txt_ResetCurrentPasswordRevealed_LostFocus(object sender, RoutedEventArgs e)
+        {
+            border_ResetCurrentPassword.BorderBrush = _normalBorderBrush;
+        }
+
+        private void btn_ToggleResetCurrentPasswordVisibility_Click(object sender, RoutedEventArgs e)
+        {
+            _isResetCurrentPasswordRevealed = !_isResetCurrentPasswordRevealed;
+
+            if (_isResetCurrentPasswordRevealed)
+            {
+                txt_ResetCurrentPasswordRevealed.Text = txt_ResetCurrentPassword.Password;
+                txt_ResetCurrentPassword.Visibility = Visibility.Collapsed;
+                txt_ResetCurrentPasswordRevealed.Visibility = Visibility.Visible;
+                txt_ResetCurrentPasswordRevealed.Focus();
+                txt_ResetCurrentPasswordRevealed.CaretIndex = txt_ResetCurrentPasswordRevealed.Text.Length;
+                watermark_ResetCurrentPassword.Visibility = string.IsNullOrEmpty(txt_ResetCurrentPasswordRevealed.Text)
+                    ? Visibility.Visible
+                    : Visibility.Collapsed;
+            }
+            else
+            {
+                txt_ResetCurrentPassword.Password = txt_ResetCurrentPasswordRevealed.Text;
+                txt_ResetCurrentPasswordRevealed.Visibility = Visibility.Collapsed;
+                txt_ResetCurrentPassword.Visibility = Visibility.Visible;
+                txt_ResetCurrentPassword.Focus();
+                watermark_ResetCurrentPassword.Visibility = string.IsNullOrEmpty(txt_ResetCurrentPassword.Password)
+                    ? Visibility.Visible
+                    : Visibility.Collapsed;
+            }
         }
 
         private void txt_NewPassword_GotFocus(object sender, RoutedEventArgs e)
@@ -451,6 +526,7 @@ namespace SalesManagement_SysDev
             ClearResetError();
 
             string idInput = txt_ResetEmployeeId.Text.Trim();
+            string currentPassword = _isResetCurrentPasswordRevealed ? txt_ResetCurrentPasswordRevealed.Text : txt_ResetCurrentPassword.Password;
             string newPassword = _isNewPasswordRevealed ? txt_NewPasswordRevealed.Text : txt_NewPassword.Password;
             string confirmPassword = _isConfirmPasswordRevealed ? txt_ConfirmPasswordRevealed.Text : txt_ConfirmPassword.Password;
 
@@ -469,9 +545,31 @@ namespace SalesManagement_SysDev
                 return;
             }
 
+            if (string.IsNullOrEmpty(currentPassword))
+            {
+                ShowResetError("現在のパスワードを入力してください。");
+                if (_isResetCurrentPasswordRevealed) txt_ResetCurrentPasswordRevealed.Focus(); else txt_ResetCurrentPassword.Focus();
+                return;
+            }
+
             if (string.IsNullOrEmpty(newPassword))
             {
                 ShowResetError("新しいパスワードを入力してください。");
+                if (_isNewPasswordRevealed) txt_NewPasswordRevealed.Focus(); else txt_NewPassword.Focus();
+                return;
+            }
+
+            // パスワードの規定チェック: 4〜10文字 (データベース EmPassword の最大桁数は10)
+            if (newPassword.Length < 4 || newPassword.Length > 10)
+            {
+                ShowResetError("新しいパスワードは4文字以上10文字以内で入力してください。");
+                if (_isNewPasswordRevealed) txt_NewPasswordRevealed.Focus(); else txt_NewPassword.Focus();
+                return;
+            }
+
+            if (newPassword == currentPassword)
+            {
+                ShowResetError("新しいパスワードは現在のパスワードと異なるものを入力してください。");
                 if (_isNewPasswordRevealed) txt_NewPasswordRevealed.Focus(); else txt_NewPassword.Focus();
                 return;
             }
@@ -509,6 +607,14 @@ namespace SalesManagement_SysDev
                 if (employee.EmFlag != 0)
                 {
                     ShowResetError("この社員アカウントは無効化されています。管理者にご確認ください。");
+                    return;
+                }
+
+                // 現在のパスワードの照合
+                if (employee.EmPassword != currentPassword)
+                {
+                    ShowResetError("現在のパスワードが正しくありません。");
+                    if (_isResetCurrentPasswordRevealed) txt_ResetCurrentPasswordRevealed.Focus(); else txt_ResetCurrentPassword.Focus();
                     return;
                 }
 

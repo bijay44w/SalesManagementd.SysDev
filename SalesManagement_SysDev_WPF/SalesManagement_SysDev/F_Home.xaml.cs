@@ -200,6 +200,14 @@ namespace SalesManagement_SysDev
                 return;
             }
 
+            // パスワードの規定チェック: 4〜10文字 (データベース EmPassword の最大桁数は10)
+            if (newPass.Length < 4 || newPass.Length > 10)
+            {
+                ShowModalError("新しいパスワードは4文字以上10文字以内で入力してください。");
+                if (_isNewRevealed) txt_ModalNewPasswordRevealed.Focus(); else txt_ModalNewPassword.Focus();
+                return;
+            }
+
             if (newPass == curPass)
             {
                 ShowModalError("新しいパスワードは現在のパスワードと異なるものを入力してください。");
