@@ -5,7 +5,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 
- // test 
+// test 
 
 namespace SalesManagement_SysDev
 {
@@ -35,7 +35,7 @@ namespace SalesManagement_SysDev
         {
             if (_loggedInEmployee != null)
             {
-                txt_UserDisplay.Text = $"{_loggedInEmployee.EmName} 様";　
+                txt_UserDisplay.Text = $"{_loggedInEmployee.EmName} 様";
                 txt_Welcome.Text = $"ようこそ、{_loggedInEmployee.EmName} 様";
 
                 string officeName = _loggedInEmployee.So?.SoName ?? $"営業所 #{_loggedInEmployee.SoId}";
@@ -872,23 +872,50 @@ namespace SalesManagement_SysDev
         }
 
         #endregion
-    }
 
-    /// <summary>
-    /// UI binding model for client DataGrid views
-    /// </summary>
-    public class ClientDisplayModel
-    {
-        public int ClId { get; set; }
-        public string ClName { get; set; } = "";
-        public int SoId { get; set; }
-        public string SoName { get; set; } = "";
-        public string ClPostal { get; set; } = "";
-        public string ClAddress { get; set; } = "";
-        public string ClPhone { get; set; } = "";
-        public string ClFax { get; set; } = "";
-        public int ClFlag { get; set; }
-        public string FlagDisplay => ClFlag == 2 ? "非表示 (2)" : "通常 (0)";
-        public string ClHidden { get; set; } = "";
+
+
+
+        private void MenuButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is not Button button)
+                return;
+
+            string tag = button.Tag?.ToString() ?? "";
+
+            switch (tag)
+            {
+                case "03": // 顧客管理
+                    MainContentArea.Content = null;
+                    MainContentArea.Visibility = Visibility.Collapsed;
+                    CustomerContent.Visibility = Visibility.Visible;
+                    break;
+
+                case "04": // 商品管理
+                    CustomerContent.Visibility = Visibility.Collapsed;
+                    MainContentArea.Content = new Product();
+                    MainContentArea.Visibility = Visibility.Visible;
+                    break;
+            }
+        }
+
+        /// <summary>
+        /// UI binding model for client DataGrid views
+        /// </summary>
+        public class ClientDisplayModel
+        {
+            public int ClId { get; set; }
+            public string ClName { get; set; } = "";
+            public int SoId { get; set; }
+            public string SoName { get; set; } = "";
+            public string ClPostal { get; set; } = "";
+            public string ClAddress { get; set; } = "";
+            public string ClPhone { get; set; } = "";
+            public string ClFax { get; set; } = "";
+            public int ClFlag { get; set; }
+            public string FlagDisplay => ClFlag == 2 ? "非表示 (2)" : "通常 (0)";
+            public string ClHidden { get; set; } = "";
+        }
     }
 }
+
