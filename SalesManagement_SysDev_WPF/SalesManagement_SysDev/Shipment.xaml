@@ -77,9 +77,9 @@
             </Grid.RowDefinitions>
 
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="259"/>
+                <ColumnDefinition Width="260"/>
+                <ColumnDefinition Width="259"/>
             </Grid.ColumnDefinitions>
 
             <!-- 出荷登録 -->
