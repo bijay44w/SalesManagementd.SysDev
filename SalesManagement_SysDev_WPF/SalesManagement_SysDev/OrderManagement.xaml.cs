@@ -15,7 +15,7 @@ using System.Windows.Shapes;
 
 namespace SalesManagement_SysDev
 {
-    /// <summary>
+    /// <summary> //
     /// OrderManagement.xaml の相互作用ロジック
     /// </summary>
     public partial class OrderManagement : UserControl
