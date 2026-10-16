@@ -37,13 +37,8 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="border"
-                                  Property="Background"
-                                  Value="#285BB0" />
-                                <Setter Property="Foreground"
-                                        Value="#FFFFFF" />
-                                
-                            
+                                <Setter TargetName="border" Property="Background" Value="#F1F5F9" />
+                                <Setter Property="Foreground" Value="#0F172A" />
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
                                 <Setter TargetName="border" Property="Background" Value="#E2E8F0" />
@@ -267,7 +262,7 @@
                     <StackPanel VerticalAlignment="Top">
 
                         <!-- 1. 顧客管理 -->
-                        <Button Style="{StaticResource SidebarActiveButtonStyle}"
+                        <Button Style="{StaticResource SidebarButtonStyle}"
                              Click="MenuButton_Click"
                              Tag="03">
                            <StackPanel Orientation="Horizontal">
@@ -281,8 +276,7 @@
                                <TextBlock Text="顧客管理"
                                     FontSize="14"
                                     FontWeight="SemiBold"
-                                    VerticalAlignment="Center"
-                                    
+                                    VerticalAlignment="Center" 
                                />
                            </StackPanel>
                         </Button>
@@ -1315,7 +1309,7 @@
                         <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
                     <Button Grid.Column="0" Content="キャンセル" Height="40" Background="#F1F5F9" Foreground="#334155" FontWeight="SemiBold" Margin="0,0,6,0" Cursor="Hand" Click="btn_CloseClientHide_Click" />
-                   <Button Grid.Column="1" Content="フラグを 2 に更新" Height="40" Background="#DC2626" Foreground="#FFFFFF" FontWeight="Bold" Margin="6,0,0,0" Cursor="Hand" Click="btn_ExecuteClientHide_Click" />
+                    <Button Grid.Column="1" Content="フラグを 2 に更新" Height="40" Background="#DC2626" Foreground="#FFFFFF" FontWeight="Bold" Margin="6,0,0,0" Cursor="Hand" Click="btn_ExecuteClientHide_Click" />
                 </Grid>
             </StackPanel>
         </Border>
