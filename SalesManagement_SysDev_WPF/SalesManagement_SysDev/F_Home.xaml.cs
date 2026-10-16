@@ -4,7 +4,6 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using System.Windows.Media;
 
 // test 
 
@@ -890,22 +889,12 @@ namespace SalesManagement_SysDev
             if (sender is not Button button)
                 return;
 
-            // すべてのメニューを通常のスタイルに戻す
-            foreach (var item in FindVisualChildren<Button>(this))
-            {
-                if (item.Tag != null)
-                {
-                    item.Style = (Style)FindResource("SidebarButtonStyle");
-                }
-            }
-
-            // クリックしたメニューを選択状態にする
-            button.Style = (Style)FindResource("SidebarActiveButtonStyle");
-
             string tag = button.Tag?.ToString() ?? "";
 
             switch (tag)
             {
+
+
                 case "03": // 顧客管理
                     CustomerContent.Visibility = Visibility.Collapsed;
 
@@ -921,6 +910,7 @@ namespace SalesManagement_SysDev
                     MainContentArea.Visibility = Visibility.Visible;
                     break;
 
+
                 case "04": // 商品管理
                     CustomerContent.Visibility = Visibility.Collapsed;
                     MainContentArea.Content = new Product();
@@ -932,7 +922,7 @@ namespace SalesManagement_SysDev
                     MainContentArea.Content = new Inventory();
                     MainContentArea.Visibility = Visibility.Visible;
                     break;
-
+               
                 case "06": // 社員管理
                     CustomerContent.Visibility = Visibility.Collapsed;
                     MainContentArea.Content = new Employee();
@@ -963,48 +953,29 @@ namespace SalesManagement_SysDev
                     MainContentArea.Visibility = Visibility.Visible;
                     break;
 
-                case "11": // 入庫管理
+                case "11": // 入庫管理 
                     CustomerContent.Visibility = Visibility.Collapsed;
                     MainContentArea.Content = new Receiving();
                     MainContentArea.Visibility = Visibility.Visible;
                     break;
 
-                case "12": // 出庫管理
+                case "12": // 出庫管理 
                     CustomerContent.Visibility = Visibility.Collapsed;
                     MainContentArea.Content = new Shipping();
                     MainContentArea.Visibility = Visibility.Visible;
                     break;
 
-                case "13": // 入荷管理
+                case "13": // 入荷管理 
                     CustomerContent.Visibility = Visibility.Collapsed;
                     MainContentArea.Content = new Arrival();
                     MainContentArea.Visibility = Visibility.Visible;
                     break;
 
-                case "14": // 出荷管理
+                case "14": // 出荷管理 
                     CustomerContent.Visibility = Visibility.Collapsed;
                     MainContentArea.Content = new Shipment();
                     MainContentArea.Visibility = Visibility.Visible;
                     break;
-            }
-        }
-
-        // 指定した要素の中にある Button を取得する
-        private static IEnumerable<T> FindVisualChildren<T>(
-            DependencyObject parent) where T : DependencyObject
-        {
-            if (parent == null)
-                yield break;
-
-            for (int i = 0; i < VisualTreeHelper.GetChildrenCount(parent); i++)
-            {
-                DependencyObject child = VisualTreeHelper.GetChild(parent, i);
-
-                if (child is T target)
-                    yield return target;
-
-                foreach (T descendant in FindVisualChildren<T>(child))
-                    yield return descendant;
             }
         }
 
