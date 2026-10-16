@@ -22,7 +22,7 @@ namespace SalesManagement_SysDev
     {
         public OrderManagement()
         {
-            InitializeComponent();
+            InitializeComponent();//
         }
     }
 }
