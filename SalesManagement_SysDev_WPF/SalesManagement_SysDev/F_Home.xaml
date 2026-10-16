@@ -262,7 +262,7 @@
                     <StackPanel VerticalAlignment="Top">
 
                         <!-- 1. 顧客管理 -->
-                        <Button Style="{StaticResource SidebarButtonStyle}"
+                        <Button Style="{StaticResource SidebarActiveButtonStyle}"
                              Click="MenuButton_Click"
                              Tag="03">
                             <StackPanel Orientation="Horizontal">
