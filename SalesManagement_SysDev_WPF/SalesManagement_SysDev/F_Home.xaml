@@ -265,7 +265,7 @@
                         <Button Style="{StaticResource SidebarButtonStyle}"
                              Click="MenuButton_Click"
                              Tag="03">
-                           <StackPanel Orientation="Horizontal">
+                            <StackPanel Orientation="Horizontal">
                                 <Path Fill="#FFFFFF"
                                       Width="18"
                                       Height="18"
@@ -273,12 +273,12 @@
                                       Margin="0,0,12,0"
                                      Data="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z" 
                                 />
-                               <TextBlock Text="顧客管理"
+                                <TextBlock Text="顧客管理"
                                     FontSize="14"
                                     FontWeight="SemiBold"
                                     VerticalAlignment="Center" 
                                />
-                           </StackPanel>
+                            </StackPanel>
                         </Button>
 
                         <!-- 商品管理 -->
@@ -299,7 +299,7 @@
                             </StackPanel>
                         </Button>
 
-                        
+
                         <!-- 在庫管理 -->
                         <Button Style="{StaticResource SidebarButtonStyle}"
                                 Click="MenuButton_Click"
@@ -316,9 +316,9 @@
                                       FontWeight="SemiBold"
                                       VerticalAlignment="Center"
                                  />
-                               </StackPanel>
+                            </StackPanel>
                         </Button>
-                       
+
 
 
                         <!-- 06. 社員管理 -->
@@ -462,9 +462,9 @@
                     <!-- 3x2 Action Cards Grid (5 Cards matching screenshot layout) -->
                     <Grid Grid.Row="1" Margin="26,0,36,30">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="259*" />
+                            <ColumnDefinition Width="260*" />
+                            <ColumnDefinition Width="259*" />
                         </Grid.ColumnDefinitions>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="*" />
@@ -475,7 +475,7 @@
                         <!-- Card 1: 顧客登録 (Row 0, Col 0)             -->
                         <!-- ============================================ -->
                         <Border Grid.Row="0" Grid.Column="0" Style="{StaticResource ActionCardBorderStyle}"
-                                MouseLeftButtonUp="card_ClientRegister_MouseLeftButtonUp">
+                                MouseLeftButtonUp="card_ClientRegister_MouseLeftButtonUp" Margin="8,8,8,8">
                             <Grid>
                                 <StackPanel VerticalAlignment="Top">
                                     <!-- Circular Icon Badge -->
@@ -499,12 +499,12 @@
                         <!-- Card 2: 顧客更新 (Row 0, Col 1)             -->
                         <!-- ============================================ -->
                         <Border Grid.Row="0" Grid.Column="1" Style="{StaticResource ActionCardBorderStyle}"
-                                MouseLeftButtonUp="card_ClientUpdate_MouseLeftButtonUp">
+                                MouseLeftButtonUp="card_ClientUpdate_MouseLeftButtonUp" Margin="8,8,8,8">
                             <Grid>
                                 <StackPanel VerticalAlignment="Top">
                                     <!-- Circular Icon Badge -->
                                     <Border Background="#EFF6FF" Width="44" Height="44" CornerRadius="22" HorizontalAlignment="Left" Margin="0,0,0,14">
-                                        <Path Fill="#2563EB" Width="19" Height="19" Stretch="Uniform"
+                                        <Path Fill="#2563EB" Width="20" Height="20" Stretch="Uniform"
                                               Data="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" />
                                     </Border>
                                     <TextBlock Text="顧客更新" FontSize="17.5" FontWeight="Bold" Foreground="#0F172A" Margin="0,0,0,8" />
@@ -522,13 +522,13 @@
                         <!-- ============================================ -->
                         <!-- Card 3: 顧客一覧表示 (Row 0, Col 2)         -->
                         <!-- ============================================ -->
-                        <Border Grid.Row="0" Grid.Column="2" Style="{StaticResource ActionCardBorderStyle}"
-                                MouseLeftButtonUp="card_ClientList_MouseLeftButtonUp">
+                        <Border Grid.Row="0" shell:Grid.Column="2" Style="{StaticResource ActionCardBorderStyle}"
+                                MouseLeftButtonUp="card_ClientList_MouseLeftButtonUp" Margin="8,8,8,8">
                             <Grid>
                                 <StackPanel VerticalAlignment="Top">
                                     <!-- Circular Icon Badge -->
                                     <Border Background="#EFF6FF" Width="44" Height="44" CornerRadius="22" HorizontalAlignment="Left" Margin="0,0,0,14">
-                                        <Path Fill="#2563EB" Width="19" Height="19" Stretch="Uniform"
+                                        <Path Fill="#2563EB" Width="20" Height="20" Stretch="Uniform"
                                               Data="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z" />
                                     </Border>
                                     <TextBlock Text="顧客一覧表示" FontSize="17.5" FontWeight="Bold" Foreground="#0F172A" Margin="0,0,0,8" />
@@ -547,12 +547,12 @@
                         <!-- Card 4: 顧客検索 (Row 1, Col 0)             -->
                         <!-- ============================================ -->
                         <Border Grid.Row="1" Grid.Column="0" Style="{StaticResource ActionCardBorderStyle}"
-                                MouseLeftButtonUp="card_ClientSearch_MouseLeftButtonUp">
+                                MouseLeftButtonUp="card_ClientSearch_MouseLeftButtonUp" Margin="8,8,8,8">
                             <Grid>
                                 <StackPanel VerticalAlignment="Top">
                                     <!-- Circular Icon Badge -->
                                     <Border Background="#EFF6FF" Width="44" Height="44" CornerRadius="22" HorizontalAlignment="Left" Margin="0,0,0,14">
-                                        <Path Fill="#2563EB" Width="19" Height="19" Stretch="Uniform"
+                                        <Path Fill="#2563EB" Width="20" Height="20" Stretch="Uniform"
                                               Data="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" />
                                     </Border>
                                     <TextBlock Text="顧客検索" FontSize="17.5" FontWeight="Bold" Foreground="#0F172A" Margin="0,0,0,8" />
@@ -571,12 +571,12 @@
                         <!-- Card 5: 顧客非表示 (フラグ) (Row 1, Col 1)    -->
                         <!-- ============================================ -->
                         <Border Grid.Row="1" Grid.Column="1" Style="{StaticResource ActionCardBorderStyle}"
-                                MouseLeftButtonUp="card_ClientHide_MouseLeftButtonUp">
+                                MouseLeftButtonUp="card_ClientHide_MouseLeftButtonUp" Margin="8,8,8,8">
                             <Grid>
                                 <StackPanel VerticalAlignment="Top">
                                     <!-- Circular Icon Badge -->
                                     <Border Background="#EFF6FF" Width="44" Height="44" CornerRadius="22" HorizontalAlignment="Left" Margin="0,0,0,14">
-                                        <Path Fill="#2563EB" Width="19" Height="19" Stretch="Uniform"
+                                        <Path Fill="#2563EB" Width="20" Height="20" Stretch="Uniform"
                                               Data="M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 3.44-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l2.16 2.16C10.74 7.13 11.35 7 12 7zM2 4.27l2.28 2.28.46.46C3.08 8.3 1.78 10.02 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3 .22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53-2.76 0-5-2.24-5-5 0-.79.2-1.53.53-2.2zm4.31-.78l3.15 3.15.02-.16c0-1.66-1.34-3-3-3l-.17.01z" />
                                     </Border>
                                     <TextBlock Text="顧客非表示 (フラグ)" FontSize="17.5" FontWeight="Bold" Foreground="#0F172A" Margin="0,0,0,8" />
@@ -592,7 +592,7 @@
                         </Border>
 
                         <!-- Slot 6: Empty matching screenshot -->
-                        <Grid Grid.Row="1" Grid.Column="2" />
+                        <Grid shell:Grid.Column="2" Margin="0,256,0,0" shell:Grid.RowSpan="2" />
 
                     </Grid>
                 </Grid>
@@ -1232,87 +1232,87 @@
         <!-- ======================================================== -->
         <!-- 3.5 Modal: 顧客非表示 (フラグ更新 0 -> 2)                -->
         <!-- ======================================================== -->
-    <Grid x:Name="modal_ClientHide" Grid.RowSpan="2" Visibility="Collapsed" Panel.ZIndex="1005">
-        <Border Background="#66000000" MouseLeftButtonDown="modal_ClientHide_Backdrop_MouseLeftButtonDown" />
-        <Border Width="480" Background="#FFFFFF" CornerRadius="16" BorderBrush="#E2E8F0" BorderThickness="1" Padding="28,24" HorizontalAlignment="Center" VerticalAlignment="Center">
-            <Border.Effect>
-                <DropShadowEffect Color="#000000" Opacity="0.15" BlurRadius="30" ShadowDepth="8" Direction="270" />
-            </Border.Effect>
-            <StackPanel>
-                <!-- Header -->
-                <Grid Margin="0,0,0,16">
-                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <Border Background="#EFF6FF" CornerRadius="10" Width="40" Height="40" Margin="0,0,12,0">
-                            <Path Fill="#1976D2" Width="20" Height="20" Stretch="Uniform"
+        <Grid x:Name="modal_ClientHide" Grid.RowSpan="2" Visibility="Collapsed" Panel.ZIndex="1005">
+            <Border Background="#66000000" MouseLeftButtonDown="modal_ClientHide_Backdrop_MouseLeftButtonDown" />
+            <Border Width="480" Background="#FFFFFF" CornerRadius="16" BorderBrush="#E2E8F0" BorderThickness="1" Padding="28,24" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <Border.Effect>
+                    <DropShadowEffect Color="#000000" Opacity="0.15" BlurRadius="30" ShadowDepth="8" Direction="270" />
+                </Border.Effect>
+                <StackPanel>
+                    <!-- Header -->
+                    <Grid Margin="0,0,0,16">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <Border Background="#EFF6FF" CornerRadius="10" Width="40" Height="40" Margin="0,0,12,0">
+                                <Path Fill="#1976D2" Width="20" Height="20" Stretch="Uniform"
                                       Data="M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 3.44-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l2.16 2.16C10.74 7.13 11.35 7 12 7zM2 4.27l2.28 2.28.46.46C3.08 8.3 1.78 10.02 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3 .22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53-2.76 0-5-2.24-5-5 0-.79.2-1.53.53-2.2zm4.31-.78l3.15 3.15.02-.16c0-1.66-1.34-3-3-3l-.17.01z" />
-                        </Border>
-                        <StackPanel VerticalAlignment="Center">
-                            <TextBlock Text="3.5 顧客非表示（フラグ）" FontSize="18" FontWeight="Bold" Foreground="#1E293B" />
-                            <TextBlock Text="選択された項目の顧客管理フラグを0から2に更新します。" FontSize="11" Foreground="#64748B" />
+                            </Border>
+                            <StackPanel VerticalAlignment="Center">
+                                <TextBlock Text="3.5 顧客非表示（フラグ）" FontSize="18" FontWeight="Bold" Foreground="#1E293B" />
+                                <TextBlock Text="選択された項目の顧客管理フラグを0から2に更新します。" FontSize="11" Foreground="#64748B" />
+                            </StackPanel>
                         </StackPanel>
+                        <Button HorizontalAlignment="Right" VerticalAlignment="Top" Width="32" Height="32" Background="#F1F5F9" BorderThickness="0" Cursor="Hand" Click="btn_CloseClientHide_Click">
+                            <TextBlock Text="✕" FontSize="14" FontWeight="Bold" Foreground="#64748B" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Button>
+                    </Grid>
+
+                    <!-- Alert Banners -->
+                    <Border x:Name="border_HideErrorAlert" Background="#FEF2F2" BorderBrush="#FECACA" BorderThickness="1" CornerRadius="6" Padding="10,8" Margin="0,0,0,10" Visibility="Collapsed">
+                        <TextBlock x:Name="txt_HideErrorMessage" Foreground="#B91C1C" FontSize="12" FontWeight="SemiBold" TextWrapping="Wrap" />
+                    </Border>
+                    <Border x:Name="border_HideSuccessAlert" Background="#F0FDF4" BorderBrush="#BBF7D0" BorderThickness="1" CornerRadius="6" Padding="10,8" Margin="0,0,0,10" Visibility="Collapsed">
+                        <TextBlock x:Name="txt_HideSuccessMessage" Foreground="#15803D" FontSize="12" FontWeight="SemiBold" TextWrapping="Wrap" />
+                    </Border>
+
+                    <!-- Selection by ID -->
+                    <Border Background="#F8FAFC" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="8" Padding="12,10" Margin="0,0,0,14">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="対象顧客ID:" FontSize="12.5" FontWeight="SemiBold" Foreground="#334155" VerticalAlignment="Center" Margin="0,0,10,0" />
+                            <TextBox x:Name="hide_txt_ClId" Grid.Column="1" Height="32" VerticalContentAlignment="Center" Padding="6,0" BorderBrush="#CBD5E1" Margin="0,0,10,0" KeyUp="hide_txt_ClId_KeyUp" />
+                            <Button Grid.Column="2" Content="情報確認" Height="32" Padding="14,0" Background="#1976D2" Foreground="#FFFFFF" FontWeight="SemiBold" Cursor="Hand" Click="btn_LoadClientForHide_Click" />
+                        </Grid>
+                    </Border>
+
+                    <!-- Customer Info Details -->
+                    <Border Background="#F1F5F9" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="8" Padding="14,12" Margin="0,0,0,14">
+                        <StackPanel>
+                            <Grid Margin="0,0,0,6">
+                                <TextBlock Text="顧客名:" FontSize="12" Foreground="#64748B" Width="80" HorizontalAlignment="Left" />
+                                <TextBlock x:Name="hide_txt_DisplayClName" Text="-" FontSize="13" FontWeight="Bold" Foreground="#1E293B" Margin="80,0,0,0" />
+                            </Grid>
+                            <Grid Margin="0,0,0,6">
+                                <TextBlock Text="所属営業所:" FontSize="12" Foreground="#64748B" Width="80" HorizontalAlignment="Left" />
+                                <TextBlock x:Name="hide_txt_DisplayOffice" Text="-" FontSize="12.5" Foreground="#334155" Margin="80,0,0,0" />
+                            </Grid>
+                            <Grid>
+                                <TextBlock Text="現在のフラグ:" FontSize="12" Foreground="#64748B" Width="80" HorizontalAlignment="Left" />
+                                <TextBlock x:Name="hide_txt_DisplayFlag" Text="-" FontSize="12.5" FontWeight="SemiBold" Foreground="#1976D2" Margin="80,0,0,0" />
+                            </Grid>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Reason -->
+                    <StackPanel Margin="0,0,0,18">
+                        <TextBlock Text="非表示理由 (任意)" FontSize="12" FontWeight="SemiBold" Foreground="#334155" Margin="0,0,0,4" />
+                        <TextBox x:Name="hide_txt_Reason" Height="34" Padding="8,0" VerticalContentAlignment="Center" BorderBrush="#CBD5E1" />
                     </StackPanel>
-                    <Button HorizontalAlignment="Right" VerticalAlignment="Top" Width="32" Height="32" Background="#F1F5F9" BorderThickness="0" Cursor="Hand" Click="btn_CloseClientHide_Click">
-                        <TextBlock Text="✕" FontSize="14" FontWeight="Bold" Foreground="#64748B" HorizontalAlignment="Center" VerticalAlignment="Center" />
-                    </Button>
-                </Grid>
 
-                <!-- Alert Banners -->
-                <Border x:Name="border_HideErrorAlert" Background="#FEF2F2" BorderBrush="#FECACA" BorderThickness="1" CornerRadius="6" Padding="10,8" Margin="0,0,0,10" Visibility="Collapsed">
-                    <TextBlock x:Name="txt_HideErrorMessage" Foreground="#B91C1C" FontSize="12" FontWeight="SemiBold" TextWrapping="Wrap" />
-                </Border>
-                <Border x:Name="border_HideSuccessAlert" Background="#F0FDF4" BorderBrush="#BBF7D0" BorderThickness="1" CornerRadius="6" Padding="10,8" Margin="0,0,0,10" Visibility="Collapsed">
-                    <TextBlock x:Name="txt_HideSuccessMessage" Foreground="#15803D" FontSize="12" FontWeight="SemiBold" TextWrapping="Wrap" />
-                </Border>
-
-                <!-- Selection by ID -->
-                <Border Background="#F8FAFC" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="8" Padding="12,10" Margin="0,0,0,14">
+                    <!-- Submit / Action Button -->
                     <Grid>
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
-                        <TextBlock Text="対象顧客ID:" FontSize="12.5" FontWeight="SemiBold" Foreground="#334155" VerticalAlignment="Center" Margin="0,0,10,0" />
-                        <TextBox x:Name="hide_txt_ClId" Grid.Column="1" Height="32" VerticalContentAlignment="Center" Padding="6,0" BorderBrush="#CBD5E1" Margin="0,0,10,0" KeyUp="hide_txt_ClId_KeyUp" />
-                        <Button Grid.Column="2" Content="情報確認" Height="32" Padding="14,0" Background="#1976D2" Foreground="#FFFFFF" FontWeight="SemiBold" Cursor="Hand" Click="btn_LoadClientForHide_Click" />
+                        <Button Grid.Column="0" Content="キャンセル" Height="40" Background="#F1F5F9" Foreground="#334155" FontWeight="SemiBold" Margin="0,0,6,0" Cursor="Hand" Click="btn_CloseClientHide_Click" />
+                        <Button Grid.Column="1" Content="フラグを 2 に更新" Height="40" Background="#DC2626" Foreground="#FFFFFF" FontWeight="Bold" Margin="6,0,0,0" Cursor="Hand" Click="btn_ExecuteClientHide_Click" />
                     </Grid>
-                </Border>
-
-                <!-- Customer Info Details -->
-                <Border Background="#F1F5F9" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="8" Padding="14,12" Margin="0,0,0,14">
-                    <StackPanel>
-                        <Grid Margin="0,0,0,6">
-                            <TextBlock Text="顧客名:" FontSize="12" Foreground="#64748B" Width="80" HorizontalAlignment="Left" />
-                            <TextBlock x:Name="hide_txt_DisplayClName" Text="-" FontSize="13" FontWeight="Bold" Foreground="#1E293B" Margin="80,0,0,0" />
-                        </Grid>
-                        <Grid Margin="0,0,0,6">
-                            <TextBlock Text="所属営業所:" FontSize="12" Foreground="#64748B" Width="80" HorizontalAlignment="Left" />
-                            <TextBlock x:Name="hide_txt_DisplayOffice" Text="-" FontSize="12.5" Foreground="#334155" Margin="80,0,0,0" />
-                        </Grid>
-                        <Grid>
-                            <TextBlock Text="現在のフラグ:" FontSize="12" Foreground="#64748B" Width="80" HorizontalAlignment="Left" />
-                            <TextBlock x:Name="hide_txt_DisplayFlag" Text="-" FontSize="12.5" FontWeight="SemiBold" Foreground="#1976D2" Margin="80,0,0,0" />
-                        </Grid>
-                    </StackPanel>
-                </Border>
-
-                <!-- Reason -->
-                <StackPanel Margin="0,0,0,18">
-                    <TextBlock Text="非表示理由 (任意)" FontSize="12" FontWeight="SemiBold" Foreground="#334155" Margin="0,0,0,4" />
-                    <TextBox x:Name="hide_txt_Reason" Height="34" Padding="8,0" VerticalContentAlignment="Center" BorderBrush="#CBD5E1" />
                 </StackPanel>
-
-                <!-- Submit / Action Button -->
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="*" />
-                    </Grid.ColumnDefinitions>
-                    <Button Grid.Column="0" Content="キャンセル" Height="40" Background="#F1F5F9" Foreground="#334155" FontWeight="SemiBold" Margin="0,0,6,0" Cursor="Hand" Click="btn_CloseClientHide_Click" />
-                    <Button Grid.Column="1" Content="フラグを 2 に更新" Height="40" Background="#DC2626" Foreground="#FFFFFF" FontWeight="Bold" Margin="6,0,0,0" Cursor="Hand" Click="btn_ExecuteClientHide_Click" />
-                </Grid>
-            </StackPanel>
-        </Border>
-    </Grid>
+            </Border>
         </Grid>
+    </Grid>
 </Window>

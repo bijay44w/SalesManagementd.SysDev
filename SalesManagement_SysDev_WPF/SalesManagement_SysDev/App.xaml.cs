@@ -8,10 +8,25 @@ namespace SalesManagement_SysDev
     {
         protected override void OnStartup(StartupEventArgs e)
         {
-            if (e.Args.Contains("--test-client") || e.Args.Contains("--test"))
+            if (e.Args.Contains("--test-modules"))
+            {
+                int exitCode = ModuleSelfCheck.RunAllTests();
+                Environment.Exit(exitCode);
+                return;
+            }
+
+            if (e.Args.Contains("--test-client"))
             {
                 int exitCode = ClientServiceSelfCheck.RunAllTests();
                 Environment.Exit(exitCode);
+                return;
+            }
+
+            if (e.Args.Contains("--test"))
+            {
+                int exit1 = ClientServiceSelfCheck.RunAllTests();
+                int exit2 = ModuleSelfCheck.RunAllTests();
+                Environment.Exit(exit1 != 0 ? exit1 : exit2);
                 return;
             }
 

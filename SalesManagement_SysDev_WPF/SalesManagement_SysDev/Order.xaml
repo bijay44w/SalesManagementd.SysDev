@@ -71,9 +71,9 @@
         <Grid Grid.Row="1" Margin="26,0,36,30">
 
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="259"/>
+                <ColumnDefinition Width="260"/>
+                <ColumnDefinition Width="259"/>
             </Grid.ColumnDefinitions>
 
             <Grid.RowDefinitions>
