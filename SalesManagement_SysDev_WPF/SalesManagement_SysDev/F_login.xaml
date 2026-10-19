@@ -299,7 +299,7 @@
 
                             <!-- Forgot Password Link -->
                             <Button x:Name="btn_ForgotPasswordLink"
-                                    Content="パスワードをお忘れですか？"
+                                    Content="パスワードを変更しますか？"
                                     Style="{StaticResource SubtleLinkButtonStyle}"
                                     HorizontalAlignment="Center"
                                     Margin="0,18,0,0"
