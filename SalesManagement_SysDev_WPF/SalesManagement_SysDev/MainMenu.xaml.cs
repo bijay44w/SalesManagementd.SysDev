@@ -1,7 +1,6 @@
 using System;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Media;
 
 namespace SalesManagement_SysDev
 {
@@ -21,7 +20,7 @@ namespace SalesManagement_SysDev
             {
                 lbl_User.Text = $"{employee.EmName}";
                 lbl_Store.Text = employee.So?.SoName ?? $"店舗 #{employee.SoId}";
-                lbl_Role.Text = employee.Po?.PoName ?? "一般ユーザー";
+                lbl_Role.Text = employee.Po?.PoName ?? "一般";
             }
             else
             {
@@ -63,59 +62,19 @@ namespace SalesManagement_SysDev
             NavigationRequested?.Invoke("03"); // 顧客管理
         }
 
-        private void btn_Exit_Click(object sender, RoutedEventArgs e)
-        {
-            NavigationRequested?.Invoke("EXIT");
-        }
-
-        private void btn_LogonStatus_Click(object sender, RoutedEventArgs e)
-        {
-            NavigationRequested?.Invoke("PROFILE");
-        }
-
-        private void btn_TaxMaster_Click(object sender, RoutedEventArgs e)
-        {
-            MessageBox.Show("消費税マスター管理機能は現在準備中です。", "消費税マスター管理", MessageBoxButton.OK, MessageBoxImage.Information);
-        }
-
-        private void btn_SupplierMaster_Click(object sender, RoutedEventArgs e)
-        {
-            // 商品メーカ管理または発注管理へナビゲート
-            NavigationRequested?.Invoke("04");
-        }
-
         private void btn_StoreMaster_Click(object sender, RoutedEventArgs e)
         {
-            // 社員・営業所管理へナビゲート
-            NavigationRequested?.Invoke("06");
+            NavigationRequested?.Invoke("06"); // 店舗・営業所
         }
 
         private void btn_DivisionMaster_Click(object sender, RoutedEventArgs e)
         {
-            NavigationRequested?.Invoke("06");
+            NavigationRequested?.Invoke("06"); // 部署・役職
         }
 
-        private void btn_PositionMaster_Click(object sender, RoutedEventArgs e)
+        private void btn_TaxMaster_Click(object sender, RoutedEventArgs e)
         {
-            NavigationRequested?.Invoke("06");
-        }
-
-        private void txt_QuickSearch_GotFocus(object sender, RoutedEventArgs e)
-        {
-            if (txt_QuickSearch.Text == "ここへ入力")
-            {
-                txt_QuickSearch.Text = "";
-                txt_QuickSearch.Foreground = new SolidColorBrush(Colors.Black);
-            }
-        }
-
-        private void txt_QuickSearch_LostFocus(object sender, RoutedEventArgs e)
-        {
-            if (string.IsNullOrWhiteSpace(txt_QuickSearch.Text))
-            {
-                txt_QuickSearch.Text = "ここへ入力";
-                txt_QuickSearch.Foreground = new SolidColorBrush(Color.FromRgb(102, 102, 102));
-            }
+            MessageBox.Show("消費税率は現在 10% (標準税率) / 8% (軽減税率) で設定されています。", "消費税マスター管理", MessageBoxButton.OK, MessageBoxImage.Information);
         }
     }
 }

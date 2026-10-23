@@ -16,6 +16,117 @@ namespace SalesManagement_SysDev
         public Inventory()
         {
             InitializeComponent();
+            Loaded += Inventory_Loaded;
+        }
+
+        private void Inventory_Loaded(object sender, RoutedEventArgs e)
+        {
+            LoadMainMasters();
+            ExecuteMainSearch();
+            UpdateMainActionButtonsState();
+        }
+
+        private void LoadMainMasters()
+        {
+            var makers = _productService.GetMakers();
+            var searchMakers = new List<MMaker> { new MMaker { MaId = 0, MaName = "すべてのメーカー" } };
+            searchMakers.AddRange(makers);
+            cmb_MainMaker.ItemsSource = searchMakers;
+            cmb_MainMaker.SelectedIndex = 0;
+        }
+
+        private void ExecuteMainSearch()
+        {
+            int? stId = null;
+            if (int.TryParse(txt_MainStId.Text.Trim(), out int id)) stId = id;
+
+            string prName = txt_MainPrName.Text.Trim();
+
+            int? maId = null;
+            if (cmb_MainMaker.SelectedValue is int mId && mId > 0) maId = mId;
+
+            bool includeHidden = chk_MainIncludeHidden.IsChecked == true;
+
+            var results = _stockService.SearchStocks(stId: stId, prId: null, prName: prName, maId: maId, scId: null, minQty: null, maxQty: null, includeHidden: includeHidden);
+
+            if (chk_MainBelowSafety.IsChecked == true)
+            {
+                results = results.Where(s => s.StQuantity < s.PrSafetyStock).ToList();
+            }
+
+            _cachedStockList = results;
+            dg_MainStocks.ItemsSource = _cachedStockList;
+            txt_MainStockCount.Text = $"表示件数: {_cachedStockList.Count} 件";
+            UpdateMainActionButtonsState();
+        }
+
+        private void btn_MainSearch_Click(object sender, RoutedEventArgs e)
+        {
+            ExecuteMainSearch();
+        }
+
+        private void btn_MainClear_Click(object sender, RoutedEventArgs e)
+        {
+            txt_MainStId.Text = string.Empty;
+            txt_MainPrName.Text = string.Empty;
+            cmb_MainMaker.SelectedIndex = 0;
+            chk_MainBelowSafety.IsChecked = false;
+            chk_MainIncludeHidden.IsChecked = false;
+            ExecuteMainSearch();
+        }
+
+        private void SearchField_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                ExecuteMainSearch();
+            }
+        }
+
+        private void chk_Filter_Click(object sender, RoutedEventArgs e)
+        {
+            ExecuteMainSearch();
+        }
+
+        private void UpdateMainActionButtonsState()
+        {
+            bool hasSelection = dg_MainStocks.SelectedItem is StockDisplayModel;
+            btn_MainEditSelected.IsEnabled = hasSelection;
+            btn_MainHideSelected.IsEnabled = hasSelection;
+        }
+
+        private void dg_MainStocks_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            UpdateMainActionButtonsState();
+        }
+
+        private void dg_MainStocks_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            if (dg_MainStocks.SelectedItem is StockDisplayModel selected)
+            {
+                OpenInventoryUpdateModal(selected.StId);
+            }
+        }
+
+        private void btn_MainNewRegister_Click(object sender, RoutedEventArgs e)
+        {
+            OpenInventoryRegisterModal();
+        }
+
+        private void btn_MainEditSelected_Click(object sender, RoutedEventArgs e)
+        {
+            if (dg_MainStocks.SelectedItem is StockDisplayModel selected)
+            {
+                OpenInventoryUpdateModal(selected.StId);
+            }
+        }
+
+        private void btn_MainHideSelected_Click(object sender, RoutedEventArgs e)
+        {
+            if (dg_MainStocks.SelectedItem is StockDisplayModel selected)
+            {
+                OpenInventoryHideModal(selected.StId);
+            }
         }
 
         // =====================================================================
@@ -233,7 +344,8 @@ namespace SalesManagement_SysDev
             var result = _stockService.UpdateStock(stId, qty, stFlag);
             if (result.Success)
             {
-                ShowUpdSuccess(result.Message);
+                ExecuteMainSearch();
+            ShowUpdSuccess(result.Message);
                 upd_txt_DisplayCurrentQty.Text = $"{qty:N0} 個";
             }
             else
@@ -255,235 +367,10 @@ namespace SalesManagement_SysDev
         }
 
         // =====================================================================
-        // 5.2 モーダル: 在庫一覧表示
-        // =====================================================================
-        public void OpenInventoryListModal()
-        {
-            txt_ListFilterKeyword.Text = "";
-            chk_ListIncludeHidden.IsChecked = false;
-            modal_InventoryList.Visibility = Visibility.Visible;
-            LoadInventoryList();
-        }
+        // 5.2 / 5.3: メイン画面で直接検索・一覧表示を行うためモーダル不要
+        public void OpenInventoryListModal() => ExecuteMainSearch();
+        public void OpenInventorySearchModal() => ExecuteMainSearch();
 
-        private void LoadInventoryList()
-        {
-            bool includeHidden = chk_ListIncludeHidden.IsChecked == true;
-            _cachedStockList = _stockService.GetAllStocks(includeHidden);
-            ApplyInventoryListFilter();
-        }
-
-        private void ApplyInventoryListFilter()
-        {
-            string keyword = (txt_ListFilterKeyword.Text ?? "").Trim();
-            var filtered = _cachedStockList;
-
-            if (!string.IsNullOrEmpty(keyword))
-            {
-                filtered = filtered.Where(s =>
-                    s.PrName.Contains(keyword, StringComparison.OrdinalIgnoreCase) ||
-                    s.StId.ToString().Contains(keyword) ||
-                    s.PrId.ToString().Contains(keyword) ||
-                    s.MaName.Contains(keyword, StringComparison.OrdinalIgnoreCase) ||
-                    s.ScName.Contains(keyword, StringComparison.OrdinalIgnoreCase) ||
-                    s.PrModelNumber.Contains(keyword, StringComparison.OrdinalIgnoreCase)
-                ).ToList();
-            }
-
-            dg_InventoryList.ItemsSource = filtered;
-            txt_ListCount.Text = $"表示件数: {filtered.Count} 件 (全 {_cachedStockList.Count} 件中)";
-        }
-
-        private void txt_ListFilterKeyword_KeyUp(object sender, KeyEventArgs e)
-        {
-            ApplyInventoryListFilter();
-        }
-
-        private void chk_ListIncludeHidden_Click(object sender, RoutedEventArgs e)
-        {
-            LoadInventoryList();
-        }
-
-        private void btn_ListRefresh_Click(object sender, RoutedEventArgs e)
-        {
-            LoadInventoryList();
-        }
-
-        private void btn_CloseInventoryList_Click(object sender, RoutedEventArgs e)
-        {
-            modal_InventoryList.Visibility = Visibility.Collapsed;
-        }
-
-        private void modal_InventoryList_Backdrop_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            modal_InventoryList.Visibility = Visibility.Collapsed;
-        }
-
-        private void dg_InventoryList_MouseDoubleClick(object sender, MouseButtonEventArgs e)
-        {
-            if (dg_InventoryList.SelectedItem is StockDisplayModel selected)
-            {
-                modal_InventoryList.Visibility = Visibility.Collapsed;
-                OpenInventoryUpdateModal(selected.StId);
-            }
-        }
-
-        private void btn_ListEditSelected_Click(object sender, RoutedEventArgs e)
-        {
-            if (dg_InventoryList.SelectedItem is StockDisplayModel selected)
-            {
-                modal_InventoryList.Visibility = Visibility.Collapsed;
-                OpenInventoryUpdateModal(selected.StId);
-            }
-            else
-            {
-                MessageBox.Show("一覧から更新する在庫を選択してください。", "案内", MessageBoxButton.OK, MessageBoxImage.Information);
-            }
-        }
-
-        private void btn_ListHideSelected_Click(object sender, RoutedEventArgs e)
-        {
-            if (dg_InventoryList.SelectedItem is StockDisplayModel selected)
-            {
-                modal_InventoryList.Visibility = Visibility.Collapsed;
-                OpenInventoryHideModal(selected.StId);
-            }
-            else
-            {
-                MessageBox.Show("一覧から非表示にする在庫を選択してください。", "案内", MessageBoxButton.OK, MessageBoxImage.Information);
-            }
-        }
-
-        // =====================================================================
-        // 5.3 モーダル: 在庫検索
-        // =====================================================================
-        public void OpenInventorySearchModal()
-        {
-            var makers = _productService.GetMakers();
-            var makerOptions = new List<MMaker> { new MMaker { MaId = 0, MaName = "すべてのメーカー" } };
-            makerOptions.AddRange(makers);
-            srch_cmb_Maker.ItemsSource = makerOptions;
-            srch_cmb_Maker.SelectedIndex = 0;
-
-            var smallClasses = _productService.GetSmallClassifications();
-            var scOptions = new List<MSmallClassification> { new MSmallClassification { ScId = 0, ScName = "すべての小分類" } };
-            scOptions.AddRange(smallClasses);
-            srch_cmb_SmallClass.ItemsSource = scOptions;
-            srch_cmb_SmallClass.SelectedIndex = 0;
-
-            srch_txt_StId.Text = "";
-            srch_txt_PrId.Text = "";
-            srch_txt_PrName.Text = "";
-            srch_txt_MinQty.Text = "";
-            srch_txt_MaxQty.Text = "";
-
-            modal_InventorySearch.Visibility = Visibility.Visible;
-            ExecuteInventorySearch();
-        }
-
-        private void btn_CloseInventorySearch_Click(object sender, RoutedEventArgs e)
-        {
-            modal_InventorySearch.Visibility = Visibility.Collapsed;
-        }
-
-        private void modal_InventorySearch_Backdrop_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            modal_InventorySearch.Visibility = Visibility.Collapsed;
-        }
-
-        private void btn_ExecuteInventorySearch_Click(object sender, RoutedEventArgs e)
-        {
-            ExecuteInventorySearch();
-        }
-
-        private void ExecuteInventorySearch()
-        {
-            int? stId = null;
-            if (int.TryParse(srch_txt_StId.Text.Trim(), out int parsedStId) && parsedStId > 0)
-            {
-                stId = parsedStId;
-            }
-
-            int? prId = null;
-            if (int.TryParse(srch_txt_PrId.Text.Trim(), out int parsedPrId) && parsedPrId > 0)
-            {
-                prId = parsedPrId;
-            }
-
-            string? name = string.IsNullOrWhiteSpace(srch_txt_PrName.Text) ? null : srch_txt_PrName.Text.Trim();
-
-            int? maId = null;
-            if (srch_cmb_Maker.SelectedValue is int selectedMa && selectedMa > 0)
-            {
-                maId = selectedMa;
-            }
-
-            int? scId = null;
-            if (srch_cmb_SmallClass.SelectedValue is int selectedSc && selectedSc > 0)
-            {
-                scId = selectedSc;
-            }
-
-            int? minQty = null;
-            if (int.TryParse(srch_txt_MinQty.Text.Trim(), out int qMin))
-            {
-                minQty = qMin;
-            }
-
-            int? maxQty = null;
-            if (int.TryParse(srch_txt_MaxQty.Text.Trim(), out int qMax))
-            {
-                maxQty = qMax;
-            }
-
-            var results = _stockService.SearchStocks(
-                stId: stId,
-                prId: prId,
-                prName: name,
-                maId: maId,
-                scId: scId,
-                minQty: minQty,
-                maxQty: maxQty,
-                includeHidden: false);
-
-            dg_InventorySearchResults.ItemsSource = results;
-            srch_txt_Count.Text = $"抽出件数: {results.Count} 件";
-        }
-
-        private void btn_ClearInventorySearch_Click(object sender, RoutedEventArgs e)
-        {
-            srch_txt_StId.Text = "";
-            srch_txt_PrId.Text = "";
-            srch_txt_PrName.Text = "";
-            srch_cmb_Maker.SelectedIndex = 0;
-            srch_cmb_SmallClass.SelectedIndex = 0;
-            srch_txt_MinQty.Text = "";
-            srch_txt_MaxQty.Text = "";
-            ExecuteInventorySearch();
-        }
-
-        private void dg_InventorySearchResults_MouseDoubleClick(object sender, MouseButtonEventArgs e)
-        {
-            if (dg_InventorySearchResults.SelectedItem is StockDisplayModel selected)
-            {
-                modal_InventorySearch.Visibility = Visibility.Collapsed;
-                OpenInventoryUpdateModal(selected.StId);
-            }
-        }
-
-        private void btn_SearchEditSelected_Click(object sender, RoutedEventArgs e)
-        {
-            if (dg_InventorySearchResults.SelectedItem is StockDisplayModel selected)
-            {
-                modal_InventorySearch.Visibility = Visibility.Collapsed;
-                OpenInventoryUpdateModal(selected.StId);
-            }
-            else
-            {
-                MessageBox.Show("一覧から更新する在庫を選択してください。", "案内", MessageBoxButton.OK, MessageBoxImage.Information);
-            }
-        }
-
-        // =====================================================================
         // 5.4 モーダル: 在庫非表示 (フラグ 0 -> 2 更新)
         // =====================================================================
         public void OpenInventoryHideModal(int? targetStId = null)

@@ -15,6 +15,128 @@ namespace SalesManagement_SysDev
         public Product()
         {
             InitializeComponent();
+            Loaded += Product_Loaded;
+        }
+
+        private void Product_Loaded(object sender, RoutedEventArgs e)
+        {
+            LoadMainMasters();
+            ExecuteMainSearch();
+            UpdateMainActionButtonsState();
+        }
+
+        private void LoadMainMasters()
+        {
+            var makers = _productService.GetMakers();
+            var searchMakers = new List<MMaker> { new MMaker { MaId = 0, MaName = "すべてのメーカー" } };
+            searchMakers.AddRange(makers);
+            cmb_MainMaker.ItemsSource = searchMakers;
+            cmb_MainMaker.SelectedIndex = 0;
+
+            var smallClasses = _productService.GetSmallClassifications();
+            var searchSmall = new List<MSmallClassification> { new MSmallClassification { ScId = 0, ScName = "すべての小分類" } };
+            searchSmall.AddRange(smallClasses);
+            cmb_MainSmallClass.ItemsSource = searchSmall;
+            cmb_MainSmallClass.SelectedIndex = 0;
+        }
+
+        private void ExecuteMainSearch()
+        {
+            int? prId = null;
+            if (int.TryParse(txt_MainPrId.Text.Trim(), out int id)) prId = id;
+
+            string name = txt_MainPrName.Text.Trim();
+
+            int? maId = null;
+            if (cmb_MainMaker.SelectedValue is int mId && mId > 0) maId = mId;
+
+            int? scId = null;
+            if (cmb_MainSmallClass.SelectedValue is int sId && sId > 0) scId = sId;
+
+            decimal? minPrice = null;
+            if (decimal.TryParse(txt_MainMinPrice.Text.Trim(), out decimal min)) minPrice = min;
+
+            decimal? maxPrice = null;
+            if (decimal.TryParse(txt_MainMaxPrice.Text.Trim(), out decimal max)) maxPrice = max;
+
+            bool includeHidden = chk_MainIncludeHidden.IsChecked == true;
+
+            var results = _productService.SearchProducts(prId, name, maId, scId, mcId: null, minPrice, maxPrice, includeHidden);
+            _cachedProductList = results;
+            dg_MainProducts.ItemsSource = _cachedProductList;
+            txt_MainProductCount.Text = $"表示件数: {_cachedProductList.Count} 件";
+            UpdateMainActionButtonsState();
+        }
+
+        private void btn_MainSearch_Click(object sender, RoutedEventArgs e)
+        {
+            ExecuteMainSearch();
+        }
+
+        private void btn_MainClear_Click(object sender, RoutedEventArgs e)
+        {
+            txt_MainPrId.Text = string.Empty;
+            txt_MainPrName.Text = string.Empty;
+            cmb_MainMaker.SelectedIndex = 0;
+            cmb_MainSmallClass.SelectedIndex = 0;
+            txt_MainMinPrice.Text = string.Empty;
+            txt_MainMaxPrice.Text = string.Empty;
+            chk_MainIncludeHidden.IsChecked = false;
+            ExecuteMainSearch();
+        }
+
+        private void SearchField_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                ExecuteMainSearch();
+            }
+        }
+
+        private void chk_MainIncludeHidden_Click(object sender, RoutedEventArgs e)
+        {
+            ExecuteMainSearch();
+        }
+
+        private void UpdateMainActionButtonsState()
+        {
+            bool hasSelection = dg_MainProducts.SelectedItem is ProductDisplayModel;
+            btn_MainEditSelected.IsEnabled = hasSelection;
+            btn_MainHideSelected.IsEnabled = hasSelection;
+        }
+
+        private void dg_MainProducts_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            UpdateMainActionButtonsState();
+        }
+
+        private void dg_MainProducts_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            if (dg_MainProducts.SelectedItem is ProductDisplayModel selected)
+            {
+                OpenProductUpdateModal(selected.PrId);
+            }
+        }
+
+        private void btn_MainNewRegister_Click(object sender, RoutedEventArgs e)
+        {
+            OpenProductRegisterModal();
+        }
+
+        private void btn_MainEditSelected_Click(object sender, RoutedEventArgs e)
+        {
+            if (dg_MainProducts.SelectedItem is ProductDisplayModel selected)
+            {
+                OpenProductUpdateModal(selected.PrId);
+            }
+        }
+
+        private void btn_MainHideSelected_Click(object sender, RoutedEventArgs e)
+        {
+            if (dg_MainProducts.SelectedItem is ProductDisplayModel selected)
+            {
+                OpenProductHideModal(selected.PrId);
+            }
         }
 
         // =====================================================================
@@ -348,227 +470,10 @@ namespace SalesManagement_SysDev
         }
 
         // =====================================================================
-        // 4.3 商品一覧表示モーダル
-        // =====================================================================
-        public void OpenProductListModal()
-        {
-            txt_ListFilterKeyword.Text = "";
-            chk_ListIncludeHidden.IsChecked = false;
-            modal_ProductList.Visibility = Visibility.Visible;
-            LoadProductList();
-        }
+        // 4.3 / 4.4: メイン画面で直接検索・一覧表示を行うためモーダル不要
+        public void OpenProductListModal() => ExecuteMainSearch();
+        public void OpenProductSearchModal() => ExecuteMainSearch();
 
-        private void LoadProductList()
-        {
-            bool includeHidden = chk_ListIncludeHidden.IsChecked == true;
-            _cachedProductList = _productService.GetAllProducts(includeHidden);
-            ApplyProductListFilter();
-        }
-
-        private void ApplyProductListFilter()
-        {
-            string keyword = (txt_ListFilterKeyword.Text ?? "").Trim();
-            var filtered = _cachedProductList;
-
-            if (!string.IsNullOrEmpty(keyword))
-            {
-                filtered = filtered.Where(p =>
-                    p.PrName.Contains(keyword, StringComparison.OrdinalIgnoreCase) ||
-                    p.PrId.ToString().Contains(keyword) ||
-                    p.MaName.Contains(keyword, StringComparison.OrdinalIgnoreCase) ||
-                    p.ScName.Contains(keyword, StringComparison.OrdinalIgnoreCase) ||
-                    p.PrModelNumber.Contains(keyword, StringComparison.OrdinalIgnoreCase) ||
-                    p.PrColor.Contains(keyword, StringComparison.OrdinalIgnoreCase)
-                ).ToList();
-            }
-
-            dg_ProductList.ItemsSource = filtered;
-            txt_ListCount.Text = $"表示件数: {filtered.Count} 件 (全 {_cachedProductList.Count} 件中)";
-        }
-
-        private void txt_ListFilterKeyword_KeyUp(object sender, KeyEventArgs e)
-        {
-            ApplyProductListFilter();
-        }
-
-        private void chk_ListIncludeHidden_Click(object sender, RoutedEventArgs e)
-        {
-            LoadProductList();
-        }
-
-        private void btn_ListRefresh_Click(object sender, RoutedEventArgs e)
-        {
-            LoadProductList();
-        }
-
-        private void btn_CloseProductList_Click(object sender, RoutedEventArgs e)
-        {
-            modal_ProductList.Visibility = Visibility.Collapsed;
-        }
-
-        private void modal_ProductList_Backdrop_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            modal_ProductList.Visibility = Visibility.Collapsed;
-        }
-
-        private void dg_ProductList_MouseDoubleClick(object sender, MouseButtonEventArgs e)
-        {
-            if (dg_ProductList.SelectedItem is ProductDisplayModel selected)
-            {
-                modal_ProductList.Visibility = Visibility.Collapsed;
-                OpenProductUpdateModal(selected.PrId);
-            }
-        }
-
-        private void btn_ListEditSelected_Click(object sender, RoutedEventArgs e)
-        {
-            if (dg_ProductList.SelectedItem is ProductDisplayModel selected)
-            {
-                modal_ProductList.Visibility = Visibility.Collapsed;
-                OpenProductUpdateModal(selected.PrId);
-            }
-            else
-            {
-                MessageBox.Show("一覧から編集する商品を選択してください。", "案内", MessageBoxButton.OK, MessageBoxImage.Information);
-            }
-        }
-
-        private void btn_ListHideSelected_Click(object sender, RoutedEventArgs e)
-        {
-            if (dg_ProductList.SelectedItem is ProductDisplayModel selected)
-            {
-                modal_ProductList.Visibility = Visibility.Collapsed;
-                OpenProductHideModal(selected.PrId);
-            }
-            else
-            {
-                MessageBox.Show("一覧から非表示にする商品を選択してください。", "案内", MessageBoxButton.OK, MessageBoxImage.Information);
-            }
-        }
-
-        // =====================================================================
-        // 4.4 商品検索モーダル
-        // =====================================================================
-        public void OpenProductSearchModal()
-        {
-            // マスタ選択肢設定
-            var makers = _productService.GetMakers();
-            var makerOptions = new List<MMaker> { new MMaker { MaId = 0, MaName = "すべてのメーカー" } };
-            makerOptions.AddRange(makers);
-            srch_cmb_Maker.ItemsSource = makerOptions;
-            srch_cmb_Maker.SelectedIndex = 0;
-
-            var smallClasses = _productService.GetSmallClassifications();
-            var scOptions = new List<MSmallClassification> { new MSmallClassification { ScId = 0, ScName = "すべての小分類" } };
-            scOptions.AddRange(smallClasses);
-            srch_cmb_SmallClass.ItemsSource = scOptions;
-            srch_cmb_SmallClass.SelectedIndex = 0;
-
-            srch_txt_PrId.Text = "";
-            srch_txt_PrName.Text = "";
-            srch_txt_MinPrice.Text = "";
-            srch_txt_MaxPrice.Text = "";
-
-            modal_ProductSearch.Visibility = Visibility.Visible;
-            ExecuteProductSearch();
-        }
-
-        private void btn_CloseProductSearch_Click(object sender, RoutedEventArgs e)
-        {
-            modal_ProductSearch.Visibility = Visibility.Collapsed;
-        }
-
-        private void modal_ProductSearch_Backdrop_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            modal_ProductSearch.Visibility = Visibility.Collapsed;
-        }
-
-        private void btn_ExecuteProductSearch_Click(object sender, RoutedEventArgs e)
-        {
-            ExecuteProductSearch();
-        }
-
-        private void ExecuteProductSearch()
-        {
-            int? prId = null;
-            if (int.TryParse(srch_txt_PrId.Text.Trim(), out int parsedId) && parsedId > 0)
-            {
-                prId = parsedId;
-            }
-
-            string? name = string.IsNullOrWhiteSpace(srch_txt_PrName.Text) ? null : srch_txt_PrName.Text.Trim();
-
-            int? maId = null;
-            if (srch_cmb_Maker.SelectedValue is int selectedMa && selectedMa > 0)
-            {
-                maId = selectedMa;
-            }
-
-            int? scId = null;
-            if (srch_cmb_SmallClass.SelectedValue is int selectedSc && selectedSc > 0)
-            {
-                scId = selectedSc;
-            }
-
-            decimal? minPrice = null;
-            if (decimal.TryParse(srch_txt_MinPrice.Text.Trim(), out decimal pMin))
-            {
-                minPrice = pMin;
-            }
-
-            decimal? maxPrice = null;
-            if (decimal.TryParse(srch_txt_MaxPrice.Text.Trim(), out decimal pMax))
-            {
-                maxPrice = pMax;
-            }
-
-            var results = _productService.SearchProducts(
-                prId: prId,
-                prName: name,
-                maId: maId,
-                scId: scId,
-                minPrice: minPrice,
-                maxPrice: maxPrice,
-                includeHidden: false);
-
-            dg_ProductSearchResults.ItemsSource = results;
-            srch_txt_Count.Text = $"抽出件数: {results.Count} 件";
-        }
-
-        private void btn_ClearProductSearch_Click(object sender, RoutedEventArgs e)
-        {
-            srch_txt_PrId.Text = "";
-            srch_txt_PrName.Text = "";
-            srch_cmb_Maker.SelectedIndex = 0;
-            srch_cmb_SmallClass.SelectedIndex = 0;
-            srch_txt_MinPrice.Text = "";
-            srch_txt_MaxPrice.Text = "";
-            ExecuteProductSearch();
-        }
-
-        private void dg_ProductSearchResults_MouseDoubleClick(object sender, MouseButtonEventArgs e)
-        {
-            if (dg_ProductSearchResults.SelectedItem is ProductDisplayModel selected)
-            {
-                modal_ProductSearch.Visibility = Visibility.Collapsed;
-                OpenProductUpdateModal(selected.PrId);
-            }
-        }
-
-        private void btn_SearchEditSelected_Click(object sender, RoutedEventArgs e)
-        {
-            if (dg_ProductSearchResults.SelectedItem is ProductDisplayModel selected)
-            {
-                modal_ProductSearch.Visibility = Visibility.Collapsed;
-                OpenProductUpdateModal(selected.PrId);
-            }
-            else
-            {
-                MessageBox.Show("一覧から編集する商品を選択してください。", "案内", MessageBoxButton.OK, MessageBoxImage.Information);
-            }
-        }
-
-        // =====================================================================
         // 4.5 商品非表示モーダル (フラグ 0 -> 2 更新)
         // =====================================================================
         public void OpenProductHideModal(int? targetPrId = null)

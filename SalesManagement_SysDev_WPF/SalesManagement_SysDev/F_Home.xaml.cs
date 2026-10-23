@@ -949,12 +949,7 @@ namespace SalesManagement_SysDev
 
                 case "03": // 顧客管理
                     CustomerContent.Visibility = Visibility.Collapsed;
-                    var customer = new Customer();
-                    customer.ClientRegisterRequested += (s, args) =>
-                    {
-                        OpenClientRegisterModal();
-                    };
-                    MainContentArea.Content = customer;
+                    MainContentArea.Content = new Customer();
                     MainContentArea.Visibility = Visibility.Visible;
                     break;
 
@@ -1054,23 +1049,7 @@ namespace SalesManagement_SysDev
             }
         }
 
-        /// <summary>
-        /// UI binding model for client DataGrid views
-        /// </summary>
-        public class ClientDisplayModel
-        {
-            public int ClId { get; set; }
-            public string ClName { get; set; } = "";
-            public int SoId { get; set; }
-            public string SoName { get; set; } = "";
-            public string ClPostal { get; set; } = "";
-            public string ClAddress { get; set; } = "";
-            public string ClPhone { get; set; } = "";
-            public string ClFax { get; set; } = "";
-            public int ClFlag { get; set; }
-            public string FlagDisplay => ClFlag == 2 ? "非表示 (2)" : "通常 (0)";
-            public string ClHidden { get; set; } = "";
-        }
+// ClientDisplayModel moved to ClientService.cs
     }
 }
 

@@ -455,7 +455,7 @@
                     </LinearGradientBrush>
                 </Grid.Background>
 
-                <Grid x:Name="CustomerContent">
+                <Grid x:Name="CustomerContent" Visibility="Collapsed">
                     <Grid.RowDefinitions>
                         <!-- Section Header Area -->
                         <RowDefinition Height="Auto" />
@@ -615,7 +615,7 @@
 
                     </Grid>
                 </Grid>
-                <ContentControl x:Name="MainContentArea" Visibility="Collapsed" />
+                <ContentControl x:Name="MainContentArea" Visibility="Visible" />
             </Grid>
         </Grid>
 

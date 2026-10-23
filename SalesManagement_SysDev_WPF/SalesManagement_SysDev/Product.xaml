@@ -1,436 +1,250 @@
 <UserControl x:Class="SalesManagement_SysDev.Product"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             Background="#F4F8FD"
+             Background="#F1F5F9"
              FontFamily="Segoe UI, Meiryo, Yu Gothic UI"
-             FontSize="14">
+             FontSize="13">
 
     <UserControl.Resources>
-        <!-- 操作カード共通スタイル -->
-        <Style x:Key="ProductCardStyle" TargetType="Border">
-            <Setter Property="Background" Value="#FFFFFF" />
-            <Setter Property="CornerRadius" Value="18" />
-            <Setter Property="BorderBrush" Value="#E2E8F0" />
+        <Style x:Key="ActionButtonStyle" TargetType="Button">
+            <Setter Property="Height" Value="32" />
+            <Setter Property="Padding" Value="14,0" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="bd" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="4" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="bd" Property="Opacity" Value="0.88" />
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="bd" Property="Opacity" Value="0.75" />
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="bd" Property="Opacity" Value="0.45" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="RetroTextBoxStyle" TargetType="TextBox">
+            <Setter Property="Height" Value="30" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+            <Setter Property="Padding" Value="6,0" />
+            <Setter Property="BorderBrush" Value="#94A3B8" />
             <Setter Property="BorderThickness" Value="1" />
-            <Setter Property="Padding" Value="24,22" />
-            <Setter Property="Margin" Value="8" />
-            <Setter Property="Cursor" Value="Hand" />
-            <Setter Property="Effect">
-                <Setter.Value>
-                    <DropShadowEffect Color="#0F172A"
-                                      Opacity="0.04"
-                                      BlurRadius="20"
-                                      ShadowDepth="4"
-                                      Direction="270" />
-                </Setter.Value>
-            </Setter>
-            <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="BorderBrush" Value="#93C5FD" />
-                    <Setter Property="Effect">
-                        <Setter.Value>
-                            <DropShadowEffect Color="#2563EB"
-                                              Opacity="0.14"
-                                              BlurRadius="22"
-                                              ShadowDepth="6"
-                                              Direction="270" />
-                        </Setter.Value>
-                    </Setter>
-                </Trigger>
-            </Style.Triggers>
+            <Setter Property="FontSize" Value="13" />
         </Style>
 
-        <!-- 角丸ボタンスタイル (プライマリ) -->
-        <Style x:Key="PrimaryButtonStyle" TargetType="Button">
-            <Setter Property="Background" Value="#2563EB" />
+        <!-- Keep modal button styles -->
+        <Style x:Key="PrimaryButtonStyle" TargetType="Button" BasedOn="{StaticResource ActionButtonStyle}">
+            <Setter Property="Background" Value="#006666" />
             <Setter Property="Foreground" Value="#FFFFFF" />
-            <Setter Property="FontWeight" Value="SemiBold" />
-            <Setter Property="FontSize" Value="13" />
-            <Setter Property="Height" Value="38" />
-            <Setter Property="Cursor" Value="Hand" />
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border x:Name="bd" Background="{TemplateBinding Background}" CornerRadius="8" Padding="16,0">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="bd" Property="Background" Value="#1D4ED8" />
-                            </Trigger>
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="bd" Property="Background" Value="#1E40AF" />
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
         </Style>
-
-        <!-- 角丸ボタンスタイル (セカンダリ/キャンセル) -->
-        <Style x:Key="SecondaryButtonStyle" TargetType="Button">
+        <Style x:Key="SecondaryButtonStyle" TargetType="Button" BasedOn="{StaticResource ActionButtonStyle}">
             <Setter Property="Background" Value="#F1F5F9" />
-            <Setter Property="Foreground" Value="#475569" />
-            <Setter Property="FontWeight" Value="SemiBold" />
-            <Setter Property="FontSize" Value="13" />
-            <Setter Property="Height" Value="38" />
-            <Setter Property="Cursor" Value="Hand" />
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border x:Name="bd" Background="{TemplateBinding Background}" BorderBrush="#CBD5E1" BorderThickness="1" CornerRadius="8" Padding="16,0">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="bd" Property="Background" Value="#E2E8F0" />
-                            </Trigger>
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="bd" Property="Background" Value="#CBD5E1" />
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
+            <Setter Property="Foreground" Value="#334155" />
+            <Setter Property="BorderBrush" Value="#94A3B8" />
+            <Setter Property="BorderThickness" Value="1" />
         </Style>
-
-        <!-- 危険・非表示ボタン (レッド) -->
-        <Style x:Key="DangerButtonStyle" TargetType="Button">
+        <Style x:Key="DangerButtonStyle" TargetType="Button" BasedOn="{StaticResource ActionButtonStyle}">
             <Setter Property="Background" Value="#DC2626" />
             <Setter Property="Foreground" Value="#FFFFFF" />
-            <Setter Property="FontWeight" Value="Bold" />
-            <Setter Property="FontSize" Value="13" />
-            <Setter Property="Height" Value="38" />
-            <Setter Property="Cursor" Value="Hand" />
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border x:Name="bd" Background="{TemplateBinding Background}" CornerRadius="8" Padding="16,0">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="bd" Property="Background" Value="#B91C1C" />
-                            </Trigger>
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="bd" Property="Background" Value="#991B1B" />
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
         </Style>
     </UserControl.Resources>
 
     <Grid>
-        <!-- 背景グラデーション -->
-        <Grid.Background>
-            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                <GradientStop Color="#F4F8FD" Offset="0" />
-                <GradientStop Color="#ECF2FB" Offset="1" />
-            </LinearGradientBrush>
-        </Grid.Background>
-
         <Grid.RowDefinitions>
+            <!-- 0: タイトル -->
             <RowDefinition Height="Auto" />
+            <!-- 1: 検索条件バー -->
+            <RowDefinition Height="Auto" />
+            <!-- 2: 操作ツールバー -->
+            <RowDefinition Height="Auto" />
+            <!-- 3: 一覧表 DataGrid -->
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
         <!-- ======================================================== -->
-        <!-- タイトルエリア                                            -->
+        <!-- 0. タイトルバー                                           -->
         <!-- ======================================================== -->
-        <StackPanel Grid.Row="0"
-                    Orientation="Horizontal"
-                    VerticalAlignment="Center"
-                    Margin="36,30,36,18">
+        <Border Grid.Row="0" Background="#004D40" Padding="20,12" BorderBrush="#00332C" BorderThickness="0,0,0,2">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
 
-            <Border Background="#DBEAFE"
-                    Width="54"
-                    Height="54"
-                    CornerRadius="27"
-                    Margin="0,0,16,0">
-                <Path Fill="#2563EB"
-                      Width="26"
-                      Height="26"
-                      Stretch="Uniform"
-                      Data="M4 4h16v3H4z M4 9h16v3H4z M4 14h10v3H4z" />
-            </Border>
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <Border Background="#26A69A" Width="34" Height="34" CornerRadius="4" Margin="0,0,12,0">
+                        <TextBlock Text="📦" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+                    <StackPanel VerticalAlignment="Center">
+                        <TextBlock Text="商品管理" FontSize="18" FontWeight="Bold" Foreground="#FFFFFF" />
+                        <TextBlock Text="商品情報の検索・一覧・登録（初期在庫0自動作成）・更新・非表示管理" FontSize="11" Foreground="#80CBC4" Margin="0,2,0,0" />
+                    </StackPanel>
+                </StackPanel>
 
-            <StackPanel VerticalAlignment="Center">
-                <TextBlock Text="商品管理"
-                           FontSize="25"
-                           FontWeight="Bold"
-                           Foreground="#0F172A" />
-                <TextBlock Text="商品の登録（初期在庫0自動作成）・更新・一覧表示・検索・非表示フラグ管理を行います。"
-                           FontSize="13"
-                           Foreground="#64748B"
-                           Margin="0,5,0,0" />
-            </StackPanel>
-        </StackPanel>
+                <TextBlock Grid.Column="1" Text="【直接検索 / 即時反映】" FontSize="12" Foreground="#E0F2F1" VerticalAlignment="Center" Margin="0,0,10,0" />
+            </Grid>
+        </Border>
 
         <!-- ======================================================== -->
-        <!-- 操作カードグリッド (3列×2行)                             -->
+        <!-- 1. 検索バー (常駐・即時検索)                              -->
         <!-- ======================================================== -->
-        <Grid Grid.Row="1" Margin="26,0,36,30">
+        <Border Grid.Row="1" Background="#FFFFFF" BorderBrush="#CBD5E1" BorderThickness="1" CornerRadius="6" Margin="16,12,16,8" Padding="14,10">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <WrapPanel Grid.Row="0" VerticalAlignment="Center" Orientation="Horizontal">
+                    <!-- 商品ID -->
+                    <StackPanel Orientation="Horizontal" Margin="0,4,16,4" VerticalAlignment="Center">
+                        <TextBlock Text="商品ID:" FontWeight="SemiBold" Foreground="#334155" VerticalAlignment="Center" Margin="0,0,6,0" />
+                        <TextBox x:Name="txt_MainPrId" Style="{StaticResource RetroTextBoxStyle}" Width="70" KeyDown="SearchField_KeyDown" />
+                    </StackPanel>
+
+                    <!-- 商品名 -->
+                    <StackPanel Orientation="Horizontal" Margin="0,4,16,4" VerticalAlignment="Center">
+                        <TextBlock Text="商品名:" FontWeight="SemiBold" Foreground="#334155" VerticalAlignment="Center" Margin="0,0,6,0" />
+                        <TextBox x:Name="txt_MainPrName" Style="{StaticResource RetroTextBoxStyle}" Width="140" KeyDown="SearchField_KeyDown" />
+                    </StackPanel>
+
+                    <!-- メーカー -->
+                    <StackPanel Orientation="Horizontal" Margin="0,4,16,4" VerticalAlignment="Center">
+                        <TextBlock Text="メーカー:" FontWeight="SemiBold" Foreground="#334155" VerticalAlignment="Center" Margin="0,0,6,0" />
+                        <ComboBox x:Name="cmb_MainMaker" Width="130" Height="30" VerticalContentAlignment="Center" DisplayMemberPath="MaName" SelectedValuePath="MaId" />
+                    </StackPanel>
+
+                    <!-- 小分類 -->
+                    <StackPanel Orientation="Horizontal" Margin="0,4,16,4" VerticalAlignment="Center">
+                        <TextBlock Text="小分類:" FontWeight="SemiBold" Foreground="#334155" VerticalAlignment="Center" Margin="0,0,6,0" />
+                        <ComboBox x:Name="cmb_MainSmallClass" Width="130" Height="30" VerticalContentAlignment="Center" DisplayMemberPath="ScName" SelectedValuePath="ScId" />
+                    </StackPanel>
+
+                    <!-- 価格範囲 -->
+                    <StackPanel Orientation="Horizontal" Margin="0,4,16,4" VerticalAlignment="Center">
+                        <TextBlock Text="価格:" FontWeight="SemiBold" Foreground="#334155" VerticalAlignment="Center" Margin="0,0,6,0" />
+                        <TextBox x:Name="txt_MainMinPrice" Style="{StaticResource RetroTextBoxStyle}" Width="70" KeyDown="SearchField_KeyDown" />
+                        <TextBlock Text="～" Foreground="#334155" VerticalAlignment="Center" Margin="4,0" />
+                        <TextBox x:Name="txt_MainMaxPrice" Style="{StaticResource RetroTextBoxStyle}" Width="70" KeyDown="SearchField_KeyDown" />
+                    </StackPanel>
+
+                    <!-- 非表示を含む -->
+                    <CheckBox x:Name="chk_MainIncludeHidden" Content="非表示を含む" VerticalAlignment="Center" Margin="6,4,16,4" Foreground="#334155" FontWeight="SemiBold" Click="chk_MainIncludeHidden_Click" />
+                </WrapPanel>
+
+                <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,6,0,0">
+                    <Button x:Name="btn_MainSearch" Style="{StaticResource ActionButtonStyle}" Background="#006666" Foreground="#FFFFFF" Margin="0,0,8,0" Click="btn_MainSearch_Click">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="🔍" Margin="0,0,4,0" />
+                            <TextBlock Text="検索" FontWeight="Bold" />
+                        </StackPanel>
+                    </Button>
+                    <Button x:Name="btn_MainClear" Style="{StaticResource ActionButtonStyle}" Background="#F1F5F9" Foreground="#334155" BorderBrush="#94A3B8" BorderThickness="1" Click="btn_MainClear_Click">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="✕" Margin="0,0,4,0" />
+                            <TextBlock Text="条件クリア" />
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- ======================================================== -->
+        <!-- 2. 操作ツールバー (新規登録・編集・非表示・件数表示)        -->
+        <!-- ======================================================== -->
+        <Grid Grid.Row="2" Margin="16,0,16,8">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
 
-            <Grid.RowDefinitions>
-                <RowDefinition Height="*" />
-                <RowDefinition Height="*" />
-            </Grid.RowDefinitions>
-
-            <!-- 1.1 商品登録 -->
-            <Border Grid.Row="0"
-                    Grid.Column="0"
-                    Style="{StaticResource ProductCardStyle}"
-                    MouseLeftButtonUp="card_ProductRegister_MouseLeftButtonUp">
-                <Grid>
-                    <StackPanel VerticalAlignment="Top">
-                        <Border Background="#EFF6FF"
-                                Width="44"
-                                Height="44"
-                                CornerRadius="22"
-                                HorizontalAlignment="Left"
-                                Margin="0,0,0,14">
-                            <TextBlock Text="+"
-                                       FontSize="28"
-                                       Foreground="#2563EB"
-                                       HorizontalAlignment="Center"
-                                       VerticalAlignment="Center" />
-                        </Border>
-
-                        <TextBlock Text="1.1 商品登録"
-                                   FontSize="17.5"
-                                   FontWeight="Bold"
-                                   Foreground="#0F172A"
-                                   Margin="0,0,0,8" />
-
-                        <TextBlock Text="商品情報を商品テーブルに登録します。&#x0a;同時に在庫テーブルに在庫数0の&#x0a;レコードを自動作成します。"
-                                   FontSize="12"
-                                   Foreground="#64748B"
-                                   LineHeight="19"
-                                   TextWrapping="Wrap" />
+            <StackPanel Grid.Column="0" Orientation="Horizontal">
+                <Button x:Name="btn_MainNewRegister" Style="{StaticResource ActionButtonStyle}" Background="#008080" Foreground="#FFFFFF" Margin="0,0,8,0" Click="btn_MainNewRegister_Click">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="＋" Margin="0,0,4,0" FontWeight="Bold" />
+                        <TextBlock Text="新規商品登録" FontWeight="Bold" />
                     </StackPanel>
+                </Button>
 
-                    <Border Width="36"
-                            Height="36"
-                            CornerRadius="18"
-                            Background="#EFF6FF"
-                            HorizontalAlignment="Right"
-                            VerticalAlignment="Bottom">
-                        <TextBlock Text="→"
-                                   FontSize="20"
-                                   Foreground="#2563EB"
-                                   HorizontalAlignment="Center"
-                                   VerticalAlignment="Center" />
-                    </Border>
-                </Grid>
-            </Border>
-
-            <!-- 4.2 商品更新 -->
-            <Border Grid.Row="0"
-                    Grid.Column="1"
-                    Style="{StaticResource ProductCardStyle}"
-                    MouseLeftButtonUp="card_ProductUpdate_MouseLeftButtonUp">
-                <Grid>
-                    <StackPanel VerticalAlignment="Top">
-                        <Border Background="#EFF6FF"
-                                Width="44"
-                                Height="44"
-                                CornerRadius="22"
-                                HorizontalAlignment="Left"
-                                Margin="0,0,0,14">
-                            <TextBlock Text="✎"
-                                       FontSize="23"
-                                       Foreground="#2563EB"
-                                       HorizontalAlignment="Center"
-                                       VerticalAlignment="Center" />
-                        </Border>
-
-                        <TextBlock Text="4.2 商品更新"
-                                   FontSize="17.5"
-                                   FontWeight="Bold"
-                                   Foreground="#0F172A"
-                                   Margin="0,0,0,8" />
-
-                        <TextBlock Text="商品テーブルにある登録済み商品情報を&#x0a;呼び出し、内容を編集・更新します。"
-                                   FontSize="12"
-                                   Foreground="#64748B"
-                                   LineHeight="19"
-                                   TextWrapping="Wrap" />
+                <Button x:Name="btn_MainEditSelected" Style="{StaticResource ActionButtonStyle}" Background="#0284C7" Foreground="#FFFFFF" Margin="0,0,8,0" Click="btn_MainEditSelected_Click">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="✎" Margin="0,0,4,0" />
+                        <TextBlock Text="選択項目を編集" FontWeight="Bold" />
                     </StackPanel>
+                </Button>
 
-                    <Border Width="36"
-                            Height="36"
-                            CornerRadius="18"
-                            Background="#EFF6FF"
-                            HorizontalAlignment="Right"
-                            VerticalAlignment="Bottom">
-                        <TextBlock Text="→"
-                                   FontSize="20"
-                                   Foreground="#2563EB"
-                                   HorizontalAlignment="Center"
-                                   VerticalAlignment="Center" />
-                    </Border>
-                </Grid>
-            </Border>
-
-            <!-- 4.3 商品一覧表示 -->
-            <Border Grid.Row="0"
-                    Grid.Column="2"
-                    Style="{StaticResource ProductCardStyle}"
-                    MouseLeftButtonUp="card_ProductList_MouseLeftButtonUp">
-                <Grid>
-                    <StackPanel VerticalAlignment="Top">
-                        <Border Background="#EFF6FF"
-                                Width="44"
-                                Height="44"
-                                CornerRadius="22"
-                                HorizontalAlignment="Left"
-                                Margin="0,0,0,14">
-                            <TextBlock Text="☷"
-                                       FontSize="24"
-                                       Foreground="#2563EB"
-                                       HorizontalAlignment="Center"
-                                       VerticalAlignment="Center" />
-                        </Border>
-
-                        <TextBlock Text="4.3 商品一覧表示"
-                                   FontSize="17.5"
-                                   FontWeight="Bold"
-                                   Foreground="#0F172A"
-                                   Margin="0,0,0,8" />
-
-                        <TextBlock Text="登録されている商品情報を一覧で表示します。&#x0a;在庫数・メーカー・分類・価格を&#x0a;リアルタイムに確認できます。"
-                                   FontSize="12"
-                                   Foreground="#64748B"
-                                   LineHeight="19"
-                                   TextWrapping="Wrap" />
+                <Button x:Name="btn_MainHideSelected" Style="{StaticResource ActionButtonStyle}" Background="#DC2626" Foreground="#FFFFFF" Margin="0,0,8,0" Click="btn_MainHideSelected_Click">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="⊘" Margin="0,0,4,0" />
+                        <TextBlock Text="非表示設定" FontWeight="Bold" />
                     </StackPanel>
+                </Button>
+            </StackPanel>
 
-                    <Border Width="36"
-                            Height="36"
-                            CornerRadius="18"
-                            Background="#EFF6FF"
-                            HorizontalAlignment="Right"
-                            VerticalAlignment="Bottom">
-                        <TextBlock Text="→"
-                                   FontSize="20"
-                                   Foreground="#2563EB"
-                                   HorizontalAlignment="Center"
-                                   VerticalAlignment="Center" />
-                    </Border>
-                </Grid>
-            </Border>
-
-            <!-- 4.4 商品検索 -->
-            <Border Grid.Row="1"
-                    Grid.Column="0"
-                    Style="{StaticResource ProductCardStyle}"
-                    MouseLeftButtonUp="card_ProductSearch_MouseLeftButtonUp">
-                <Grid>
-                    <StackPanel VerticalAlignment="Top">
-                        <Border Background="#EFF6FF"
-                                Width="44"
-                                Height="44"
-                                CornerRadius="22"
-                                HorizontalAlignment="Left"
-                                Margin="0,0,0,14">
-                            <TextBlock Text="⌕"
-                                       FontSize="27"
-                                       Foreground="#2563EB"
-                                       HorizontalAlignment="Center"
-                                       VerticalAlignment="Center" />
-                        </Border>
-
-                        <TextBlock Text="4.4 商品検索"
-                                   FontSize="17.5"
-                                   FontWeight="Bold"
-                                   Foreground="#0F172A"
-                                   Margin="0,0,0,8" />
-
-                        <TextBlock Text="商品ID、商品名、メーカー、小分類、&#x0a;価格範囲などの条件で抽出し、&#x0a;該当する商品を表示します。"
-                                   FontSize="12"
-                                   Foreground="#64748B"
-                                   LineHeight="19"
-                                   TextWrapping="Wrap" />
-                    </StackPanel>
-
-                    <Border Width="36"
-                            Height="36"
-                            CornerRadius="18"
-                            Background="#EFF6FF"
-                            HorizontalAlignment="Right"
-                            VerticalAlignment="Bottom">
-                        <TextBlock Text="→"
-                                   FontSize="20"
-                                   Foreground="#2563EB"
-                                   HorizontalAlignment="Center"
-                                   VerticalAlignment="Center" />
-                    </Border>
-                </Grid>
-            </Border>
-
-            <!-- 4.5 商品非表示 (フラグ) -->
-            <Border Grid.Row="1"
-                    Grid.Column="1"
-                    Style="{StaticResource ProductCardStyle}"
-                    MouseLeftButtonUp="card_ProductHide_MouseLeftButtonUp">
-                <Grid>
-                    <StackPanel VerticalAlignment="Top">
-                        <Border Background="#EFF6FF"
-                                Width="44"
-                                Height="44"
-                                CornerRadius="22"
-                                HorizontalAlignment="Left"
-                                Margin="0,0,0,14">
-                            <TextBlock Text="⊘"
-                                       FontSize="25"
-                                       Foreground="#2563EB"
-                                       HorizontalAlignment="Center"
-                                       VerticalAlignment="Center" />
-                        </Border>
-
-                        <TextBlock Text="4.5 商品非表示 (フラグ)"
-                                   FontSize="17.5"
-                                   FontWeight="Bold"
-                                   Foreground="#0F172A"
-                                   Margin="0,0,0,8" />
-
-                        <TextBlock Text="選択された商品の商品管理フラグを&#x0a;０から２に更新し、一覧から&#x0a;非表示にします（論理削除）。"
-                                   FontSize="12"
-                                   Foreground="#64748B"
-                                   LineHeight="19"
-                                   TextWrapping="Wrap" />
-                    </StackPanel>
-
-                    <Border Width="36"
-                            Height="36"
-                            CornerRadius="18"
-                            Background="#EFF6FF"
-                            HorizontalAlignment="Right"
-                            VerticalAlignment="Bottom">
-                        <TextBlock Text="→"
-                                   FontSize="20"
-                                   Foreground="#2563EB"
-                                   HorizontalAlignment="Center"
-                                   VerticalAlignment="Center" />
-                    </Border>
-                </Grid>
-            </Border>
-
-            <!-- 空スロット -->
-            <Grid Grid.Row="1" Grid.Column="2" />
+            <TextBlock x:Name="txt_MainProductCount" Grid.Column="1" Text="表示件数: 0 件" FontSize="13" Foreground="#475569" FontWeight="SemiBold" HorizontalAlignment="Right" VerticalAlignment="Center" />
         </Grid>
 
-        <!-- ================================================================= -->
-        <!-- 1.1 モーダル: 商品登録                                            -->
-        <!-- ================================================================= -->
-        <Grid x:Name="modal_ProductRegister" Grid.RowSpan="2" Visibility="Collapsed" Panel.ZIndex="1000">
+        <!-- ======================================================== -->
+        <!-- 3. メイン DataGrid (即座に表示・ダブルクリックで編集)       -->
+        <!-- ======================================================== -->
+        <Border Grid.Row="3" Background="#FFFFFF" BorderBrush="#CBD5E1" BorderThickness="1" CornerRadius="6" Margin="16,0,16,16">
+            <DataGrid x:Name="dg_MainProducts"
+                      AutoGenerateColumns="False"
+                      IsReadOnly="True"
+                      CanUserAddRows="False"
+                      CanUserDeleteRows="False"
+                      SelectionMode="Single"
+                      GridLinesVisibility="Horizontal"
+                      HorizontalGridLinesBrush="#E2E8F0"
+                      RowHeight="34"
+                      AlternatingRowBackground="#F8FAFC"
+                      BorderThickness="0"
+                      SelectionChanged="dg_MainProducts_SelectionChanged"
+                      MouseDoubleClick="dg_MainProducts_MouseDoubleClick">
+                <DataGrid.ColumnHeaderStyle>
+                    <Style TargetType="DataGridColumnHeader">
+                        <Setter Property="Background" Value="#E2E8F0" />
+                        <Setter Property="Foreground" Value="#1E293B" />
+                        <Setter Property="FontWeight" Value="SemiBold" />
+                        <Setter Property="Height" Value="34" />
+                        <Setter Property="Padding" Value="10,0" />
+                        <Setter Property="BorderThickness" Value="0,0,1,1" />
+                        <Setter Property="BorderBrush" Value="#CBD5E1" />
+                    </Style>
+                </DataGrid.ColumnHeaderStyle>
+
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="商品ID" Binding="{Binding PrId}" Width="70" />
+                    <DataGridTextColumn Header="商品名" Binding="{Binding PrName}" Width="180" />
+                    <DataGridTextColumn Header="メーカー" Binding="{Binding MaName}" Width="120" />
+                    <DataGridTextColumn Header="小分類" Binding="{Binding ScName}" Width="110" />
+                    <DataGridTextColumn Header="定価" Binding="{Binding PriceFormatted}" Width="100" />
+                    <DataGridTextColumn Header="安全在庫" Binding="{Binding PrSafetyStock}" Width="80" />
+                    <DataGridTextColumn Header="型番" Binding="{Binding PrModelNumber}" Width="110" />
+                    <DataGridTextColumn Header="色" Binding="{Binding PrColor}" Width="80" />
+                    <DataGridTextColumn Header="発売日" Binding="{Binding ReleaseDateFormatted}" Width="100" />
+                    <DataGridTextColumn Header="在庫数" Binding="{Binding StockFormatted}" Width="90" />
+                    <DataGridTextColumn Header="状態" Binding="{Binding FlagFormatted}" Width="90" />
+                    <DataGridTextColumn Header="備考 / 非表示理由" Binding="{Binding PrHidden}" Width="*" />
+                </DataGrid.Columns>
+            </DataGrid>
+        </Border>
+
+        <!-- ======================================================== -->
+        <!-- モーダル定義 (商品登録, 商品更新, 商品非表示)              -->
+        <!-- ======================================================== -->
+<Grid x:Name="modal_ProductRegister" Grid.RowSpan="4" Visibility="Collapsed" Panel.ZIndex="1000">
             <Border Background="#66000000" MouseLeftButtonDown="modal_ProductRegister_Backdrop_MouseLeftButtonDown" />
             <Border Width="640" MaxHeight="680" Background="#FFFFFF" CornerRadius="16" BorderBrush="#E2E8F0" BorderThickness="1" Padding="28,24" HorizontalAlignment="Center" VerticalAlignment="Center">
                 <Border.Effect>
@@ -558,7 +372,8 @@
         <!-- ================================================================= -->
         <!-- 4.2 モーダル: 商品更新                                            -->
         <!-- ================================================================= -->
-        <Grid x:Name="modal_ProductUpdate" Grid.RowSpan="2" Visibility="Collapsed" Panel.ZIndex="1000">
+
+<Grid x:Name="modal_ProductUpdate" Grid.RowSpan="4" Visibility="Collapsed" Panel.ZIndex="1000">
             <Border Background="#66000000" MouseLeftButtonDown="modal_ProductUpdate_Backdrop_MouseLeftButtonDown" />
             <Border Width="660" MaxHeight="680" Background="#FFFFFF" CornerRadius="16" BorderBrush="#E2E8F0" BorderThickness="1" Padding="28,24" HorizontalAlignment="Center" VerticalAlignment="Center">
                 <Border.Effect>
@@ -706,225 +521,8 @@
         <!-- ================================================================= -->
         <!-- 4.3 モーダル: 商品一覧表示                                        -->
         <!-- ================================================================= -->
-        <Grid x:Name="modal_ProductList" Grid.RowSpan="2" Visibility="Collapsed" Panel.ZIndex="1000">
-            <Border Background="#66000000" MouseLeftButtonDown="modal_ProductList_Backdrop_MouseLeftButtonDown" />
-            <Border Width="920" MaxHeight="640" Background="#FFFFFF" CornerRadius="16" BorderBrush="#E2E8F0" BorderThickness="1" Padding="28,24" HorizontalAlignment="Center" VerticalAlignment="Center">
-                <Border.Effect>
-                    <DropShadowEffect Color="#000000" Opacity="0.18" BlurRadius="30" ShadowDepth="8" Direction="270" />
-                </Border.Effect>
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="*" />
-                        <RowDefinition Height="Auto" />
-                    </Grid.RowDefinitions>
 
-                    <!-- ヘッダー -->
-                    <Grid Grid.Row="0" Margin="0,0,0,14">
-                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <Border Background="#EFF6FF" CornerRadius="10" Width="40" Height="40" Margin="0,0,12,0">
-                                <TextBlock Text="☷" FontSize="20" Foreground="#2563EB" HorizontalAlignment="Center" VerticalAlignment="Center" />
-                            </Border>
-                            <StackPanel VerticalAlignment="Center">
-                                <TextBlock Text="4.3 商品一覧表示" FontSize="18" FontWeight="Bold" Foreground="#1E293B" />
-                                <TextBlock Text="登録されている商品情報を一覧で表示します。" FontSize="11" Foreground="#64748B" />
-                            </StackPanel>
-                        </StackPanel>
-                        <Button HorizontalAlignment="Right" VerticalAlignment="Top" Width="32" Height="32" Background="#F1F5F9" BorderThickness="0" Cursor="Hand" Click="btn_CloseProductList_Click">
-                            <TextBlock Text="✕" FontSize="14" FontWeight="Bold" Foreground="#64748B" HorizontalAlignment="Center" VerticalAlignment="Center" />
-                        </Button>
-                    </Grid>
-
-                    <!-- ツールバー / 絞り込み -->
-                    <Border Grid.Row="1" Background="#F8FAFC" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="8" Padding="12,8" Margin="0,0,0,12">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="280" />
-                                <ColumnDefinition Width="Auto" />
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="Auto" />
-                            </Grid.ColumnDefinitions>
-                            <TextBox Grid.Column="0" x:Name="txt_ListFilterKeyword" Height="34" Padding="8,0" VerticalContentAlignment="Center" BorderBrush="#CBD5E1" KeyUp="txt_ListFilterKeyword_KeyUp" ToolTip="商品名・メーカー名・型番・色でリアルタイム絞り込み" />
-                            <CheckBox Grid.Column="1" x:Name="chk_ListIncludeHidden" Content="非表示 (フラグ=2) も含める" VerticalAlignment="Center" Margin="14,0,0,0" FontSize="12" Foreground="#475569" Click="chk_ListIncludeHidden_Click" />
-                            <TextBlock Grid.Column="2" x:Name="txt_ListCount" Text="表示件数: 0 件" FontSize="12" FontWeight="SemiBold" Foreground="#2563EB" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,12,0" />
-                            <Button Grid.Column="3" Content="最新に更新" Style="{StaticResource SecondaryButtonStyle}" Height="34" Click="btn_ListRefresh_Click" />
-                        </Grid>
-                    </Border>
-
-                    <!-- DataGrid -->
-                    <DataGrid Grid.Row="2"
-                              x:Name="dg_ProductList"
-                              AutoGenerateColumns="False"
-                              IsReadOnly="True"
-                              CanUserAddRows="False"
-                              SelectionMode="Single"
-                              GridLinesVisibility="Horizontal"
-                              HorizontalGridLinesBrush="#E2E8F0"
-                              RowHeight="36"
-                              FontSize="12.5"
-                              BorderBrush="#E2E8F0"
-                              BorderThickness="1"
-                              Background="#FFFFFF"
-                              MouseDoubleClick="dg_ProductList_MouseDoubleClick">
-                        <DataGrid.Columns>
-                            <DataGridTextColumn Header="商品ID" Binding="{Binding PrId}" Width="65" />
-                            <DataGridTextColumn Header="商品名" Binding="{Binding PrName}" Width="180" />
-                            <DataGridTextColumn Header="メーカー" Binding="{Binding MaName}" Width="110" />
-                            <DataGridTextColumn Header="分類" Binding="{Binding ScName}" Width="110" />
-                            <DataGridTextColumn Header="価格" Binding="{Binding PriceFormatted}" Width="95" />
-                            <DataGridTextColumn Header="在庫数" Binding="{Binding StockFormatted}" Width="85" />
-                            <DataGridTextColumn Header="型番" Binding="{Binding PrModelNumber}" Width="100" />
-                            <DataGridTextColumn Header="色" Binding="{Binding PrColor}" Width="75" />
-                            <DataGridTextColumn Header="安全在庫" Binding="{Binding PrSafetyStock}" Width="70" />
-                            <DataGridTextColumn Header="状態" Binding="{Binding FlagFormatted}" Width="75" />
-                        </DataGrid.Columns>
-                    </DataGrid>
-
-                    <!-- フッターアクション -->
-                    <Grid Grid.Row="3" Margin="0,14,0,0">
-                        <TextBlock Text="※ 行をダブルクリックすると直接編集画面を開きます。" FontSize="11" Foreground="#94A3B8" VerticalAlignment="Center" />
-                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                            <Button Content="選択行を非表示にする" Style="{StaticResource DangerButtonStyle}" Margin="0,0,8,0" Click="btn_ListHideSelected_Click" />
-                            <Button Content="選択行を編集する" Style="{StaticResource PrimaryButtonStyle}" Margin="0,0,8,0" Click="btn_ListEditSelected_Click" />
-                            <Button Content="閉じる" Style="{StaticResource SecondaryButtonStyle}" Width="100" Click="btn_CloseProductList_Click" />
-                        </StackPanel>
-                    </Grid>
-                </Grid>
-            </Border>
-        </Grid>
-
-        <!-- ================================================================= -->
-        <!-- 4.4 モーダル: 商品検索                                            -->
-        <!-- ================================================================= -->
-        <Grid x:Name="modal_ProductSearch" Grid.RowSpan="2" Visibility="Collapsed" Panel.ZIndex="1000">
-            <Border Background="#66000000" MouseLeftButtonDown="modal_ProductSearch_Backdrop_MouseLeftButtonDown" />
-            <Border Width="920" MaxHeight="660" Background="#FFFFFF" CornerRadius="16" BorderBrush="#E2E8F0" BorderThickness="1" Padding="28,24" HorizontalAlignment="Center" VerticalAlignment="Center">
-                <Border.Effect>
-                    <DropShadowEffect Color="#000000" Opacity="0.18" BlurRadius="30" ShadowDepth="8" Direction="270" />
-                </Border.Effect>
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="*" />
-                        <RowDefinition Height="Auto" />
-                    </Grid.RowDefinitions>
-
-                    <!-- ヘッダー -->
-                    <Grid Grid.Row="0" Margin="0,0,0,14">
-                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <Border Background="#EFF6FF" CornerRadius="10" Width="40" Height="40" Margin="0,0,12,0">
-                                <TextBlock Text="⌕" FontSize="22" Foreground="#2563EB" HorizontalAlignment="Center" VerticalAlignment="Center" />
-                            </Border>
-                            <StackPanel VerticalAlignment="Center">
-                                <TextBlock Text="4.4 商品検索" FontSize="18" FontWeight="Bold" Foreground="#1E293B" />
-                                <TextBlock Text="入力された商品情報をもとに該当商品を抽出します。" FontSize="11" Foreground="#64748B" />
-                            </StackPanel>
-                        </StackPanel>
-                        <Button HorizontalAlignment="Right" VerticalAlignment="Top" Width="32" Height="32" Background="#F1F5F9" BorderThickness="0" Cursor="Hand" Click="btn_CloseProductSearch_Click">
-                            <TextBlock Text="✕" FontSize="14" FontWeight="Bold" Foreground="#64748B" HorizontalAlignment="Center" VerticalAlignment="Center" />
-                        </Button>
-                    </Grid>
-
-                    <!-- 検索条件フォーム -->
-                    <Border Grid.Row="1" Background="#F8FAFC" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="10" Padding="14,12" Margin="0,0,0,12">
-                        <StackPanel>
-                            <Grid Margin="0,0,0,8">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="120" />
-                                    <ColumnDefinition Width="2*" />
-                                    <ColumnDefinition Width="1.5*" />
-                                    <ColumnDefinition Width="1.5*" />
-                                </Grid.ColumnDefinitions>
-                                <StackPanel Grid.Column="0" Margin="0,0,6,0">
-                                    <TextBlock Text="商品ID" FontSize="11" FontWeight="SemiBold" Foreground="#64748B" Margin="0,0,0,3" />
-                                    <TextBox x:Name="srch_txt_PrId" Height="32" Padding="6,0" VerticalContentAlignment="Center" BorderBrush="#CBD5E1" />
-                                </StackPanel>
-                                <StackPanel Grid.Column="1" Margin="6,0,6,0">
-                                    <TextBlock Text="商品名 (部分一致)" FontSize="11" FontWeight="SemiBold" Foreground="#64748B" Margin="0,0,0,3" />
-                                    <TextBox x:Name="srch_txt_PrName" Height="32" Padding="6,0" VerticalContentAlignment="Center" BorderBrush="#CBD5E1" />
-                                </StackPanel>
-                                <StackPanel Grid.Column="2" Margin="6,0,6,0">
-                                    <TextBlock Text="メーカー" FontSize="11" FontWeight="SemiBold" Foreground="#64748B" Margin="0,0,0,3" />
-                                    <ComboBox x:Name="srch_cmb_Maker" Height="32" VerticalContentAlignment="Center" DisplayMemberPath="MaName" SelectedValuePath="MaId" />
-                                </StackPanel>
-                                <StackPanel Grid.Column="3" Margin="6,0,0,0">
-                                    <TextBlock Text="小分類" FontSize="11" FontWeight="SemiBold" Foreground="#64748B" Margin="0,0,0,3" />
-                                    <ComboBox x:Name="srch_cmb_SmallClass" Height="32" VerticalContentAlignment="Center" DisplayMemberPath="ScName" SelectedValuePath="ScId" />
-                                </StackPanel>
-                            </Grid>
-
-                            <!-- 下段: 価格範囲 & 実行ボタン -->
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="130" />
-                                    <ColumnDefinition Width="Auto" />
-                                    <ColumnDefinition Width="130" />
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="Auto" />
-                                    <ColumnDefinition Width="Auto" />
-                                </Grid.ColumnDefinitions>
-                                <StackPanel Grid.Column="0">
-                                    <TextBlock Text="下限価格 (円)" FontSize="11" FontWeight="SemiBold" Foreground="#64748B" Margin="0,0,0,3" />
-                                    <TextBox x:Name="srch_txt_MinPrice" Height="32" Padding="6,0" VerticalContentAlignment="Center" BorderBrush="#CBD5E1" />
-                                </StackPanel>
-                                <TextBlock Grid.Column="1" Text="〜" VerticalAlignment="Bottom" Margin="8,0,8,6" FontSize="14" Foreground="#64748B" />
-                                <StackPanel Grid.Column="2">
-                                    <TextBlock Text="上限価格 (円)" FontSize="11" FontWeight="SemiBold" Foreground="#64748B" Margin="0,0,0,3" />
-                                    <TextBox x:Name="srch_txt_MaxPrice" Height="32" Padding="6,0" VerticalContentAlignment="Center" BorderBrush="#CBD5E1" />
-                                </StackPanel>
-                                <TextBlock Grid.Column="3" x:Name="srch_txt_Count" Text="抽出件数: 0 件" VerticalAlignment="Bottom" Margin="14,0,0,6" FontSize="12.5" FontWeight="Bold" Foreground="#2563EB" />
-                                <Button Grid.Column="4" Content="条件クリア" Style="{StaticResource SecondaryButtonStyle}" Height="34" Margin="0,0,8,0" Click="btn_ClearProductSearch_Click" />
-                                <Button Grid.Column="5" Content="検索を実行" Style="{StaticResource PrimaryButtonStyle}" Height="34" Click="btn_ExecuteProductSearch_Click" />
-                            </Grid>
-                        </StackPanel>
-                    </Border>
-
-                    <!-- 検索結果一覧 DataGrid -->
-                    <DataGrid Grid.Row="2"
-                              x:Name="dg_ProductSearchResults"
-                              AutoGenerateColumns="False"
-                              IsReadOnly="True"
-                              CanUserAddRows="False"
-                              SelectionMode="Single"
-                              GridLinesVisibility="Horizontal"
-                              HorizontalGridLinesBrush="#E2E8F0"
-                              RowHeight="36"
-                              FontSize="12.5"
-                              BorderBrush="#E2E8F0"
-                              BorderThickness="1"
-                              Background="#FFFFFF"
-                              MouseDoubleClick="dg_ProductSearchResults_MouseDoubleClick">
-                        <DataGrid.Columns>
-                            <DataGridTextColumn Header="商品ID" Binding="{Binding PrId}" Width="65" />
-                            <DataGridTextColumn Header="商品名" Binding="{Binding PrName}" Width="190" />
-                            <DataGridTextColumn Header="メーカー" Binding="{Binding MaName}" Width="110" />
-                            <DataGridTextColumn Header="分類" Binding="{Binding ScName}" Width="110" />
-                            <DataGridTextColumn Header="価格" Binding="{Binding PriceFormatted}" Width="95" />
-                            <DataGridTextColumn Header="在庫数" Binding="{Binding StockFormatted}" Width="85" />
-                            <DataGridTextColumn Header="型番" Binding="{Binding PrModelNumber}" Width="100" />
-                            <DataGridTextColumn Header="色" Binding="{Binding PrColor}" Width="75" />
-                            <DataGridTextColumn Header="安全在庫" Binding="{Binding PrSafetyStock}" Width="70" />
-                        </DataGrid.Columns>
-                    </DataGrid>
-
-                    <!-- フッター -->
-                    <Grid Grid.Row="3" Margin="0,14,0,0">
-                        <TextBlock Text="※ 行ダブルクリックで商品編集モーダルを開きます。" FontSize="11" Foreground="#94A3B8" VerticalAlignment="Center" />
-                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                            <Button Content="選択した商品を編集" Style="{StaticResource PrimaryButtonStyle}" Margin="0,0,8,0" Click="btn_SearchEditSelected_Click" />
-                            <Button Content="閉じる" Style="{StaticResource SecondaryButtonStyle}" Width="100" Click="btn_CloseProductSearch_Click" />
-                        </StackPanel>
-                    </Grid>
-                </Grid>
-            </Border>
-        </Grid>
-
-        <!-- ================================================================= -->
-        <!-- 4.5 モーダル: 商品非表示 (フラグ 0 -> 2 更新)                    -->
-        <!-- ================================================================= -->
-        <Grid x:Name="modal_ProductHide" Grid.RowSpan="2" Visibility="Collapsed" Panel.ZIndex="1000">
+<Grid x:Name="modal_ProductHide" Grid.RowSpan="4" Visibility="Collapsed" Panel.ZIndex="1000">
             <Border Background="#66000000" MouseLeftButtonDown="modal_ProductHide_Backdrop_MouseLeftButtonDown" />
             <Border Width="560" Background="#FFFFFF" CornerRadius="16" BorderBrush="#E2E8F0" BorderThickness="1" Padding="28,24" HorizontalAlignment="Center" VerticalAlignment="Center">
                 <Border.Effect>
