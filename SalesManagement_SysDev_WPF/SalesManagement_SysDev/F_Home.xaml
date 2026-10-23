@@ -261,8 +261,27 @@
                     <!-- Top Navigation List -->
                     <StackPanel VerticalAlignment="Top">
 
+                        <!-- 0. メインメニュー -->
+                        <Button x:Name="btn_NavMainMenu"
+                                Style="{StaticResource SidebarActiveButtonStyle}"
+                                Click="MenuButton_Click"
+                                Tag="00">
+                            <StackPanel Orientation="Horizontal">
+                                <Path Fill="#FFFFFF"
+                                      Width="18"
+                                      Height="18"
+                                      Stretch="Uniform"
+                                      Margin="0,0,12,0"
+                                      Data="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
+                                <TextBlock Text="メインメニュー"
+                                           FontSize="14"
+                                           FontWeight="SemiBold"
+                                           VerticalAlignment="Center" />
+                            </StackPanel>
+                        </Button>
+
                         <!-- 1. 顧客管理 -->
-                        <Button Style="{StaticResource SidebarActiveButtonStyle}"
+                        <Button Style="{StaticResource SidebarButtonStyle}"
                              Click="MenuButton_Click"
                              Tag="03">
                             <StackPanel Orientation="Horizontal">
