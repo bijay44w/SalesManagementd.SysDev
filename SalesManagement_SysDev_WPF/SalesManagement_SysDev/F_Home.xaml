@@ -162,16 +162,30 @@
         <!-- ======================================================== -->
         <!-- Top Title Bar (White Background with Subtle Divider)     -->
         <!-- ======================================================== -->
+
         <Border Grid.Row="0" Background="#FFFFFF" BorderBrush="#E5E7EB" BorderThickness="0,0,0,1">
             <Grid>
                 <!-- Left: App Identity (Blue Logo Box + Title) -->
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="20,0,0,0">
+                    <!-- ハンバーガーボタン -->
+
                     <!-- Rounded Blue App Icon Badge -->
-                    <Border Width="36" Height="36" CornerRadius="8" Background="#2563EB" Margin="0,0,12,0">
-                        <Path Fill="#FFFFFF" Width="20" Height="20" Stretch="Uniform"
-                              Data="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z" />
-                    </Border>
-                    <TextBlock Text="販売管理システム" FontSize="17.5" FontWeight="Bold" Foreground="#0F172A" VerticalAlignment="Center" />
+                    
+                    <!-- ハンバーガーボタン -->
+                    <Button x:Name="btn_ToggleSidebar"
+                        Content="☰"
+                        Width="50"
+                        Height="50"
+                        FontSize="24"
+                        Background="Transparent"
+                        Foreground="#2563EB"
+                        BorderThickness="0"
+                        Cursor="Hand"
+                        shell:WindowChrome.IsHitTestVisibleInChrome="True"
+                        Click="btn_ToggleSidebar_Click"/>   
+
+                    <shell:TextBlock Text="販売管理システム" FontSize="17.5" FontWeight="Bold" Foreground="#0F172A" VerticalAlignment="Center" />
+
                 </StackPanel>
 
                 <!-- Hidden Employee Display elements to keep code-behind functional -->
@@ -238,7 +252,7 @@
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
                 <!-- Left Sidebar -->
-                <ColumnDefinition Width="200" />
+                <ColumnDefinition x:Name="SidebarColumn" Width="200" />
                 <!-- Content Area -->
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
