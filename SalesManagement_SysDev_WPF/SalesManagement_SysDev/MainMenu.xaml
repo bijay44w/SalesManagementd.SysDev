@@ -127,7 +127,7 @@
                         <TextBlock x:Name="lbl_Role" Grid.Row="1" Grid.Column="1" Text="管理者" Foreground="#FFFFFF"/>
 
                         <TextBlock Grid.Row="1" Grid.Column="2" Text="ログオン日時 :" Foreground="#FFFFFF" Margin="14,0,6,0"/>
-                        <TextBlock x:Name="lbl_LogonDate" Grid.Row="1" Grid.Column="3" Text="2026/10/27 13:50" Foreground="#FFFFFF"/>
+                        <TextBlock x:Name="lbl_LogonDate" Grid.Row="1" Grid.Column="3" Text="2026/10/27 15:55" Foreground="#FFFFFF"/>
                     </Grid>
                 </Grid>
 
@@ -182,12 +182,13 @@
                                     <Grid>
                                         <Grid.RowDefinitions>
                                             <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
                                             <RowDefinition Height="*"/>
                                             <RowDefinition Height="Auto"/>
                                         </Grid.RowDefinitions>
 
                                         <!-- Header of Shared Memos -->
-                                        <Grid Grid.Row="0" Margin="0,0,0,10">
+                                        <Grid Grid.Row="0" Margin="0,0,0,8">
                                             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                                 <TextBlock Text="📢" FontSize="16" Margin="0,0,6,0" VerticalAlignment="Center"/>
                                                 <TextBlock Text="全体メモ（社内連絡事項）" FontSize="14" FontWeight="Bold" Foreground="#1E3A8A" VerticalAlignment="Center"/>
@@ -217,10 +218,30 @@
                                             </Button>
                                         </Grid>
 
+                                        <!-- Filter Bar: アクセス区分絞り込み -->
+                                        <Border Grid.Row="1" Background="#F1F5F9" BorderBrush="#CBD5E1" BorderThickness="1" Padding="8,4" Margin="0,0,0,8">
+                                            <Grid>
+                                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                                    <TextBlock Text="表示絞り込み :" FontSize="11" Foreground="#475569" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                                    <RadioButton x:Name="rdo_FilterAll" Content="すべて" IsChecked="True" FontSize="11" Margin="0,0,10,0" VerticalAlignment="Center"/>
+                                                    <RadioButton x:Name="rdo_FilterGeneral" Content="一般連絡" FontSize="11" Margin="0,0,10,0" VerticalAlignment="Center"/>
+                                                    <RadioButton x:Name="rdo_FilterAdmin" Content="管理者限定" FontSize="11" Margin="0,0,10,0" VerticalAlignment="Center"/>
+                                                    <RadioButton x:Name="rdo_FilterConfidential" Content="機密情報" FontSize="11" VerticalAlignment="Center"/>
+                                                </StackPanel>
+
+                                                <TextBlock x:Name="lbl_SharedMemoCount"
+                                                           HorizontalAlignment="Right"
+                                                           Text="0 件"
+                                                           FontSize="11"
+                                                           Foreground="#64748B"
+                                                           VerticalAlignment="Center"/>
+                                            </Grid>
+                                        </Border>
+
                                         <!-- List of Shared Memos (広々とした高さ) -->
                                         <ListBox x:Name="lst_SharedMemos"
-                                                 Grid.Row="1"
-                                                 MinHeight="340"
+                                                 Grid.Row="2"
+                                                 MinHeight="300"
                                                  Background="#F8FAFC"
                                                  BorderBrush="#CBD5E1"
                                                  BorderThickness="1"
@@ -237,54 +258,68 @@
                                                             </Grid.RowDefinitions>
                                                             <Grid.ColumnDefinitions>
                                                                 <ColumnDefinition Width="Auto"/>
+                                                                <ColumnDefinition Width="Auto"/>
                                                                 <ColumnDefinition Width="*"/>
                                                                 <ColumnDefinition Width="Auto"/>
                                                             </Grid.ColumnDefinitions>
 
-                                                            <!-- Priority Badge -->
+                                                            <!-- AccessLevel Badge (一般 / 管理者限定 / 機密) -->
                                                             <Border Grid.Row="0" Grid.Column="0"
-                                                                    Background="{Binding PriorityBackground}"
+                                                                    Background="{Binding AccessLevelBackground}"
                                                                     CornerRadius="3"
                                                                     Padding="6,2"
+                                                                    Margin="0,0,4,0"
+                                                                    VerticalAlignment="Center">
+                                                                <TextBlock Text="{Binding AccessLevelName}"
+                                                                           FontSize="10.5"
+                                                                           FontWeight="Bold"
+                                                                           Foreground="#FFFFFF"/>
+                                                            </Border>
+
+                                                            <!-- Priority Badge (重要 / 連絡 / 周知) -->
+                                                            <Border Grid.Row="0" Grid.Column="1"
+                                                                    Background="{Binding PriorityBackground}"
+                                                                    CornerRadius="3"
+                                                                    Padding="5,2"
                                                                     Margin="0,0,8,0"
                                                                     VerticalAlignment="Center">
                                                                 <TextBlock Text="{Binding Priority}"
-                                                                           FontSize="11"
+                                                                           FontSize="10.5"
                                                                            FontWeight="Bold"
                                                                            Foreground="#FFFFFF"/>
                                                             </Border>
 
                                                             <!-- Title -->
-                                                            <TextBlock Grid.Row="0" Grid.Column="1"
+                                                            <TextBlock Grid.Row="0" Grid.Column="2"
                                                                        Text="{Binding Title}"
-                                                                       FontSize="13"
+                                                                       FontSize="12.5"
                                                                        FontWeight="SemiBold"
                                                                        Foreground="#0F172A"
                                                                        TextTrimming="CharacterEllipsis"
                                                                        VerticalAlignment="Center"/>
 
                                                             <!-- Date -->
-                                                            <TextBlock Grid.Row="0" Grid.Column="2"
+                                                            <TextBlock Grid.Row="0" Grid.Column="3"
                                                                        Text="{Binding DisplayDate}"
-                                                                       FontSize="11.5"
+                                                                       FontSize="11"
                                                                        Foreground="#64748B"
                                                                        VerticalAlignment="Center"
                                                                        Margin="6,0,0,0"/>
 
                                                             <!-- Content Summary & Author -->
-                                                            <Grid Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" Margin="0,6,0,0">
+                                                            <Grid Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="4" Margin="0,6,0,0">
                                                                 <Grid.ColumnDefinitions>
                                                                     <ColumnDefinition Width="*"/>
                                                                     <ColumnDefinition Width="Auto"/>
                                                                 </Grid.ColumnDefinitions>
                                                                 <TextBlock Grid.Column="0"
                                                                            Text="{Binding Summary}"
-                                                                           FontSize="12"
+                                                                           FontSize="11.5"
                                                                            Foreground="#475569"
                                                                            TextTrimming="CharacterEllipsis"/>
                                                                 <TextBlock Grid.Column="1"
                                                                            Text="{Binding AuthorName, StringFormat='発信: {0}'}"
-                                                                           FontSize="11.5"
+                                                                           FontSize="11"
                                                                            Foreground="#94A3B8"
                                                                            Margin="8,0,0,0"/>
                                                             </Grid>
@@ -295,9 +330,9 @@
                                         </ListBox>
 
                                         <!-- Footer Action of Shared Memos -->
-                                        <Grid Grid.Row="2" Margin="0,10,0,0">
-                                            <TextBlock Text="※ ダブルクリックまたは「詳細表示」で全文を閲覧・編集できます"
-                                                       FontSize="11.5"
+                                        <Grid Grid.Row="3" Margin="0,10,0,0">
+                                            <TextBlock Text="※ 一般連絡は誰でも閲覧可、管理者限定は管理者のみ、機密情報は認証が必要です"
+                                                       FontSize="11"
                                                        Foreground="#64748B"
                                                        VerticalAlignment="Center"/>
 
@@ -390,18 +425,18 @@
 
                                         <!-- Memo Content TextBox (広々としたノートエディタ) -->
                                         <TextBox x:Name="txt_PersonalMemoContent"
-                                              Grid.Row="2"
-                                              MinHeight="150"
-                                              AcceptsReturn="True"
-                                              TextWrapping="Wrap"
-                                              VerticalScrollBarVisibility="Auto"
-                                              Padding="8"
-                                              FontSize="12.5"
-                                              FontFamily="Meiryo, Yu Gothic UI"
-                                              BorderBrush="#CBD5E1"
-                                              BorderThickness="1"
-                                              ToolTip="メモの内容を入力してください"/>       
-                                        
+                                                 Grid.Row="2"
+                                                 MinHeight="295"
+                                                 AcceptsReturn="True"
+                                                 TextWrapping="Wrap"
+                                                 VerticalScrollBarVisibility="Auto"
+                                                 Padding="8"
+                                                 FontSize="12.5"
+                                                 FontFamily="Meiryo, Yu Gothic UI"
+                                                 BorderBrush="#CBD5E1"
+                                                 BorderThickness="1"
+                                                 ToolTip="メモの内容を入力してください"/>
+
                                         <!-- Footer Status & Save Button -->
                                         <Grid Grid.Row="3" Margin="0,10,0,0">
                                             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
@@ -620,10 +655,22 @@
                             </ScrollViewer>
                         </TabItem>
 
-                        <!-- Tab 3: 基本操作ルール -->
-                        <TabItem Header=" 💡 基本操作・入力ルール " Style="{StaticResource GuideTabItemStyle}">
+                        <!-- Tab 3: 基本操作ルール & 連絡区分 -->
+                        <TabItem Header=" 💡 基本操作・セキュリティ区分 " Style="{StaticResource GuideTabItemStyle}">
                             <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="16,14">
                                 <StackPanel>
+                                    <!-- 連絡事項のアクセス区分 -->
+                                    <Border Background="#FEF3C7" BorderBrush="#F59E0B" BorderThickness="1" CornerRadius="4" Padding="12" Margin="0,0,0,14">
+                                        <StackPanel>
+                                            <TextBlock Text="■ 社内連絡事項（全体メモ）のセキュリティ区分" FontWeight="Bold" FontSize="13.5" Foreground="#B45309" Margin="0,0,0,6"/>
+                                            <TextBlock Text="社内連絡事項には3つのアクセス区分が設定されており、情報セキュリティを確保しています：" FontSize="12" Margin="0,0,0,6"/>
+                                            
+                                            <TextBlock Text="① 一般的な業務連絡 (青バッジ) : 全社員がログイン後、そのまま自由に閲覧できます。" Margin="0,2" FontWeight="SemiBold" Foreground="#1E3A8A"/>
+                                            <TextBlock Text="② 管理者向けの重要な連絡 (橙バッジ) : 管理者権限を持つアカウントのみ閲覧可能です（一般社員には非表示/アクセス不可）。" Margin="0,2" FontWeight="SemiBold" Foreground="#B45309"/>
+                                            <TextBlock Text="③ 機密情報を含む連絡 (紫バッジ) : 閲覧時に追加の暗証パスコード（初期設定: 9999）の入力が必要です。" Margin="0,2" FontWeight="SemiBold" Foreground="#6B21A8"/>
+                                        </StackPanel>
+                                    </Border>
+
                                     <!-- 検索 -->
                                     <TextBlock Text="1. 検索・一覧表示の操作" FontWeight="Bold" FontSize="13.5" Foreground="#0F172A" Margin="0,0,0,4"/>
                                     <TextBlock Text="・各画面の検索欄にキーワード（ID、氏名、商品名、電話番号等）を入力して「検索」を実行すると絞り込みが可能です。&#x0a;・条件を空にして検索ボタンを押すと、全件の一覧が表示されます。&#x0a;・非表示（論理削除）されたデータは通常一覧には表示されません（「非表示を含む」チェックで確認可能）。"
@@ -635,8 +682,8 @@
                                                LineHeight="20" Foreground="#475569" TextWrapping="Wrap" Margin="0,0,0,14"/>
 
                                     <!-- メモ機能 -->
-                                    <TextBlock Text="3. 個人メモと全体メモの使い分け" FontWeight="Bold" FontSize="13.5" Foreground="#0F172A" Margin="0,0,0,4"/>
-                                    <TextBlock Text="・【個人メモ】: ログイン中の社員本人だけが閲覧・編集できる専用メモです。日々のToDoや顧客との会話メモ等にご活用ください。&#x0a;・【全体メモ】: 管理者から全社員への連絡事項・周知を共有する掲示板です。管理者のアカウントでのみ新規投稿・編集が可能です。"
+                                    <TextBlock Text="3. 個人メモ機能の活用" FontWeight="Bold" FontSize="13.5" Foreground="#0F172A" Margin="0,0,0,4"/>
+                                    <TextBlock Text="・ログイン中の社員本人だけが閲覧・編集できる専用メモです。日々のToDoや顧客との会話メモ等にご活用ください。"
                                                LineHeight="20" Foreground="#475569" TextWrapping="Wrap" Margin="0,0,0,8"/>
                                 </StackPanel>
                             </ScrollViewer>
@@ -649,24 +696,24 @@
                                     <!-- Q1 -->
                                     <Border Background="#F8FAFC" BorderBrush="#E2E8F0" BorderThickness="1" Padding="12" Margin="0,0,0,10">
                                         <StackPanel>
-                                            <TextBlock Text="Q. パスワードの変更はどこから行えますか？" FontWeight="Bold" FontSize="12.5" Foreground="#0F172A" Margin="0,0,0,4"/>
-                                            <TextBlock Text="A. 画面右上の社員名（役職ピル）をクリックすると「アカウント情報・パスワード変更」モーダルが表示されます。現在のパスワードと新しいパスワード（4〜10文字）を入力して変更してください。" LineHeight="19" Foreground="#475569" TextWrapping="Wrap"/>
+                                            <TextBlock Text="Q. 機密情報のパスコードは何ですか？" FontWeight="Bold" FontSize="12.5" Foreground="#0F172A" Margin="0,0,0,4"/>
+                                            <TextBlock Text="A. 初期設定の閲覧用パスコードは「9999」です。管理者が連絡事項を投稿・編集する際に、任意のパスコードに変更することも可能です。" LineHeight="19" Foreground="#475569" TextWrapping="Wrap"/>
                                         </StackPanel>
                                     </Border>
 
                                     <!-- Q2 -->
                                     <Border Background="#F8FAFC" BorderBrush="#E2E8F0" BorderThickness="1" Padding="12" Margin="0,0,0,10">
                                         <StackPanel>
-                                            <TextBlock Text="Q. 在庫数が足りない場合に出庫処理を行うとどうなりますか？" FontWeight="Bold" FontSize="12.5" Foreground="#0F172A" Margin="0,0,0,4"/>
-                                            <TextBlock Text="A. 在庫不足のエラーメッセージが表示され、出庫指示を完了できません。先に発注管理および入庫処理を行い、在庫を確保してください。" LineHeight="19" Foreground="#475569" TextWrapping="Wrap"/>
+                                            <TextBlock Text="Q. 一般社員アカウントで管理者限定の連絡を見ることはできますか？" FontWeight="Bold" FontSize="12.5" Foreground="#0F172A" Margin="0,0,0,4"/>
+                                            <TextBlock Text="A. 見ることはできません。情報統制のため、管理者限定の連絡は管理者権限（管理者役職）でログインしている場合のみ閲覧できます。" LineHeight="19" Foreground="#475569" TextWrapping="Wrap"/>
                                         </StackPanel>
                                     </Border>
 
                                     <!-- Q3 -->
                                     <Border Background="#F8FAFC" BorderBrush="#E2E8F0" BorderThickness="1" Padding="12" Margin="0,0,0,10">
                                         <StackPanel>
-                                            <TextBlock Text="Q. 誤って削除（非表示）した顧客や商品は復旧できますか？" FontWeight="Bold" FontSize="12.5" Foreground="#0F172A" Margin="0,0,0,4"/>
-                                            <TextBlock Text="A. 本システムは論理削除（非表示フラグ管理）を採用しています。「非表示を含む」で一覧を検索し、更新画面等から非表示フラグを解除することで復元が可能です。" LineHeight="19" Foreground="#475569" TextWrapping="Wrap"/>
+                                            <TextBlock Text="Q. パスワードの変更はどこから行えますか？" FontWeight="Bold" FontSize="12.5" Foreground="#0F172A" Margin="0,0,0,4"/>
+                                            <TextBlock Text="A. 画面右上の社員名（役職ピル）をクリックすると「アカウント情報・パスワード変更」モーダルが表示されます。現在のパスワードと新しいパスワード（4〜10文字）を入力して変更してください。" LineHeight="19" Foreground="#475569" TextWrapping="Wrap"/>
                                         </StackPanel>
                                     </Border>
                                 </StackPanel>
@@ -696,7 +743,7 @@
             <Border Background="#80000000" MouseLeftButtonDown="modal_SharedMemoDetail_Backdrop_Click"/>
 
             <!-- Main Modal Window -->
-            <Border Width="620"
+            <Border Width="640"
                     Background="#FFFFFF"
                     BorderBrush="#707070"
                     BorderThickness="1"
@@ -743,11 +790,11 @@
 
                     <!-- Form Content -->
                     <StackPanel Grid.Row="1" Margin="20,16,20,12">
-                        <!-- Priority & Date Grid -->
+                        <!-- Row 1: Priority & Date Grid -->
                         <Grid Margin="0,0,0,10">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="140"/>
+                                <ColumnDefinition Width="130"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
 
@@ -763,8 +810,46 @@
                             </ComboBox>
 
                             <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
-                                <TextBlock x:Name="lbl_SharedMemoMeta" Text="投稿者: 管理者 ｜ 2026/10/27 13:50" FontSize="11" Foreground="#64748B"/>
+                                <TextBlock x:Name="lbl_SharedMemoMeta" Text="投稿者: 管理者 ｜ 2026/10/27 15:55" FontSize="11" Foreground="#64748B"/>
                             </StackPanel>
+                        </Grid>
+
+                        <!-- Row 2: Access Level (公開区分) & Passcode -->
+                        <Grid Margin="0,0,0,10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="220"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Grid.Column="0" Text="アクセス区分 :" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                            <ComboBox x:Name="cmb_SharedMemoAccessLevel"
+                                      Grid.Column="1"
+                                      Height="28"
+                                      VerticalContentAlignment="Center"
+                                      SelectionChanged="cmb_SharedMemoAccessLevel_SelectionChanged">
+                                <ComboBoxItem Content="一般連絡 (全社員閲覧可)" Tag="General"/>
+                                <ComboBoxItem Content="管理者限定 (管理者のみ)" Tag="AdminOnly"/>
+                                <ComboBoxItem Content="機密情報 (要パスコード認証)" Tag="Confidential"/>
+                            </ComboBox>
+
+                            <!-- 機密情報のパスコード設定入力 -->
+                            <TextBlock x:Name="lbl_SharedMemoPasscodeLabel"
+                                       Grid.Column="2"
+                                       Text="認証コード:"
+                                       FontWeight="Bold"
+                                       VerticalAlignment="Center"
+                                       Margin="12,0,6,0"
+                                       Visibility="Collapsed"/>
+                            <TextBox x:Name="txt_SharedMemoPasscode"
+                                     Grid.Column="3"
+                                     Height="28"
+                                     MaxLength="10"
+                                     VerticalContentAlignment="Center"
+                                     Padding="6,2"
+                                     ToolTip="機密情報の閲覧に必要なパスコード（例: 9999）"
+                                     Visibility="Collapsed"/>
                         </Grid>
 
                         <!-- Title Input -->
@@ -773,13 +858,13 @@
                                  Height="30"
                                  FontSize="13"
                                  Padding="6,4"
-                                 Margin="0,0,0,12"
+                                 Margin="0,0,0,10"
                                  BorderBrush="#CBD5E1"/>
 
                         <!-- Content Input -->
                         <TextBlock Text="本文 / 連絡内容 :" FontWeight="Bold" Margin="0,0,0,4"/>
                         <TextBox x:Name="txt_SharedMemoContent"
-                                 Height="180"
+                                 Height="170"
                                  FontSize="12.5"
                                  FontFamily="Meiryo, Yu Gothic UI"
                                  AcceptsReturn="True"
@@ -831,6 +916,91 @@
                                         Click="btn_CloseSharedMemoModal_Click"/>
                             </StackPanel>
                         </Grid>
+                    </Border>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!-- ============================================================ -->
+        <!-- モーダル 3: 機密情報アクセス認証ダイアログ                   -->
+        <!-- ============================================================ -->
+        <Grid x:Name="modal_ConfidentialAuth" Visibility="Collapsed" Panel.ZIndex="1002">
+            <!-- Backdrop -->
+            <Border Background="#80000000" MouseLeftButtonDown="modal_ConfidentialAuth_Backdrop_Click"/>
+
+            <!-- Centered Auth Card -->
+            <Border Width="440" Height="260"
+                    Background="#FFFFFF"
+                    BorderBrush="#7C3AED"
+                    BorderThickness="2"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center">
+                <Border.Effect>
+                    <DropShadowEffect Color="#000000" Opacity="0.4" BlurRadius="30" ShadowDepth="8" Direction="270"/>
+                </Border.Effect>
+
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <!-- Header -->
+                        <RowDefinition Height="46"/>
+                        <!-- Body -->
+                        <RowDefinition Height="*"/>
+                        <!-- Footer -->
+                        <RowDefinition Height="48"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Header -->
+                    <Border Grid.Row="0" Background="#6D28D9" Padding="16,0">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock Text="🔐" FontSize="18" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                            <TextBlock Text="機密情報アクセス認証" FontSize="15" FontWeight="Bold" Foreground="#FFFFFF" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Body Content -->
+                    <StackPanel Grid.Row="1" Margin="24,14,24,10" VerticalAlignment="Center">
+                        <TextBlock Text="この連絡事項には機密情報が含まれています。"
+                                   FontWeight="Bold" FontSize="13" Foreground="#1E293B" Margin="0,0,0,4"/>
+                        <TextBlock Text="閲覧するには指定のアクセスコード（パスコード）を入力してください。"
+                                   FontSize="11.5" Foreground="#64748B" Margin="0,0,0,12"/>
+
+                        <!-- Passcode Input -->
+                        <PasswordBox x:Name="pwd_ConfidentialInput"
+                                     Height="32"
+                                     FontSize="16"
+                                     HorizontalContentAlignment="Center"
+                                     BorderBrush="#CBD5E1"
+                                     KeyDown="pwd_ConfidentialInput_KeyDown"/>
+
+                        <!-- Error Message -->
+                        <TextBlock x:Name="lbl_ConfidentialAuthError"
+                                   Text="認証コードが一致しません。再度入力してください。"
+                                   Foreground="#DC2626"
+                                   FontSize="11.5"
+                                   FontWeight="SemiBold"
+                                   Margin="0,6,0,0"
+                                   Visibility="Collapsed"
+                                   HorizontalAlignment="Center"/>
+                    </StackPanel>
+
+                    <!-- Footer Bar -->
+                    <Border Grid.Row="2" Background="#F8FAFC" BorderBrush="#E2E8F0" BorderThickness="0,1,0,0" Padding="16,0">
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                            <Button Style="{StaticResource ClassicWinFormsButtonStyle}"
+                                    Height="30"
+                                    Width="80"
+                                    Content="キャンセル"
+                                    Margin="0,0,8,0"
+                                    Click="btn_CancelConfidentialAuth_Click"/>
+                            <Button Style="{StaticResource ClassicWinFormsButtonStyle}"
+                                    Height="30"
+                                    Padding="14,2"
+                                    Background="#EDE9FE"
+                                    BorderBrush="#7C3AED"
+                                    Click="btn_SubmitConfidentialAuth_Click">
+                                <TextBlock Text="解除して閲覧" Foreground="#6D28D9" FontWeight="Bold"/>
+                            </Button>
+                        </StackPanel>
                     </Border>
                 </Grid>
             </Border>

@@ -16,6 +16,20 @@ namespace SalesManagement_SysDev
         public string Title { get; set; } = string.Empty;
         public string Content { get; set; } = string.Empty;
         public string Priority { get; set; } = "通常"; // 重要, 連絡, 周知, 通常
+
+        /// <summary>
+        /// アクセス区分:
+        /// "General" = 一般的な業務連絡（ログイン後そのまま閲覧可能）
+        /// "AdminOnly" = 管理者向けの重要な連絡（管理者のみ閲覧可能）
+        /// "Confidential" = 機密情報を含む連絡（追加のパスコード認証が必要）
+        /// </summary>
+        public string AccessLevel { get; set; } = "General";
+
+        /// <summary>
+        /// 機密情報閲覧用の追加パスコード（未設定時は "9999"）
+        /// </summary>
+        public string? Passcode { get; set; } = "9999";
+
         public string AuthorName { get; set; } = "管理者";
         public int AuthorEmpId { get; set; } = 0;
         public DateTime CreatedAt { get; set; } = DateTime.Now;
@@ -32,6 +46,24 @@ namespace SalesManagement_SysDev
             "周知" => "#388E3C", // 緑
             _ => "#616161"        // グレー
         };
+
+        public string AccessLevelName => AccessLevel switch
+        {
+            "AdminOnly" => "管理者限定",
+            "Confidential" => "🔒 機密情報",
+            _ => "一般連絡"
+        };
+
+        public string AccessLevelBackground => AccessLevel switch
+        {
+            "AdminOnly" => "#D97706",    // オレンジ
+            "Confidential" => "#7C3AED", // 紫
+            _ => "#2563EB"               // 青
+        };
+
+        public bool IsConfidential => AccessLevel == "Confidential";
+        public bool IsAdminOnly => AccessLevel == "AdminOnly";
+        public bool IsGeneral => AccessLevel == "General";
     }
 
     /// <summary>
@@ -95,9 +127,18 @@ namespace SalesManagement_SysDev
 
                 string json = File.ReadAllText(_sharedMemoFilePath);
                 var list = JsonSerializer.Deserialize<List<SharedMemoItem>>(json, _jsonOptions);
-                return list?.OrderByDescending(m => m.Priority == "重要")
-                            .ThenByDescending(m => m.CreatedAt)
-                            .ToList() ?? new List<SharedMemoItem>();
+                
+                // 旧形式データの場合や空の場合の補正
+                if (list == null || list.Count == 0 || !list.Any(m => m.AccessLevel == "AdminOnly" || m.AccessLevel == "Confidential"))
+                {
+                    var initialMemos = CreateInitialSharedMemos();
+                    SaveSharedMemos(initialMemos);
+                    return initialMemos;
+                }
+
+                return list.OrderByDescending(m => m.Priority == "重要")
+                           .ThenByDescending(m => m.CreatedAt)
+                           .ToList();
             }
             catch
             {
@@ -133,6 +174,8 @@ namespace SalesManagement_SysDev
                 existing.Title = item.Title;
                 existing.Content = item.Content;
                 existing.Priority = item.Priority;
+                existing.AccessLevel = item.AccessLevel;
+                existing.Passcode = item.Passcode;
                 existing.UpdatedAt = DateTime.Now;
             }
             else
@@ -156,35 +199,55 @@ namespace SalesManagement_SysDev
         {
             return new List<SharedMemoItem>
             {
+                // ① 一般的な業務連絡 (ログイン後そのまま閲覧可能)
                 new SharedMemoItem
                 {
                     Id = Guid.NewGuid().ToString(),
-                    Title = "【重要】システム利用時の注意点と締め処理について",
-                    Content = "社員の皆様へ\n\n・日々の売上・受注データは当日中に確定処理をお願いいたします。\n・月末の棚卸期間中は在庫の移動処理にご注意ください。\n・システム操作で不明な点がある場合は、ヘッダーの「使い方」マニュアルをご確認ください。",
-                    Priority = "重要",
-                    AuthorName = "管理者 (システム管理課)",
+                    Title = "【一般連絡】月次棚卸スケジュールと通常業務の注意点",
+                    Content = "社員の皆様へ\n\n・来週金曜日は各営業所にて定期在庫棚卸を実施します。\n・当日の出庫・出荷処理は午前中までに完了するよう手配をお願いします。\n・操作方法で不明な点がある場合は、ヘッダーの「使い方」マニュアルをご確認ください。",
+                    Priority = "連絡",
+                    AccessLevel = "General",
+                    AuthorName = "本社 営業推進部",
+                    AuthorEmpId = 1,
+                    CreatedAt = DateTime.Now.AddHours(-1)
+                },
+                new SharedMemoItem
+                {
+                    Id = Guid.NewGuid().ToString(),
+                    Title = "【周知】新機能「操作ガイド」「個人メモ」利用開始のご案内",
+                    Content = "本日より、メインメニューに以下の機能が追加されました。\n\n1.「システムの使い方」: 各業務フローや操作方法をいつでも閲覧できます。\n2.「個人メモ」: ログイン社員専用のTo-Doや備忘録を安全に保存できます。\n3.「社内連絡」: 全社周知や重要連絡を共有します。",
+                    Priority = "周知",
+                    AccessLevel = "General",
+                    AuthorName = "システム管理者",
                     AuthorEmpId = 1,
                     CreatedAt = DateTime.Now.AddDays(-1)
                 },
+
+                // ② 管理者向けの重要な連絡 (管理者のみ閲覧可能)
                 new SharedMemoItem
                 {
                     Id = Guid.NewGuid().ToString(),
-                    Title = "【周知】新機能「操作ガイド」「個人メモ」追加のお知らせ",
-                    Content = "本日のシステムアップデートにより、以下の機能が利用可能になりました。\n\n1.「システムの使い方」: 各画面の操作方法や業務フローをいつでも閲覧できます。\n2.「個人メモ」: 自分専用のToDoや備忘録をログインアカウントごとに保存できます。\n3.「全体メモ」: 管理者からの重要連絡や社内周知事項を共有します。",
-                    Priority = "周知",
-                    AuthorName = "管理者",
-                    AuthorEmpId = 1,
-                    CreatedAt = DateTime.Now
-                },
-                new SharedMemoItem
-                {
-                    Id = Guid.NewGuid().ToString(),
-                    Title = "【連絡】来週の在庫棚卸スケジュールについて",
-                    Content = "来週金曜日は各営業所にて定期在庫棚卸を実施します。\n棚卸完了まで商品の出庫確定は一時保留となりますので、事前準備をお願いいたします。",
-                    Priority = "連絡",
-                    AuthorName = "本社 営業推進部",
+                    Title = "【管理者限定】第3四半期 役職者会議および人員配置計画について",
+                    Content = "管理者・役職者各位\n\n・来期の営業所別人員配置および各拠点の目標進捗確認について、来週火曜15:00より役職者会議を実施します。\n・各拠点の売上実績・在庫回転率の集計データを事前にご確認ください。\n・会議用アジェンダは追って共有します。",
+                    Priority = "重要",
+                    AccessLevel = "AdminOnly",
+                    AuthorName = "営業本部長",
                     AuthorEmpId = 1,
                     CreatedAt = DateTime.Now.AddHours(-3)
+                },
+
+                // ③ 機密情報を含む連絡 (追加のアクセス制限・パスコード認証が必要)
+                new SharedMemoItem
+                {
+                    Id = Guid.NewGuid().ToString(),
+                    Title = "【機密情報】新規大型取引先との提携契約および価格改定案（要認証）",
+                    Content = "【社外秘・関係者限り】\n\n・大手量販店チェーンとの新規卸契約締結に関する合意覚書です。\n・新製品の卸価格および想定利益率が記載されています。\n・正式プレスリリースまで他部門や外部への口外を固く禁止いたします。\n\n[初期設定パスコード: 9999]",
+                    Priority = "重要",
+                    AccessLevel = "Confidential",
+                    Passcode = "9999",
+                    AuthorName = "代表取締役 / 経営企画室",
+                    AuthorEmpId = 1,
+                    CreatedAt = DateTime.Now.AddHours(-5)
                 }
             };
         }

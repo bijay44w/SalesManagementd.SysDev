@@ -28,11 +28,19 @@ namespace SalesManagement_SysDev
         // 全体メモ関連
         private List<SharedMemoItem> _sharedMemos = new();
         private SharedMemoItem? _editingSharedMemo;
+        private SharedMemoItem? _pendingConfidentialMemo; // 機密情報認証待ちのメモ
+        private string _currentFilter = "All";
 
         public MainMenu()
         {
             InitializeComponent();
             lbl_LogonDate.Text = DateTime.Now.ToString("yyyy/MM/dd HH:mm");
+
+            // XAML初期化完了後にイベントを登録（パース中のNullReferenceExceptionを防止）
+            rdo_FilterAll.Checked += Filter_Checked;
+            rdo_FilterGeneral.Checked += Filter_Checked;
+            rdo_FilterAdmin.Checked += Filter_Checked;
+            rdo_FilterConfidential.Checked += Filter_Checked;
 
             // 初期化時に全体メモ・個人メモ（管理者デフォルト）をロード
             LoadSharedMemos();
@@ -65,9 +73,16 @@ namespace SalesManagement_SysDev
 
             // 権限ごとのUI制御
             bool isAdmin = IsAdmin();
-            lbl_SharedMemoAdminBadge.Text = isAdmin ? " [管理者権限: 投稿可] " : " [閲覧専用] ";
+            lbl_SharedMemoAdminBadge.Text = isAdmin ? " [管理者権限: 投稿可] " : " [一般社員: 閲覧のみ] ";
             lbl_SharedMemoAdminBadge.Foreground = isAdmin ? System.Windows.Media.Brushes.DarkGreen : System.Windows.Media.Brushes.Gray;
             btn_NewSharedMemo.Visibility = isAdmin ? Visibility.Visible : Visibility.Collapsed;
+
+            // 一般社員の場合は「管理者限定」フィルターの利用を制御
+            rdo_FilterAdmin.IsEnabled = isAdmin;
+            if (!isAdmin && rdo_FilterAdmin.IsChecked == true)
+            {
+                rdo_FilterAll.IsChecked = true;
+            }
 
             // 各種メモ再読み込み
             LoadPersonalMemos();
@@ -101,15 +116,73 @@ namespace SalesManagement_SysDev
 
         #endregion
 
-        #region ② 社内連絡事項 (全体メモ)
+        #region ② 社内連絡事項 (全体メモ) - 一般連絡・管理者限定・機密情報の制御
 
         private void LoadSharedMemos()
         {
             _sharedMemos = _memoService.GetSharedMemos();
-            lst_SharedMemos.ItemsSource = null;
-            lst_SharedMemos.ItemsSource = _sharedMemos;
+            ApplySharedMemoFilter();
+        }
 
-            if (_sharedMemos.Count > 0)
+        private void Filter_Checked(object sender, RoutedEventArgs e)
+        {
+            if (rdo_FilterAll?.IsChecked == true) _currentFilter = "All";
+            else if (rdo_FilterGeneral?.IsChecked == true) _currentFilter = "General";
+            else if (rdo_FilterAdmin?.IsChecked == true) _currentFilter = "AdminOnly";
+            else if (rdo_FilterConfidential?.IsChecked == true) _currentFilter = "Confidential";
+
+            ApplySharedMemoFilter();
+        }
+
+        private void ApplySharedMemoFilter()
+        {
+            if (lst_SharedMemos == null) return;
+
+            // 共有メモの一覧が null の場合は空の一覧として扱う
+            var memos = _sharedMemos ?? new List<SharedMemoItem>();
+
+            bool isAdmin = IsAdmin();
+
+            // 1. 権限による基本フィルタリング
+            var accessibleMemos = memos.Where(m =>
+            {
+                if (m == null)
+                {
+                    return false;
+                }
+
+                if (m.AccessLevel == "AdminOnly" && !isAdmin)
+                {
+                    return false;
+                }
+
+                return true;
+            });
+
+            // 2. 選択されたフィルターによる絞り込み
+            var filtered = accessibleMemos.Where(m =>
+            {
+                return _currentFilter switch
+                {
+                    "General" => m.AccessLevel == "General",
+                    "AdminOnly" => m.AccessLevel == "AdminOnly",
+                    "Confidential" => m.AccessLevel == "Confidential",
+                    _ => true
+                };
+            }).ToList();
+
+            // 3. 一覧を更新
+            lst_SharedMemos.ItemsSource = null;
+            lst_SharedMemos.ItemsSource = filtered;
+
+            // 4. 件数を更新
+            if (lbl_SharedMemoCount != null)
+            {
+                lbl_SharedMemoCount.Text = $"{filtered.Count} 件";
+            }
+
+            // 5. 先頭の項目を選択
+            if (filtered.Count > 0)
             {
                 lst_SharedMemos.SelectedIndex = 0;
             }
@@ -129,6 +202,8 @@ namespace SalesManagement_SysDev
                 AuthorName = _loggedInEmployee?.EmName ?? "管理者",
                 AuthorEmpId = _loggedInEmployee?.EmId ?? 1,
                 Priority = "重要",
+                AccessLevel = "General",
+                Passcode = "9999",
                 CreatedAt = DateTime.Now
             };
 
@@ -137,8 +212,16 @@ namespace SalesManagement_SysDev
             txt_SharedMemoContent.Text = "";
             txt_SharedMemoTitle.IsReadOnly = false;
             txt_SharedMemoContent.IsReadOnly = false;
+
             cmb_SharedMemoPriority.IsEnabled = true;
             cmb_SharedMemoPriority.SelectedIndex = 0; // 重要
+
+            cmb_SharedMemoAccessLevel.IsEnabled = true;
+            cmb_SharedMemoAccessLevel.SelectedIndex = 0; // 一般連絡
+
+            txt_SharedMemoPasscode.Text = "9999";
+            lbl_SharedMemoPasscodeLabel.Visibility = Visibility.Collapsed;
+            txt_SharedMemoPasscode.Visibility = Visibility.Collapsed;
 
             lbl_SharedMemoMeta.Text = $"発信者: {_editingSharedMemo.AuthorName} ｜ {DateTime.Now:yyyy/MM/dd HH:mm}";
             lbl_SharedMemoReadOnlyNotice.Visibility = Visibility.Collapsed;
@@ -169,35 +252,117 @@ namespace SalesManagement_SysDev
                 return;
             }
 
-            _editingSharedMemo = selected;
             bool isAdmin = IsAdmin();
 
-            modal_SharedMemoTitleText.Text = isAdmin ? "社内連絡事項の確認・編集" : "社内連絡事項の詳細（閲覧用）";
-            txt_SharedMemoTitle.Text = selected.Title;
-            txt_SharedMemoContent.Text = selected.Content;
+            // ========================================================
+            // アクセス制御判定
+            // ========================================================
+
+            // 1. 一般的な業務連絡：そのまま閲覧可能
+            if (selected.AccessLevel == "General")
+            {
+                ShowSharedMemoDetail(selected);
+                return;
+            }
+
+            // 2. 管理者向けの重要な連絡：管理者のみ閲覧可能
+            if (selected.AccessLevel == "AdminOnly")
+            {
+                if (!isAdmin)
+                {
+                    MessageBox.Show("この連絡事項は管理者限定です。\n一般社員アカウントでは閲覧できません。",
+                                    "アクセス権限制限", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+                ShowSharedMemoDetail(selected);
+                return;
+            }
+
+            // 3. 機密情報を含む連絡：追加のアクセス制限（パスコード認証）
+            if (selected.AccessLevel == "Confidential")
+            {
+                if (!isAdmin)
+                {
+                    MessageBox.Show("この連絡事項は【機密情報】に指定されています。\n閲覧には管理者権限および認証コードが必要です。",
+                                    "アクセス権限制限", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
+                // 機密情報のパスコード認証ダイアログを表示
+                _pendingConfidentialMemo = selected;
+                pwd_ConfidentialInput.Password = "";
+                lbl_ConfidentialAuthError.Visibility = Visibility.Collapsed;
+                modal_ConfidentialAuth.Visibility = Visibility.Visible;
+                pwd_ConfidentialInput.Focus();
+                return;
+            }
+
+            // デフォルト
+            ShowSharedMemoDetail(selected);
+        }
+
+        private void ShowSharedMemoDetail(SharedMemoItem item)
+        {
+            _editingSharedMemo = item;
+            bool isAdmin = IsAdmin();
+
+            modal_SharedMemoTitleText.Text = isAdmin ? $"社内連絡事項の確認・編集 [{item.AccessLevelName}]"
+                                                     : $"社内連絡事項の詳細（閲覧用） [{item.AccessLevelName}]";
+            txt_SharedMemoTitle.Text = item.Title;
+            txt_SharedMemoContent.Text = item.Content;
 
             // 優先度コンボボックスの設定
-            foreach (ComboBoxItem item in cmb_SharedMemoPriority.Items)
+            foreach (ComboBoxItem cItem in cmb_SharedMemoPriority.Items)
             {
-                if (item.Content?.ToString() == selected.Priority)
+                if (cItem.Content?.ToString() == item.Priority)
                 {
-                    cmb_SharedMemoPriority.SelectedItem = item;
+                    cmb_SharedMemoPriority.SelectedItem = cItem;
                     break;
                 }
             }
 
-            lbl_SharedMemoMeta.Text = $"発信者: {selected.AuthorName} ｜ 投稿日時: {selected.DisplayDate}";
+            // アクセス区分コンボボックスの設定
+            foreach (ComboBoxItem aItem in cmb_SharedMemoAccessLevel.Items)
+            {
+                if (aItem.Tag?.ToString() == item.AccessLevel)
+                {
+                    cmb_SharedMemoAccessLevel.SelectedItem = aItem;
+                    break;
+                }
+            }
+
+            txt_SharedMemoPasscode.Text = item.Passcode ?? "9999";
+            bool isConfidential = item.AccessLevel == "Confidential";
+            lbl_SharedMemoPasscodeLabel.Visibility = isConfidential && isAdmin ? Visibility.Visible : Visibility.Collapsed;
+            txt_SharedMemoPasscode.Visibility = isConfidential && isAdmin ? Visibility.Visible : Visibility.Collapsed;
+
+            lbl_SharedMemoMeta.Text = $"発信者: {item.AuthorName} ｜ 投稿日時: {item.DisplayDate} ｜ 区分: {item.AccessLevelName}";
 
             // 権限による編集可否制御
             txt_SharedMemoTitle.IsReadOnly = !isAdmin;
             txt_SharedMemoContent.IsReadOnly = !isAdmin;
             cmb_SharedMemoPriority.IsEnabled = isAdmin;
+            cmb_SharedMemoAccessLevel.IsEnabled = isAdmin;
+            txt_SharedMemoPasscode.IsReadOnly = !isAdmin;
 
             btn_SaveSharedMemo.Visibility = isAdmin ? Visibility.Visible : Visibility.Collapsed;
             btn_DeleteSharedMemo.Visibility = isAdmin ? Visibility.Visible : Visibility.Collapsed;
             lbl_SharedMemoReadOnlyNotice.Visibility = isAdmin ? Visibility.Collapsed : Visibility.Visible;
 
             modal_SharedMemoDetail.Visibility = Visibility.Visible;
+        }
+
+        private void cmb_SharedMemoAccessLevel_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (cmb_SharedMemoAccessLevel?.SelectedItem is ComboBoxItem item)
+            {
+                bool isConfidential = item.Tag?.ToString() == "Confidential";
+                if (lbl_SharedMemoPasscodeLabel != null && txt_SharedMemoPasscode != null)
+                {
+                    lbl_SharedMemoPasscodeLabel.Visibility = isConfidential ? Visibility.Visible : Visibility.Collapsed;
+                    txt_SharedMemoPasscode.Visibility = isConfidential ? Visibility.Visible : Visibility.Collapsed;
+                }
+            }
         }
 
         private void btn_SaveSharedMemo_Click(object sender, RoutedEventArgs e)
@@ -234,6 +399,17 @@ namespace SalesManagement_SysDev
                 _editingSharedMemo.Priority = selectedPriority.Content?.ToString() ?? "通常";
             }
 
+            if (cmb_SharedMemoAccessLevel.SelectedItem is ComboBoxItem selectedAccess)
+            {
+                _editingSharedMemo.AccessLevel = selectedAccess.Tag?.ToString() ?? "General";
+            }
+
+            if (_editingSharedMemo.AccessLevel == "Confidential")
+            {
+                string passcode = txt_SharedMemoPasscode.Text.Trim();
+                _editingSharedMemo.Passcode = string.IsNullOrEmpty(passcode) ? "9999" : passcode;
+            }
+
             _editingSharedMemo.AuthorName = _loggedInEmployee?.EmName ?? "管理者";
             _editingSharedMemo.AuthorEmpId = _loggedInEmployee?.EmId ?? 1;
 
@@ -242,7 +418,7 @@ namespace SalesManagement_SysDev
             modal_SharedMemoDetail.Visibility = Visibility.Collapsed;
             LoadSharedMemos();
 
-            MessageBox.Show("全体メモ（連絡事項）を保存しました。", "完了", MessageBoxButton.OK, MessageBoxImage.Information);
+            MessageBox.Show($"全体メモを保存しました。\n区分: {_editingSharedMemo.AccessLevelName}", "完了", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
         private void btn_DeleteSharedMemo_Click(object sender, RoutedEventArgs e)
@@ -267,6 +443,61 @@ namespace SalesManagement_SysDev
         private void modal_SharedMemoDetail_Backdrop_Click(object sender, MouseButtonEventArgs e)
         {
             modal_SharedMemoDetail.Visibility = Visibility.Collapsed;
+        }
+
+        #endregion
+
+        #region 機密情報アクセス認証ダイアログの制御
+
+        private void btn_SubmitConfidentialAuth_Click(object sender, RoutedEventArgs e)
+        {
+            VerifyConfidentialPasscode();
+        }
+
+        private void pwd_ConfidentialInput_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                VerifyConfidentialPasscode();
+            }
+        }
+
+        private void VerifyConfidentialPasscode()
+        {
+            if (_pendingConfidentialMemo == null)
+            {
+                modal_ConfidentialAuth.Visibility = Visibility.Collapsed;
+                return;
+            }
+
+            string input = pwd_ConfidentialInput.Password.Trim();
+            string expected = string.IsNullOrEmpty(_pendingConfidentialMemo.Passcode) ? "9999" : _pendingConfidentialMemo.Passcode;
+
+            if (input == expected)
+            {
+                // 認証成功！
+                modal_ConfidentialAuth.Visibility = Visibility.Collapsed;
+                ShowSharedMemoDetail(_pendingConfidentialMemo);
+            }
+            else
+            {
+                // 認証失敗
+                lbl_ConfidentialAuthError.Visibility = Visibility.Visible;
+                pwd_ConfidentialInput.SelectAll();
+                pwd_ConfidentialInput.Focus();
+            }
+        }
+
+        private void btn_CancelConfidentialAuth_Click(object sender, RoutedEventArgs e)
+        {
+            modal_ConfidentialAuth.Visibility = Visibility.Collapsed;
+            _pendingConfidentialMemo = null;
+        }
+
+        private void modal_ConfidentialAuth_Backdrop_Click(object sender, MouseButtonEventArgs e)
+        {
+            modal_ConfidentialAuth.Visibility = Visibility.Collapsed;
+            _pendingConfidentialMemo = null;
         }
 
         #endregion
@@ -402,7 +633,5 @@ namespace SalesManagement_SysDev
         }
 
         #endregion
-
-
     }
 }
