@@ -1,306 +1,441 @@
-﻿<UserControl x:Class="SalesManagement_SysDev.Employee"
+<UserControl x:Class="SalesManagement_SysDev.Employee"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             Background="#F4F8FD"
+             Background="#F1F5F9"
              FontFamily="Segoe UI, Meiryo, Yu Gothic UI"
-             FontSize="14">
+             FontSize="13">
 
     <UserControl.Resources>
-        <Style x:Key="EmployeeCardStyle" TargetType="Border">
-            <Setter Property="Background" Value="#FFFFFF"/>
-            <Setter Property="CornerRadius" Value="18"/>
-            <Setter Property="BorderBrush" Value="#E2E8F0"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Padding" Value="24,22"/>
-            <Setter Property="Margin" Value="8"/>
-            <Setter Property="Effect">
+        <!-- レトロ・業務アプリ ボタンスタイル -->
+        <Style x:Key="ActionButtonStyle" TargetType="Button">
+            <Setter Property="Height" Value="32" />
+            <Setter Property="Padding" Value="14,0" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
                 <Setter.Value>
-                    <DropShadowEffect Color="#0F172A"
-                                      Opacity="0.04"
-                                      BlurRadius="20"
-                                      ShadowDepth="4"
-                                      Direction="270"/>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="bd" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="4" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="bd" Property="Opacity" Value="0.88" />
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="bd" Property="Opacity" Value="0.75" />
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="bd" Property="Opacity" Value="0.45" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
                 </Setter.Value>
             </Setter>
+        </Style>
+
+        <Style x:Key="RetroTextBoxStyle" TargetType="TextBox">
+            <Setter Property="Height" Value="30" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+            <Setter Property="Padding" Value="6,0" />
+            <Setter Property="BorderBrush" Value="#94A3B8" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="FontSize" Value="13" />
         </Style>
     </UserControl.Resources>
 
     <Grid>
-        <Grid.Background>
-            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                <GradientStop Color="#F4F8FD" Offset="0"/>
-                <GradientStop Color="#ECF2FB" Offset="1"/>
-            </LinearGradientBrush>
-        </Grid.Background>
-
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
+            <!-- 0: ヘッダー -->
+            <RowDefinition Height="Auto" />
+            <!-- 1: 検索条件バー -->
+            <RowDefinition Height="Auto" />
+            <!-- 2: 操作ツールバー -->
+            <RowDefinition Height="Auto" />
+            <!-- 3: 一覧表 DataGrid -->
+            <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-        <!-- タイトル -->
-        <StackPanel Grid.Row="0"
-                    Orientation="Horizontal"
-                    VerticalAlignment="Center"
-                    Margin="36,30,36,18">
+        <!-- ======================================================== -->
+        <!-- 0. タイトルバー (Retro Dark Teal)                         -->
+        <!-- ======================================================== -->
+        <Border Grid.Row="0" Background="#004D40" Padding="20,12" BorderBrush="#00332C" BorderThickness="0,0,0,2">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
 
-            <Border Background="#DBEAFE"
-                    Width="54"
-                    Height="54"
-                    CornerRadius="27"
-                    Margin="0,0,16,0">
-                <Path Fill="#2563EB"
-                      Width="26"
-                      Height="26"
-                      Stretch="Uniform"
-                      Data="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5s-3 1.34-3 3 1.34 3 3 3z M8 11c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5 5 6.34 5 8s1.34 3 3 3z M8 13c-2.33 0-7 1.17-7 3.5V19h14v-2.5C15 14.17 10.33 13 8 13z M16 13c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
-            </Border>
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <Border Background="#26A69A" Width="34" Height="34" CornerRadius="4" Margin="0,0,12,0">
+                        <TextBlock Text="👤" FontSize="18" Foreground="#FFFFFF" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+                    <StackPanel VerticalAlignment="Center">
+                        <TextBlock Text="社員管理" FontSize="18" FontWeight="Bold" Foreground="#FFFFFF" />
+                        <TextBlock Text="社員情報の検索・一覧・登録・更新・非表示管理" FontSize="11" Foreground="#80CBC4" Margin="0,2,0,0" />
+                    </StackPanel>
+                </StackPanel>
 
-            <StackPanel VerticalAlignment="Center">
-                <TextBlock Text="社員管理"
-                           FontSize="25"
-                           FontWeight="Bold"
-                           Foreground="#0F172A"/>
+                <TextBlock Grid.Column="1" Text="【直接検索 / 即時反映】" FontSize="12" Foreground="#E0F2F1" VerticalAlignment="Center" Margin="0,0,10,0" />
+            </Grid>
+        </Border>
 
-                <TextBlock Text="社員情報の登録・更新・検索などを管理します。"
-                           FontSize="13"
-                           Foreground="#64748B"
-                           Margin="0,5,0,0"/>
-            </StackPanel>
-        </StackPanel>
+        <!-- ======================================================== -->
+        <!-- 1. 検索バー (画面上部に常駐・モーダル不要)                 -->
+        <!-- ======================================================== -->
+        <Border Grid.Row="1" Background="#FFFFFF" BorderBrush="#CBD5E1" BorderThickness="1" CornerRadius="6" Margin="16,12,16,8" Padding="14,10">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
 
-        <!-- 操作カード：3列×2行 -->
-        <Grid Grid.Row="1" Margin="26,0,36,30">
+                <!-- 検索フィールド群 -->
+                <WrapPanel Grid.Row="0" VerticalAlignment="Center" Orientation="Horizontal">
+                    <!-- 社員ID -->
+                    <StackPanel Orientation="Horizontal" Margin="0,4,16,4" VerticalAlignment="Center">
+                        <TextBlock Text="社員ID:" FontWeight="SemiBold" Foreground="#334155" VerticalAlignment="Center" Margin="0,0,6,0" />
+                        <TextBox x:Name="txt_SearchEmId" Style="{StaticResource RetroTextBoxStyle}" Width="70" KeyDown="SearchField_KeyDown" />
+                    </StackPanel>
 
+                    <!-- 社員名 -->
+                    <StackPanel Orientation="Horizontal" Margin="0,4,16,4" VerticalAlignment="Center">
+                        <TextBlock Text="社員名:" FontWeight="SemiBold" Foreground="#334155" VerticalAlignment="Center" Margin="0,0,6,0" />
+                        <TextBox x:Name="txt_SearchEmName" Style="{StaticResource RetroTextBoxStyle}" Width="120" KeyDown="SearchField_KeyDown" />
+                    </StackPanel>
+
+                    <!-- 営業所 -->
+                    <StackPanel Orientation="Horizontal" Margin="0,4,16,4" VerticalAlignment="Center">
+                        <TextBlock Text="営業所:" FontWeight="SemiBold" Foreground="#334155" VerticalAlignment="Center" Margin="0,0,6,0" />
+                        <ComboBox x:Name="cmb_SearchOffice" Width="140" Height="30" VerticalContentAlignment="Center" DisplayMemberPath="SoName" SelectedValuePath="SoId" SelectionChanged="cmb_Filter_SelectionChanged" />
+                    </StackPanel>
+
+                    <!-- 役職 -->
+                    <StackPanel Orientation="Horizontal" Margin="0,4,16,4" VerticalAlignment="Center">
+                        <TextBlock Text="役職:" FontWeight="SemiBold" Foreground="#334155" VerticalAlignment="Center" Margin="0,0,6,0" />
+                        <ComboBox x:Name="cmb_SearchPosition" Width="120" Height="30" VerticalContentAlignment="Center" DisplayMemberPath="PoName" SelectedValuePath="PoId" SelectionChanged="cmb_Filter_SelectionChanged" />
+                    </StackPanel>
+
+                    <!-- 電話番号 -->
+                    <StackPanel Orientation="Horizontal" Margin="0,4,16,4" VerticalAlignment="Center">
+                        <TextBlock Text="電話番号:" FontWeight="SemiBold" Foreground="#334155" VerticalAlignment="Center" Margin="0,0,6,0" />
+                        <TextBox x:Name="txt_SearchPhone" Style="{StaticResource RetroTextBoxStyle}" Width="110" KeyDown="SearchField_KeyDown" />
+                    </StackPanel>
+
+                    <!-- 非表示を含む -->
+                    <CheckBox x:Name="chk_IncludeHidden" Content="非表示を含む" VerticalAlignment="Center" Margin="6,4,16,4" Foreground="#334155" FontWeight="SemiBold" Click="chk_IncludeHidden_Click" />
+                </WrapPanel>
+
+                <!-- 検索・クリアボタン (右寄せ) -->
+                <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,6,0,0">
+                    <Button x:Name="btn_Search" Style="{StaticResource ActionButtonStyle}" Background="#006666" Foreground="#FFFFFF" Margin="0,0,8,0" Click="btn_Search_Click">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="🔍" Margin="0,0,4,0" />
+                            <TextBlock Text="検索" FontWeight="Bold" />
+                        </StackPanel>
+                    </Button>
+                    <Button x:Name="btn_Clear" Style="{StaticResource ActionButtonStyle}" Background="#F1F5F9" Foreground="#334155" BorderBrush="#94A3B8" BorderThickness="1" Click="btn_Clear_Click">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="✕" Margin="0,0,4,0" />
+                            <TextBlock Text="条件クリア" />
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- ======================================================== -->
+        <!-- 2. 操作ツールバー (新規登録・編集・非表示)                 -->
+        <!-- ======================================================== -->
+        <Grid Grid.Row="2" Margin="16,0,16,8">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
 
-            <Grid.RowDefinitions>
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
+            <!-- 操作ボタン群 -->
+            <StackPanel Grid.Column="0" Orientation="Horizontal">
+                <Button x:Name="btn_NewRegister" Style="{StaticResource ActionButtonStyle}" Background="#008080" Foreground="#FFFFFF" Margin="0,0,8,0" Click="btn_NewRegister_Click">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="＋" Margin="0,0,4,0" FontWeight="Bold" />
+                        <TextBlock Text="新規社員登録" FontWeight="Bold" />
+                    </StackPanel>
+                </Button>
 
-            <!-- 社員登録 -->
-            <Border Grid.Row="0" Grid.Column="0"
-                    Style="{StaticResource EmployeeCardStyle}">
-                <Grid>
-                    <StackPanel>
-                        <Border Background="#EFF6FF"
-                                Width="44" Height="44"
-                                CornerRadius="22"
-                                HorizontalAlignment="Left"
-                                Margin="0,0,0,14">
-                            <TextBlock Text="+"
-                                       FontSize="28"
-                                       Foreground="#2563EB"
-                                       HorizontalAlignment="Center"
-                                       VerticalAlignment="Center"/>
-                        </Border>
+                <Button x:Name="btn_EditSelected" Style="{StaticResource ActionButtonStyle}" Background="#0284C7" Foreground="#FFFFFF" Margin="0,0,8,0" Click="btn_EditSelected_Click">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="✎" Margin="0,0,4,0" />
+                        <TextBlock Text="社員情報を変更" FontWeight="Bold" />
+                    </StackPanel>
+                </Button>
 
-                        <TextBlock Text="社員登録"
-                                   FontSize="17.5"
-                                   FontWeight="Bold"
-                                   Foreground="#0F172A"
-                                   Margin="0,0,0,8"/>
+                <Button x:Name="btn_HideSelected" Style="{StaticResource ActionButtonStyle}" Background="#DC2626" Foreground="#FFFFFF" Margin="0,0,8,0" Click="btn_HideSelected_Click">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="⊘" Margin="0,0,4,0" />
+                        <TextBlock Text="非表示設定" FontWeight="Bold" />
+                    </StackPanel>
+                </Button>
+            </StackPanel>
 
-                        <TextBlock Text="社員情報を入力し、&#x0a;登録します。"
-                                   FontSize="12"
-                                   Foreground="#64748B"
-                                   LineHeight="19"
-                                   TextWrapping="Wrap"/>
+            <!-- レコード件数表示 -->
+            <TextBlock x:Name="txt_RecordCount" Grid.Column="1" Text="表示件数: 0 件" FontSize="13" Foreground="#475569" FontWeight="SemiBold" HorizontalAlignment="Right" VerticalAlignment="Center" />
+        </Grid>
+
+        <!-- ======================================================== -->
+        <!-- 3. メイン DataGrid (常時表示の一覧テーブル)               -->
+        <!-- ======================================================== -->
+        <Border Grid.Row="3" Background="#FFFFFF" BorderBrush="#CBD5E1" BorderThickness="1" CornerRadius="6" Margin="16,0,16,16">
+            <DataGrid x:Name="dg_Employees"
+                      AutoGenerateColumns="False"
+                      IsReadOnly="True"
+                      CanUserAddRows="False"
+                      CanUserDeleteRows="False"
+                      SelectionMode="Single"
+                      GridLinesVisibility="Horizontal"
+                      HorizontalGridLinesBrush="#E2E8F0"
+                      RowHeight="34"
+                      AlternatingRowBackground="#F8FAFC"
+                      BorderThickness="0"
+                      SelectionChanged="dg_Employees_SelectionChanged"
+                      MouseDoubleClick="dg_Employees_MouseDoubleClick">
+                <DataGrid.ColumnHeaderStyle>
+                    <Style TargetType="DataGridColumnHeader">
+                        <Setter Property="Background" Value="#E2E8F0" />
+                        <Setter Property="Foreground" Value="#1E293B" />
+                        <Setter Property="FontWeight" Value="SemiBold" />
+                        <Setter Property="Height" Value="34" />
+                        <Setter Property="Padding" Value="10,0" />
+                        <Setter Property="BorderThickness" Value="0,0,1,1" />
+                        <Setter Property="BorderBrush" Value="#CBD5E1" />
+                    </Style>
+                </DataGrid.ColumnHeaderStyle>
+
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="社員ID" Binding="{Binding EmId}" Width="80" />
+                    <DataGridTextColumn Header="社員名" Binding="{Binding EmName}" Width="150" />
+                    <DataGridTextColumn Header="所属営業所" Binding="{Binding SoName}" Width="140" />
+                    <DataGridTextColumn Header="役職" Binding="{Binding PoName}" Width="110" />
+                    <DataGridTextColumn Header="入社年月日" Binding="{Binding HiredateFormatted}" Width="120" />
+                    <DataGridTextColumn Header="電話番号" Binding="{Binding EmPhone}" Width="140" />
+                    <DataGridTextColumn Header="状態" Binding="{Binding FlagFormatted}" Width="90" />
+                </DataGrid.Columns>
+            </DataGrid>
+        </Border>
+
+        <!-- ======================================================== -->
+        <!-- モーダル 1: 新規社員登録                                  -->
+        <!-- ======================================================== -->
+        <Grid x:Name="modal_Register" Grid.RowSpan="4" Visibility="Collapsed" Panel.ZIndex="1000">
+            <Border Background="#66000000" MouseLeftButtonDown="modal_Register_Backdrop_Click" />
+            <Border Width="500" Background="#FFFFFF" CornerRadius="12" BorderBrush="#E2E8F0" BorderThickness="1" Padding="28,24" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <Border.Effect>
+                    <DropShadowEffect Color="#000000" Opacity="0.18" BlurRadius="25" ShadowDepth="6" Direction="270" />
+                </Border.Effect>
+                <StackPanel>
+                    <!-- ヘッダー -->
+                    <Grid Margin="0,0,0,16">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <Border Background="#E6FFFA" CornerRadius="8" Width="36" Height="36" Margin="0,0,10,0">
+                                <TextBlock Text="＋" FontSize="20" Foreground="#008080" HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="Bold" />
+                            </Border>
+                            <StackPanel VerticalAlignment="Center">
+                                <TextBlock Text="新規社員登録" FontSize="17" FontWeight="Bold" Foreground="#0F172A" />
+                                <TextBlock Text="新しい社員情報を入力して登録します。" FontSize="11" Foreground="#64748B" />
+                            </StackPanel>
+                        </StackPanel>
+                        <Button HorizontalAlignment="Right" VerticalAlignment="Top" Width="28" Height="28" Background="#F1F5F9" BorderThickness="0" Cursor="Hand" Click="btn_CancelRegister_Click">
+                            <TextBlock Text="✕" FontSize="13" Foreground="#64748B" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Button>
+                    </Grid>
+
+                    <Separator Background="#E2E8F0" Margin="0,0,0,14" />
+
+                    <!-- 入力フォーム -->
+                    <StackPanel Margin="0,0,0,10">
+                        <TextBlock Text="社員名 *" FontWeight="SemiBold" Foreground="#334155" Margin="0,0,0,4" />
+                        <TextBox x:Name="reg_txt_EmName" Style="{StaticResource RetroTextBoxStyle}" />
                     </StackPanel>
 
-                    <Border Width="36" Height="36"
-                            CornerRadius="18"
-                            Background="#EFF6FF"
-                            HorizontalAlignment="Right"
-                            VerticalAlignment="Bottom">
-                        <TextBlock Text="→" FontSize="20"
-                                   Foreground="#2563EB"
-                                   HorizontalAlignment="Center"
-                                   VerticalAlignment="Center"/>
-                    </Border>
-                </Grid>
-            </Border>
+                    <Grid Margin="0,0,0,10">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="12" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="所属営業所 *" FontWeight="SemiBold" Foreground="#334155" Margin="0,0,0,4" />
+                            <ComboBox x:Name="reg_cmb_Office" Height="30" VerticalContentAlignment="Center" DisplayMemberPath="SoName" SelectedValuePath="SoId" />
+                        </StackPanel>
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Text="役職 *" FontWeight="SemiBold" Foreground="#334155" Margin="0,0,0,4" />
+                            <ComboBox x:Name="reg_cmb_Position" Height="30" VerticalContentAlignment="Center" DisplayMemberPath="PoName" SelectedValuePath="PoId" />
+                        </StackPanel>
+                    </Grid>
 
-            <!-- 社員更新 -->
-            <Border Grid.Row="0" Grid.Column="1"
-                    Style="{StaticResource EmployeeCardStyle}">
-                <Grid>
-                    <StackPanel>
-                        <Border Background="#EFF6FF"
-                                Width="44" Height="44"
-                                CornerRadius="22"
-                                HorizontalAlignment="Left"
-                                Margin="0,0,0,14">
-                            <TextBlock Text="✎"
-                                       FontSize="23"
-                                       Foreground="#2563EB"
-                                       HorizontalAlignment="Center"
-                                       VerticalAlignment="Center"/>
-                        </Border>
+                    <Grid Margin="0,0,0,10">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="12" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="入社年月日" FontWeight="SemiBold" Foreground="#334155" Margin="0,0,0,4" />
+                            <DatePicker x:Name="reg_dp_Hiredate" Height="30" />
+                        </StackPanel>
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Text="電話番号 *" FontWeight="SemiBold" Foreground="#334155" Margin="0,0,0,4" />
+                            <TextBox x:Name="reg_txt_Phone" Style="{StaticResource RetroTextBoxStyle}" />
+                        </StackPanel>
+                    </Grid>
 
-                        <TextBlock Text="社員更新"
-                                   FontSize="17.5"
-                                   FontWeight="Bold"
-                                   Foreground="#0F172A"
-                                   Margin="0,0,0,8"/>
-
-                        <TextBlock Text="登録済みの社員情報を確認し、&#x0a;内容を更新します。"
-                                   FontSize="12"
-                                   Foreground="#64748B"
-                                   LineHeight="19"
-                                   TextWrapping="Wrap"/>
+                    <StackPanel Margin="0,0,0,16">
+                        <TextBlock Text="初期パスワード (4〜10文字) *" FontWeight="SemiBold" Foreground="#334155" Margin="0,0,0,4" />
+                        <TextBox x:Name="reg_txt_Password" Style="{StaticResource RetroTextBoxStyle}" Text="1234" />
                     </StackPanel>
 
-                    <Border Width="36" Height="36"
-                            CornerRadius="18"
-                            Background="#EFF6FF"
-                            HorizontalAlignment="Right"
-                            VerticalAlignment="Bottom">
-                        <TextBlock Text="→" FontSize="20"
-                                   Foreground="#2563EB"
-                                   HorizontalAlignment="Center"
-                                   VerticalAlignment="Center"/>
-                    </Border>
-                </Grid>
+                    <!-- ボタン群 -->
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                        <Button Style="{StaticResource ActionButtonStyle}" Background="#F1F5F9" Foreground="#334155" BorderBrush="#94A3B8" BorderThickness="1" Margin="0,0,8,0" Click="btn_CancelRegister_Click" Content="キャンセル" />
+                        <Button Style="{StaticResource ActionButtonStyle}" Background="#008080" Foreground="#FFFFFF" Click="btn_ExecuteRegister_Click" Content="登録する" />
+                    </StackPanel>
+                </StackPanel>
             </Border>
+        </Grid>
 
-            <!-- 社員一覧表示 -->
-            <Border Grid.Row="0" Grid.Column="2"
-                    Style="{StaticResource EmployeeCardStyle}">
-                <Grid>
-                    <StackPanel>
-                        <Border Background="#EFF6FF"
-                                Width="44" Height="44"
-                                CornerRadius="22"
-                                HorizontalAlignment="Left"
-                                Margin="0,0,0,14">
-                            <TextBlock Text="☷"
-                                       FontSize="24"
-                                       Foreground="#2563EB"
-                                       HorizontalAlignment="Center"
-                                       VerticalAlignment="Center"/>
-                        </Border>
+        <!-- ======================================================== -->
+        <!-- モーダル 2: 社員情報変更                                  -->
+        <!-- ======================================================== -->
+        <Grid x:Name="modal_Update" Grid.RowSpan="4" Visibility="Collapsed" Panel.ZIndex="1000">
+            <Border Background="#66000000" MouseLeftButtonDown="modal_Update_Backdrop_Click" />
+            <Border Width="500" Background="#FFFFFF" CornerRadius="12" BorderBrush="#E2E8F0" BorderThickness="1" Padding="28,24" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <Border.Effect>
+                    <DropShadowEffect Color="#000000" Opacity="0.18" BlurRadius="25" ShadowDepth="6" Direction="270" />
+                </Border.Effect>
+                <StackPanel>
+                    <!-- ヘッダー -->
+                    <Grid Margin="0,0,0,16">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <Border Background="#F0F9FF" CornerRadius="8" Width="36" Height="36" Margin="0,0,10,0">
+                                <TextBlock Text="✎" FontSize="18" Foreground="#0284C7" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                            </Border>
+                            <StackPanel VerticalAlignment="Center">
+                                <TextBlock Text="社員情報変更" FontSize="17" FontWeight="Bold" Foreground="#0F172A" />
+                                <TextBlock Text="登録されている社員の内容を編集・更新します。" FontSize="11" Foreground="#64748B" />
+                            </StackPanel>
+                        </StackPanel>
+                        <Button HorizontalAlignment="Right" VerticalAlignment="Top" Width="28" Height="28" Background="#F1F5F9" BorderThickness="0" Cursor="Hand" Click="btn_CancelUpdate_Click">
+                            <TextBlock Text="✕" FontSize="13" Foreground="#64748B" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Button>
+                    </Grid>
 
-                        <TextBlock Text="社員一覧表示"
-                                   FontSize="17.5"
-                                   FontWeight="Bold"
-                                   Foreground="#0F172A"
-                                   Margin="0,0,0,8"/>
+                    <Separator Background="#E2E8F0" Margin="0,0,0,14" />
 
-                        <TextBlock Text="登録されている社員情報を&#x0a;一覧で表示します。"
-                                   FontSize="12"
-                                   Foreground="#64748B"
-                                   LineHeight="19"
-                                   TextWrapping="Wrap"/>
+                    <!-- 社員ID (変更不可) -->
+                    <StackPanel Margin="0,0,0,10">
+                        <TextBlock Text="社員ID" FontWeight="SemiBold" Foreground="#64748B" Margin="0,0,0,4" />
+                        <TextBox x:Name="upd_txt_EmId" Style="{StaticResource RetroTextBoxStyle}" IsReadOnly="True" Background="#F8FAFC" Foreground="#64748B" />
                     </StackPanel>
 
-                    <Border Width="36" Height="36"
-                            CornerRadius="18"
-                            Background="#EFF6FF"
-                            HorizontalAlignment="Right"
-                            VerticalAlignment="Bottom">
-                        <TextBlock Text="→" FontSize="20"
-                                   Foreground="#2563EB"
-                                   HorizontalAlignment="Center"
-                                   VerticalAlignment="Center"/>
-                    </Border>
-                </Grid>
-            </Border>
-
-            <!-- 社員検索 -->
-            <Border Grid.Row="1" Grid.Column="0"
-                    Style="{StaticResource EmployeeCardStyle}">
-                <Grid>
-                    <StackPanel>
-                        <Border Background="#EFF6FF"
-                                Width="44" Height="44"
-                                CornerRadius="22"
-                                HorizontalAlignment="Left"
-                                Margin="0,0,0,14">
-                            <TextBlock Text="⌕"
-                                       FontSize="30"
-                                       Foreground="#2563EB"
-                                       HorizontalAlignment="Center"
-                                       VerticalAlignment="Center"/>
-                        </Border>
-
-                        <TextBlock Text="社員検索"
-                                   FontSize="17.5"
-                                   FontWeight="Bold"
-                                   Foreground="#0F172A"
-                                   Margin="0,0,0,8"/>
-
-                        <TextBlock Text="社員番号や社員名などで検索し、&#x0a;社員情報を表示します。"
-                                   FontSize="12"
-                                   Foreground="#64748B"
-                                   LineHeight="19"
-                                   TextWrapping="Wrap"/>
+                    <!-- 社員名 -->
+                    <StackPanel Margin="0,0,0,10">
+                        <TextBlock Text="社員名 *" FontWeight="SemiBold" Foreground="#334155" Margin="0,0,0,4" />
+                        <TextBox x:Name="upd_txt_EmName" Style="{StaticResource RetroTextBoxStyle}" />
                     </StackPanel>
 
-                    <Border Width="36" Height="36"
-                            CornerRadius="18"
-                            Background="#EFF6FF"
-                            HorizontalAlignment="Right"
-                            VerticalAlignment="Bottom">
-                        <TextBlock Text="→" FontSize="20"
-                                   Foreground="#2563EB"
-                                   HorizontalAlignment="Center"
-                                   VerticalAlignment="Center"/>
-                    </Border>
-                </Grid>
-            </Border>
+                    <Grid Margin="0,0,0,10">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="12" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="所属営業所 *" FontWeight="SemiBold" Foreground="#334155" Margin="0,0,0,4" />
+                            <ComboBox x:Name="upd_cmb_Office" Height="30" VerticalContentAlignment="Center" DisplayMemberPath="SoName" SelectedValuePath="SoId" />
+                        </StackPanel>
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Text="役職 *" FontWeight="SemiBold" Foreground="#334155" Margin="0,0,0,4" />
+                            <ComboBox x:Name="upd_cmb_Position" Height="30" VerticalContentAlignment="Center" DisplayMemberPath="PoName" SelectedValuePath="PoId" />
+                        </StackPanel>
+                    </Grid>
 
-            <!-- 社員非表示 -->
-            <Border Grid.Row="1" Grid.Column="1"
-                    Style="{StaticResource EmployeeCardStyle}">
-                <Grid>
-                    <StackPanel>
-                        <Border Background="#EFF6FF"
-                                Width="44" Height="44"
-                                CornerRadius="22"
-                                HorizontalAlignment="Left"
-                                Margin="0,0,0,14">
-                            <TextBlock Text="⊘"
-                                       FontSize="25"
-                                       Foreground="#2563EB"
-                                       HorizontalAlignment="Center"
-                                       VerticalAlignment="Center"/>
-                        </Border>
+                    <Grid Margin="0,0,0,10">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="12" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="入社年月日" FontWeight="SemiBold" Foreground="#334155" Margin="0,0,0,4" />
+                            <DatePicker x:Name="upd_dp_Hiredate" Height="30" />
+                        </StackPanel>
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Text="電話番号 *" FontWeight="SemiBold" Foreground="#334155" Margin="0,0,0,4" />
+                            <TextBox x:Name="upd_txt_Phone" Style="{StaticResource RetroTextBoxStyle}" />
+                        </StackPanel>
+                    </Grid>
 
-                        <TextBlock Text="社員非表示"
-                                   FontSize="17.5"
-                                   FontWeight="Bold"
-                                   Foreground="#0F172A"
-                                   Margin="0,0,0,8"/>
-
-                        <TextBlock Text="対象の社員情報を管理フラグで&#x0a;非表示にします。"
-                                   FontSize="12"
-                                   Foreground="#64748B"
-                                   LineHeight="19"
-                                   TextWrapping="Wrap"/>
+                    <StackPanel Margin="0,0,0,16">
+                        <TextBlock Text="パスワード再設定 (変更する場合のみ入力: 4〜10文字)" FontWeight="SemiBold" Foreground="#334155" Margin="0,0,0,4" />
+                        <TextBox x:Name="upd_txt_Password" Style="{StaticResource RetroTextBoxStyle}" />
                     </StackPanel>
 
-                    <Border Width="36" Height="36"
-                            CornerRadius="18"
-                            Background="#EFF6FF"
-                            HorizontalAlignment="Right"
-                            VerticalAlignment="Bottom">
-                        <TextBlock Text="→" FontSize="20"
-                                   Foreground="#2563EB"
-                                   HorizontalAlignment="Center"
-                                   VerticalAlignment="Center"/>
-                    </Border>
-                </Grid>
+                    <!-- ボタン群 -->
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                        <Button Style="{StaticResource ActionButtonStyle}" Background="#F1F5F9" Foreground="#334155" BorderBrush="#94A3B8" BorderThickness="1" Margin="0,0,8,0" Click="btn_CancelUpdate_Click" Content="キャンセル" />
+                        <Button Style="{StaticResource ActionButtonStyle}" Background="#0284C7" Foreground="#FFFFFF" Click="btn_ExecuteUpdate_Click" Content="更新する" />
+                    </StackPanel>
+                </StackPanel>
             </Border>
+        </Grid>
 
-            <!-- 6枚目は空欄 -->
-            <Grid Grid.Row="1" Grid.Column="2"/>
+        <!-- ======================================================== -->
+        <!-- モーダル 3: 社員非表示設定 (論理削除)                      -->
+        <!-- ======================================================== -->
+        <Grid x:Name="modal_Hide" Grid.RowSpan="4" Visibility="Collapsed" Panel.ZIndex="1000">
+            <Border Background="#66000000" MouseLeftButtonDown="modal_Hide_Backdrop_Click" />
+            <Border Width="460" Background="#FFFFFF" CornerRadius="12" BorderBrush="#E2E8F0" BorderThickness="1" Padding="28,24" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <Border.Effect>
+                    <DropShadowEffect Color="#000000" Opacity="0.18" BlurRadius="25" ShadowDepth="6" Direction="270" />
+                </Border.Effect>
+                <StackPanel>
+                    <!-- ヘッダー -->
+                    <Grid Margin="0,0,0,14">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <Border Background="#FEF2F2" CornerRadius="8" Width="36" Height="36" Margin="0,0,10,0">
+                                <TextBlock Text="⊘" FontSize="18" Foreground="#DC2626" HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="Bold" />
+                            </Border>
+                            <StackPanel VerticalAlignment="Center">
+                                <TextBlock Text="社員非表示設定" FontSize="17" FontWeight="Bold" Foreground="#0F172A" />
+                                <TextBlock Text="対象の社員情報を非表示（論理削除）にします。" FontSize="11" Foreground="#64748B" />
+                            </StackPanel>
+                        </StackPanel>
+                        <Button HorizontalAlignment="Right" VerticalAlignment="Top" Width="28" Height="28" Background="#F1F5F9" BorderThickness="0" Cursor="Hand" Click="btn_CancelHide_Click">
+                            <TextBlock Text="✕" FontSize="13" Foreground="#64748B" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Button>
+                    </Grid>
 
+                    <Separator Background="#E2E8F0" Margin="0,0,0,14" />
+
+                    <!-- 対象確認情報 -->
+                    <Border Background="#F8FAFC" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="6" Padding="12,10" Margin="0,0,0,12">
+                        <StackPanel>
+                            <TextBlock x:Name="hide_txt_TargetInfo" Text="社員ID: - / 社員名: -" FontWeight="Bold" Foreground="#1E293B" FontSize="13.5" />
+                        </StackPanel>
+                    </Border>
+
+                    <StackPanel Margin="0,0,0,16">
+                        <TextBlock Text="非表示理由" FontWeight="SemiBold" Foreground="#334155" Margin="0,0,0,4" />
+                        <TextBox x:Name="hide_txt_Reason" Style="{StaticResource RetroTextBoxStyle}" Text="退職による非表示設定" />
+                    </StackPanel>
+
+                    <!-- ボタン群 -->
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                        <Button Style="{StaticResource ActionButtonStyle}" Background="#F1F5F9" Foreground="#334155" BorderBrush="#94A3B8" BorderThickness="1" Margin="0,0,8,0" Click="btn_CancelHide_Click" Content="キャンセル" />
+                        <Button Style="{StaticResource ActionButtonStyle}" Background="#DC2626" Foreground="#FFFFFF" Click="btn_ExecuteHide_Click" Content="非表示にする" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
         </Grid>
     </Grid>
 </UserControl>

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
@@ -489,6 +489,147 @@ namespace SalesManagement_SysDev
         {
             txt_HideSuccessMessage.Text = msg;
             border_HideSuccessAlert.Visibility = Visibility.Visible;
+        }
+
+        // =====================================================================
+        // 新規商品登録モーダル (在庫管理から呼び出し)
+        // =====================================================================
+        private void btn_MainNewProduct_Click(object sender, RoutedEventArgs e)
+        {
+            OpenInventoryCreateProductModal();
+        }
+
+        private void btn_QuickCreateProduct_Click(object sender, RoutedEventArgs e)
+        {
+            OpenInventoryCreateProductModal();
+        }
+
+        public void OpenInventoryCreateProductModal()
+        {
+            border_NewProdErrorAlert.Visibility = Visibility.Collapsed;
+            border_NewProdSuccessAlert.Visibility = Visibility.Collapsed;
+
+            var makers = _productService.GetMakers();
+            newprod_cmb_Maker.ItemsSource = makers;
+            if (makers.Count > 0) newprod_cmb_Maker.SelectedIndex = 0;
+
+            var smallClasses = _productService.GetSmallClassifications();
+            newprod_cmb_SmallClass.ItemsSource = smallClasses;
+            if (smallClasses.Count > 0) newprod_cmb_SmallClass.SelectedIndex = 0;
+
+            newprod_txt_PrName.Text = string.Empty;
+            newprod_txt_Price.Text = string.Empty;
+            newprod_txt_SafetyStock.Text = "10";
+            newprod_txt_InitialStock.Text = "50";
+            newprod_txt_ModelNumber.Text = string.Empty;
+            newprod_txt_Color.Text = string.Empty;
+
+            modal_InventoryCreateProduct.Visibility = Visibility.Visible;
+            newprod_txt_PrName.Focus();
+        }
+
+        private void btn_CloseInventoryCreateProduct_Click(object sender, RoutedEventArgs e)
+        {
+            modal_InventoryCreateProduct.Visibility = Visibility.Collapsed;
+        }
+
+        private void modal_InventoryCreateProduct_Backdrop_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            modal_InventoryCreateProduct.Visibility = Visibility.Collapsed;
+        }
+
+        private void btn_ExecuteInventoryCreateProduct_Click(object sender, RoutedEventArgs e)
+        {
+            border_NewProdErrorAlert.Visibility = Visibility.Collapsed;
+            border_NewProdSuccessAlert.Visibility = Visibility.Collapsed;
+
+            string name = newprod_txt_PrName.Text.Trim();
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                ShowNewProdError("商品名を入力してください。");
+                return;
+            }
+
+            if (!decimal.TryParse(newprod_txt_Price.Text.Trim(), out decimal price) || price < 0)
+            {
+                ShowNewProdError("価格には0以上の半角数値を入力してください。");
+                return;
+            }
+
+            if (newprod_cmb_Maker.SelectedValue is not int maId || maId <= 0)
+            {
+                ShowNewProdError("メーカーを選択してください。");
+                return;
+            }
+
+            if (newprod_cmb_SmallClass.SelectedValue is not int scId || scId <= 0)
+            {
+                ShowNewProdError("小分類を選択してください。");
+                return;
+            }
+
+            if (!int.TryParse(newprod_txt_SafetyStock.Text.Trim(), out int safetyStock) || safetyStock < 0)
+            {
+                ShowNewProdError("安全在庫数には0以上の半角整数を入力してください。");
+                return;
+            }
+
+            if (!int.TryParse(newprod_txt_InitialStock.Text.Trim(), out int initialStock) || initialStock < 0)
+            {
+                ShowNewProdError("初期在庫数には0以上の半角整数を入力してください。");
+                return;
+            }
+
+            var newProduct = new MProduct
+            {
+                PrName = name,
+                MaId = maId,
+                ScId = scId,
+                Price = price,
+                PrSafetyStock = safetyStock,
+                PrModelNumber = newprod_txt_ModelNumber.Text.Trim(),
+                PrColor = newprod_txt_Color.Text.Trim(),
+                PrReleaseDate = DateTime.Today
+            };
+
+            var result = _productService.RegisterProduct(newProduct);
+            if (!result.Success)
+            {
+                ShowNewProdError(result.Message);
+                return;
+            }
+
+            // 初期在庫数が設定されている場合は更新
+            if (initialStock > 0 && result.Product != null)
+            {
+                _stockService.RegisterStock(result.Product.PrId, initialStock);
+            }
+
+            ShowNewProdSuccess($"商品「{newProduct.PrName}」を登録しました（初期在庫: {initialStock}個）。");
+            ExecuteMainSearch();
+
+            // 在庫登録モーダルが開いている場合は商品一覧を更新して作成した商品を選択
+            if (modal_InventoryRegister.Visibility == Visibility.Visible && result.Product != null)
+            {
+                var products = _productService.GetAllProducts(includeHidden: false);
+                reg_cmb_Product.ItemsSource = products;
+                reg_cmb_Product.SelectedValue = result.Product.PrId;
+                reg_txt_Quantity.Text = initialStock.ToString();
+            }
+
+            modal_InventoryCreateProduct.Visibility = Visibility.Collapsed;
+        }
+
+        private void ShowNewProdError(string msg)
+        {
+            txt_NewProdErrorMessage.Text = msg;
+            border_NewProdErrorAlert.Visibility = Visibility.Visible;
+        }
+
+        private void ShowNewProdSuccess(string msg)
+        {
+            txt_NewProdSuccessMessage.Text = msg;
+            border_NewProdSuccessAlert.Visibility = Visibility.Visible;
         }
     }
 }
