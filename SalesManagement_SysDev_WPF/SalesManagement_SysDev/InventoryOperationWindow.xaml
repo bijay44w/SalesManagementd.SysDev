@@ -1,0 +1,132 @@
+<Window x:Class="SalesManagement_SysDev.InventoryOperationWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="在庫管理"
+        Width="1000" Height="680"
+        MinWidth="820" MinHeight="560"
+        WindowStartupLocation="CenterOwner"
+        Background="#F4F8FD"
+        FontFamily="Segoe UI, Meiryo, Yu Gothic UI"
+        FontSize="14">
+    <Grid Margin="26">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0" Margin="0,0,0,18">
+            <TextBlock x:Name="TitleText"
+                       Text="在庫一覧表示"
+                       FontSize="25"
+                       FontWeight="Bold"
+                       Foreground="#0F172A"/>
+            <TextBlock x:Name="DescriptionText"
+                       Text="登録されている在庫情報を一覧で表示します。"
+                       Margin="0,5,0,0"
+                       Foreground="#64748B"/>
+        </StackPanel>
+
+        <Grid x:Name="SearchPanel" Grid.Row="1" Margin="0,0,0,12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <TextBox x:Name="SearchTextBox"
+                     Grid.Column="0"
+                     Height="38"
+                     Padding="10,7"
+                     VerticalContentAlignment="Center"
+                     ToolTip="商品ID・商品名・商品コード・型番で検索"
+                     KeyDown="SearchTextBox_KeyDown"/>
+            <Button Grid.Column="1"
+                    Content="検索"
+                    Width="90"
+                    Height="38"
+                    Margin="8,0,0,0"
+                    Click="SearchButton_Click"
+                    Background="#2563EB"
+                    Foreground="White"
+                    BorderThickness="0"/>
+            <Button Grid.Column="2"
+                    Content="全件表示"
+                    Width="100"
+                    Height="38"
+                    Margin="8,0,0,0"
+                    Click="ClearSearchButton_Click"/>
+        </Grid>
+
+        <DataGrid x:Name="StockDataGrid"
+                  Grid.Row="2"
+                  AutoGenerateColumns="False"
+                  IsReadOnly="True"
+                  CanUserAddRows="False"
+                  SelectionMode="Single"
+                  SelectionUnit="FullRow"
+                  HeadersVisibility="Column"
+                  GridLinesVisibility="Horizontal"
+                  Background="White"
+                  BorderBrush="#DCE4EF"
+                  RowBackground="White"
+                  AlternatingRowBackground="#F8FAFC"
+                  SelectionChanged="StockDataGrid_SelectionChanged">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="在庫ID" Binding="{Binding StockId}" Width="80"/>
+                <DataGridTextColumn Header="商品ID" Binding="{Binding ProductId}" Width="80"/>
+                <DataGridTextColumn Header="商品コード" Binding="{Binding ProductCode}" Width="150"/>
+                <DataGridTextColumn Header="商品名" Binding="{Binding ProductName}" Width="*"/>
+                <DataGridTextColumn Header="型番" Binding="{Binding ModelNumber}" Width="150"/>
+                <DataGridTextColumn Header="在庫数" Binding="{Binding Quantity}" Width="100"/>
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <Border x:Name="EditPanel"
+                Grid.Row="3"
+                Margin="0,14,0,0"
+                Padding="16"
+                Background="White"
+                BorderBrush="#DCE4EF"
+                BorderThickness="1"
+                CornerRadius="10">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="180"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0" Margin="0,0,14,0">
+                    <TextBlock x:Name="ProductLabel"
+                               Text="商品"
+                               Foreground="#475569"
+                               Margin="0,0,0,6"/>
+                    <ComboBox x:Name="ProductComboBox"
+                              Height="38"
+                              VerticalContentAlignment="Center"
+                              DisplayMemberPath="DisplayName"/>
+                </StackPanel>
+                <StackPanel Grid.Column="1" Margin="0,0,14,0">
+                    <TextBlock Text="在庫数"
+                               Foreground="#475569"
+                               Margin="0,0,0,6"/>
+                    <TextBox x:Name="QuantityTextBox"
+                             Height="38"
+                             Padding="10,7"
+                             VerticalContentAlignment="Center"
+                             ToolTip="0以上の整数"/>
+                </StackPanel>
+                <Button x:Name="ActionButton"
+                        Grid.Column="2"
+                        Content="登録"
+                        Width="120"
+                        Height="38"
+                        VerticalAlignment="Bottom"
+                        Click="ActionButton_Click"
+                        Background="#2563EB"
+                        Foreground="White"
+                        BorderThickness="0"/>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>
