@@ -111,7 +111,7 @@
                                  Style="{StaticResource RetroTextBoxStyle}"
                                  Width="80" 
                                  TextChanged="txt_SearchWaId_TextChanged" />
-
+                    </StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="0,4,16,4"
                                 VerticalAlignment="Center">
                         <TextBlock Text="発注ID:" FontWeight="SemiBold"
@@ -158,18 +158,6 @@
                 </StackPanel>
             </Grid>
         </Border>
-                            Background="#EFF6FF"
-                            CornerRadius="18"
-                            HorizontalAlignment="Right"
-                            VerticalAlignment="Bottom">
-                        <TextBlock Text="→"
-                                   FontSize="20"
-                                   Foreground="#2563EB"
-                                   HorizontalAlignment="Center"
-                                   VerticalAlignment="Center"/>
-                    </Border>
-                </Grid>
-            </Border>
 
         <!-- 2. 操作ツールバー -->
         <Grid Grid.Row="2" Margin="16,0,16,8">

@@ -102,7 +102,7 @@
                     <!-- 社員名 -->
                     <StackPanel Orientation="Horizontal" Margin="0,4,16,4" VerticalAlignment="Center">
                         <TextBlock Text="社員名:" FontWeight="SemiBold" Foreground="#334155" VerticalAlignment="Center" Margin="0,0,6,0" />
-                        <TextBox x:Name="txt_SearchEmName" Style="{StaticResource RetroTextBoxStyle}" Width="120" KeyDown="SearchField_KeyDown" />
+                        <TextBox x:Name="txt_SearchEmName" Style="{StaticResource RetroTextBoxStyle}" Width="120" KeyDown="SearchField_KeyDown" TextChanged="txt_SearchEmName_TextChanged" />
                     </StackPanel>
 
                     <!-- 営業所 -->

@@ -4,13 +4,14 @@ using System;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using Microsoft.EntityFrameworkCore;
 
 namespace SalesManagement_SysDev
 {
     /// <summary>
     /// 機能12 出庫管理。
-    /// TSyukko（出庫ヘッダー）とTSyukkoDetail（商品・数量明細）を操作する。
+    /// 出庫登録・更新時に在庫数を減算し、更新時は旧出庫分を戻してから再計算する。
     /// </summary>
     public partial class Shipping : UserControl
     {
@@ -18,19 +19,18 @@ namespace SalesManagement_SysDev
         private const int HiddenFlag = 2;
 
         private bool _isEditing;
+        private bool _loadingCombo;
         private int? _editingSyId;
         private int? _editingSyDetailId;
-        private bool _loadingCombo;
 
         public Shipping()
         {
             InitializeComponent();
+            chk_IncludeHidden.Checked += chk_IncludeHidden_Checked;
+            chk_IncludeHidden.Unchecked += chk_IncludeHidden_Unchecked;
             LoadShippings();
         }
 
-        /// <summary>
-        /// 出庫一覧を読み込む
-        /// </summary>
         private void LoadShippings()
         {
             try
@@ -85,22 +85,30 @@ namespace SalesManagement_SysDev
         }
 
         /// <summary>
-        /// 出庫IDの入力内容を受注ID欄に自動コピーする
+        /// 出庫IDの入力内容を受注ID欄に自動コピーする（既存UIの動作を維持）
         /// </summary>
+        private void chk_IncludeHidden_Checked(
+            object sender, RoutedEventArgs e)
+        {
+            LoadShippings();
+        }
+
+        private void chk_IncludeHidden_Unchecked(
+            object sender, RoutedEventArgs e)
+        {
+            LoadShippings();
+        }
+
         private void txt_SearchSyId_TextChanged(
             object sender, TextChangedEventArgs e)
         {
             if (txt_SearchOrId.Text != txt_SearchSyId.Text)
             {
                 txt_SearchOrId.Text = txt_SearchSyId.Text;
-                txt_SearchOrId.CaretIndex =
-                    txt_SearchOrId.Text.Length;
+                txt_SearchOrId.CaretIndex = txt_SearchOrId.Text.Length;
             }
         }
 
-        /// <summary>
-        /// 出庫情報を検索する
-        /// </summary>
         private void btn_Search_Click(object sender, RoutedEventArgs e)
         {
             if (!TryParseOptionalInt(txt_SearchSyId.Text, out int? syId) ||
@@ -124,26 +132,21 @@ namespace SalesManagement_SysDev
 
                 if (syId.HasValue)
                     query = query.Where(s => s.SyId == syId.Value);
-
                 if (orId.HasValue)
                     query = query.Where(s => s.OrId == orId.Value);
-
                 if (chk_IncludeHidden.IsChecked != true)
                     query = query.Where(s => s.SyFlag == ActiveFlag);
 
-                string productName =
-                    txt_SearchProductName.Text?.Trim() ?? string.Empty;
+                string productName = txt_SearchProductName.Text?.Trim() ?? string.Empty;
 
                 var rows = query
                     .OrderByDescending(s => s.SyDate)
                     .ThenByDescending(s => s.SyId)
                     .ToList()
                     .SelectMany(s => s.TSyukkoDetails
-                        .Where(d =>
-                            string.IsNullOrWhiteSpace(productName) ||
+                        .Where(d => string.IsNullOrWhiteSpace(productName) ||
                             (d.Pr?.PrName?.Contains(
-                                productName,
-                                StringComparison.OrdinalIgnoreCase) ?? false))
+                                productName, StringComparison.OrdinalIgnoreCase) ?? false))
                         .Select(d => new ShippingRow
                         {
                             SyId = s.SyId,
@@ -176,23 +179,15 @@ namespace SalesManagement_SysDev
             }
         }
 
-        /// <summary>
-        /// 検索条件をクリアする
-        /// </summary>
         private void btn_Clear_Click(object sender, RoutedEventArgs e)
         {
             txt_SearchSyId.Clear();
             txt_SearchOrId.Clear();
             txt_SearchProductName.Clear();
-
             chk_IncludeHidden.IsChecked = false;
-
             LoadShippings();
         }
 
-        /// <summary>
-        /// 新規出庫登録画面を開く
-        /// </summary>
         private void btn_NewRegister_Click(object sender, RoutedEventArgs e)
         {
             _isEditing = false;
@@ -201,14 +196,12 @@ namespace SalesManagement_SysDev
 
             txt_EditorTitle.Text = "新規出庫登録";
             btn_ExecuteEditor.Content = "登録実行";
-            btn_ExecuteEditor.Background =
-                System.Windows.Media.Brushes.Teal;
+            btn_ExecuteEditor.Background = System.Windows.Media.Brushes.Teal;
 
             LoadEditorChoices();
 
             dp_SyDate.SelectedDate = DateTime.Today;
             txt_SyQuantity.Text = "1";
-
             cmb_OrId.SelectedIndex = -1;
             cmb_Product.ItemsSource = null;
             cmb_Employee.SelectedIndex = -1;
@@ -216,9 +209,6 @@ namespace SalesManagement_SysDev
             modal_Editor.Visibility = Visibility.Visible;
         }
 
-        /// <summary>
-        /// 選択した出庫情報を編集する
-        /// </summary>
         private void btn_EditSelected_Click(object sender, RoutedEventArgs e)
         {
             if (dg_Syukkos.SelectedItem is not ShippingRow selected)
@@ -231,39 +221,26 @@ namespace SalesManagement_SysDev
             _editingSyId = selected.SyId;
             _editingSyDetailId = selected.SyDetailId;
 
-            txt_EditorTitle.Text =
-                $"出庫情報編集（出庫ID: {selected.SyId}）";
-
+            txt_EditorTitle.Text = $"出庫情報編集（出庫ID: {selected.SyId}）";
             btn_ExecuteEditor.Content = "更新保存";
-            btn_ExecuteEditor.Background =
-                System.Windows.Media.Brushes.SteelBlue;
+            btn_ExecuteEditor.Background = System.Windows.Media.Brushes.SteelBlue;
 
             LoadEditorChoices();
-
             cmb_OrId.SelectedValue = selected.OrId;
-
             LoadProductsForOrder(selected.OrId);
-
             cmb_Product.SelectedValue = selected.PrId;
             cmb_Employee.SelectedValue = selected.EmId;
-
-            dp_SyDate.SelectedDate =
-                selected.SyDate?.Date ?? DateTime.Today;
-
+            dp_SyDate.SelectedDate = selected.SyDate?.Date ?? DateTime.Today;
             txt_SyQuantity.Text = selected.SyQuantity.ToString();
 
             modal_Editor.Visibility = Visibility.Visible;
         }
 
-        /// <summary>
-        /// 登録・編集画面の選択肢を読み込む
-        /// </summary>
         private void LoadEditorChoices()
         {
             try
             {
                 using var context = new SalesManagementContext();
-
                 _loadingCombo = true;
 
                 cmb_OrId.ItemsSource = context.TOrders
@@ -292,34 +269,20 @@ namespace SalesManagement_SysDev
             catch (Exception ex)
             {
                 _loadingCombo = false;
-
-                ShowError(
-                    "受注・社員の選択肢を取得できませんでした。\n"
-                    + ex.Message);
+                ShowError("受注・社員の選択肢を取得できませんでした。\n" + ex.Message);
             }
         }
 
-        /// <summary>
-        /// 受注ID選択時に受注明細の商品を読み込む
-        /// </summary>
         private void cmb_OrId_SelectionChanged(
             object sender, SelectionChangedEventArgs e)
         {
-            if (_loadingCombo ||
-                cmb_OrId.SelectedValue == null ||
-                !int.TryParse(
-                    cmb_OrId.SelectedValue.ToString(),
-                    out int orId))
-            {
+            if (_loadingCombo || cmb_OrId.SelectedValue == null ||
+                !int.TryParse(cmb_OrId.SelectedValue.ToString(), out int orId))
                 return;
-            }
 
             LoadProductsForOrder(orId);
         }
 
-        /// <summary>
-        /// 選択した受注に含まれる商品を読み込む
-        /// </summary>
         private void LoadProductsForOrder(int orId)
         {
             try
@@ -340,28 +303,22 @@ namespace SalesManagement_SysDev
                     .ToList();
 
                 cmb_Product.ItemsSource = products;
-
                 if (products.Count == 1 && !_isEditing)
                     cmb_Product.SelectedIndex = 0;
             }
             catch (Exception ex)
             {
-                ShowError(
-                    "受注明細の商品を取得できませんでした。\n"
-                    + ex.Message);
+                ShowError("受注明細の商品を取得できませんでした。\n" + ex.Message);
             }
         }
 
         /// <summary>
-        /// 出庫情報を登録・更新する
+        /// 出庫登録・更新。保存と在庫減算を同一トランザクションで行う。
         /// </summary>
-        private void btn_ExecuteEditor_Click(
-            object sender, RoutedEventArgs e)
+        private void btn_ExecuteEditor_Click(object sender, RoutedEventArgs e)
         {
             if (cmb_OrId.SelectedValue == null ||
-                !int.TryParse(
-                    cmb_OrId.SelectedValue.ToString(),
-                    out int orId))
+                !int.TryParse(cmb_OrId.SelectedValue.ToString(), out int orId))
             {
                 ShowWarning("受注を選択してください。");
                 return;
@@ -374,38 +331,29 @@ namespace SalesManagement_SysDev
             }
 
             if (cmb_Product.SelectedValue == null ||
-                !int.TryParse(
-                    cmb_Product.SelectedValue.ToString(),
-                    out int prId))
+                !int.TryParse(cmb_Product.SelectedValue.ToString(), out int prId))
             {
                 ShowWarning("選択した受注に含まれる商品を選択してください。");
                 return;
             }
 
-            if (!int.TryParse(txt_SyQuantity.Text, out int quantity) ||
-                quantity <= 0)
+            if (!int.TryParse(txt_SyQuantity.Text, out int quantity) || quantity <= 0)
             {
                 ShowWarning("出庫数量には1以上の整数を入力してください。");
                 return;
             }
 
             int? emId = null;
-
             if (cmb_Employee.SelectedValue != null &&
-                int.TryParse(
-                    cmb_Employee.SelectedValue.ToString(),
-                    out int selectedEmId))
-            {
+                int.TryParse(cmb_Employee.SelectedValue.ToString(), out int selectedEmId))
                 emId = selectedEmId;
-            }
 
             try
             {
                 using var context = new SalesManagementContext();
+                using var transaction = context.Database.BeginTransaction();
 
-                var order = context.TOrders
-                    .FirstOrDefault(o => o.OrId == orId);
-
+                var order = context.TOrders.FirstOrDefault(o => o.OrId == orId);
                 if (order == null)
                 {
                     ShowWarning("選択した受注情報が見つかりません。");
@@ -413,32 +361,39 @@ namespace SalesManagement_SysDev
                 }
 
                 var orderDetail = context.TOrderDetails
-                    .FirstOrDefault(d =>
-                        d.OrId == orId && d.PrId == prId);
-
+                    .FirstOrDefault(d => d.OrId == orId && d.PrId == prId);
                 if (orderDetail == null)
                 {
                     ShowWarning("選択した商品は受注明細に存在しません。");
                     return;
                 }
 
+                int? oldSyId = _isEditing ? _editingSyId : null;
+                int alreadyShipped = context.TSyukkoDetails
+                    .Include(d => d.Sy)
+                    .Where(d => d.Sy.OrId == orId && d.PrId == prId &&
+                                (!oldSyId.HasValue || d.SyId != oldSyId.Value))
+                    .Sum(d => (int?)d.SyQuantity) ?? 0;
+
+                int remainingOrderQuantity = orderDetail.OrQuantity - alreadyShipped;
+                if (quantity > remainingOrderQuantity)
+                {
+                    ShowWarning($"受注数量を超えています。今回出庫できる残り数量は {Math.Max(0, remainingOrderQuantity)} 個です。");
+                    return;
+                }
+
                 if (_isEditing)
                 {
-                    if (!_editingSyId.HasValue ||
-                        !_editingSyDetailId.HasValue)
+                    if (!_editingSyId.HasValue || !_editingSyDetailId.HasValue)
                     {
-                        ShowWarning(
-                            "更新対象を特定できません。もう一度選択してください。");
+                        ShowWarning("更新対象を特定できません。もう一度選択してください。");
                         return;
                     }
 
                     var shipping = context.TSyukkos
-                        .FirstOrDefault(s =>
-                            s.SyId == _editingSyId.Value);
-
+                        .FirstOrDefault(s => s.SyId == _editingSyId.Value);
                     var detail = context.TSyukkoDetails
-                        .FirstOrDefault(d =>
-                            d.SyDetailId == _editingSyDetailId.Value);
+                        .FirstOrDefault(d => d.SyDetailId == _editingSyDetailId.Value);
 
                     if (shipping == null || detail == null)
                     {
@@ -446,20 +401,24 @@ namespace SalesManagement_SysDev
                         return;
                     }
 
+                    // 旧出庫分を在庫へ戻してから、新しい出庫分を差し引く。
+                    ChangeStock(context, detail.PrId, detail.SyQuantity);
+
                     shipping.OrId = order.OrId;
                     shipping.ClId = order.ClId;
                     shipping.SoId = order.SoId;
                     shipping.EmId = emId;
-                    shipping.SyDate =
-                        dp_SyDate.SelectedDate.Value.Date;
+                    shipping.SyDate = dp_SyDate.SelectedDate.Value.Date;
+                    shipping.SyFlag = ActiveFlag;
 
                     detail.SyId = shipping.SyId;
                     detail.PrId = prId;
                     detail.SyQuantity = quantity;
 
+                    ChangeStock(context, prId, -quantity);
                     context.SaveChanges();
-
-                    ShowInfo("出庫情報を更新しました。");
+                    transaction.Commit();
+                    ShowInfo("出庫情報を更新し、在庫数に反映しました。");
                 }
                 else
                 {
@@ -469,44 +428,54 @@ namespace SalesManagement_SysDev
                         ClId = order.ClId,
                         SoId = order.SoId,
                         EmId = emId,
-                        SyDate =
-                            dp_SyDate.SelectedDate.Value.Date,
+                        SyDate = dp_SyDate.SelectedDate.Value.Date,
                         SyStateFlag = 0,
                         SyHidden = null,
                         SyFlag = ActiveFlag
                     };
 
-                    shipping.TSyukkoDetails.Add(
-                        new TSyukkoDetail
-                        {
-                            PrId = prId,
-                            SyQuantity = quantity
-                        });
+                    shipping.TSyukkoDetails.Add(new TSyukkoDetail
+                    {
+                        PrId = prId,
+                        SyQuantity = quantity
+                    });
 
                     context.TSyukkos.Add(shipping);
-
+                    ChangeStock(context, prId, -quantity);
                     context.SaveChanges();
-
-                    ShowInfo("出庫情報を登録しました。");
+                    transaction.Commit();
+                    ShowInfo("出庫情報を登録し、在庫数を減算しました。");
                 }
 
                 modal_Editor.Visibility = Visibility.Collapsed;
-
                 LoadShippings();
             }
             catch (Exception ex)
             {
-                ShowError(
-                    "出庫情報の保存に失敗しました。\n"
-                    + ex.Message);
+                ShowError("出庫情報の保存に失敗しました。\n" + ex.Message);
             }
         }
 
         /// <summary>
-        /// 選択した出庫情報の非表示画面を開く
+        /// 在庫数量を増減する。正数で加算、負数で減算する。
         /// </summary>
-        private void btn_HideSelected_Click(
-            object sender, RoutedEventArgs e)
+        private static void ChangeStock(
+            SalesManagementContext context, int prId, int delta)
+        {
+            var stock = context.TStocks
+                .FirstOrDefault(s => s.PrId == prId && s.StFlag == ActiveFlag);
+
+            if (stock == null)
+                throw new InvalidOperationException($"商品ID {prId} の有効な在庫レコードがありません。");
+
+            if (stock.StQuantity + delta < 0)
+                throw new InvalidOperationException(
+                    $"商品ID {prId} の在庫が不足しています。現在庫: {stock.StQuantity} 個");
+
+            stock.StQuantity += delta;
+        }
+
+        private void btn_HideSelected_Click(object sender, RoutedEventArgs e)
         {
             if (dg_Syukkos.SelectedItem is not ShippingRow selected)
             {
@@ -516,19 +485,12 @@ namespace SalesManagement_SysDev
 
             hide_txt_TargetInfo.Text =
                 $"出庫ID: {selected.SyId} / 受注ID: {selected.OrId} / 商品: {selected.ProductName}";
-
             hide_txt_Reason.Text = selected.SyHidden;
-
             modal_Hide.Tag = selected.SyId;
-
             modal_Hide.Visibility = Visibility.Visible;
         }
 
-        /// <summary>
-        /// 出庫情報を非表示にする
-        /// </summary>
-        private void btn_ExecuteHide_Click(
-            object sender, RoutedEventArgs e)
+        private void btn_ExecuteHide_Click(object sender, RoutedEventArgs e)
         {
             if (modal_Hide.Tag is not int syId)
             {
@@ -539,9 +501,7 @@ namespace SalesManagement_SysDev
             try
             {
                 using var context = new SalesManagementContext();
-
-                var shipping = context.TSyukkos
-                    .FirstOrDefault(s => s.SyId == syId);
+                var shipping = context.TSyukkos.FirstOrDefault(s => s.SyId == syId);
 
                 if (shipping == null)
                 {
@@ -550,119 +510,62 @@ namespace SalesManagement_SysDev
                 }
 
                 shipping.SyFlag = HiddenFlag;
-
                 if (!string.IsNullOrWhiteSpace(hide_txt_Reason.Text))
-                {
-                    shipping.SyHidden =
-                        hide_txt_Reason.Text.Trim();
-                }
+                    shipping.SyHidden = hide_txt_Reason.Text.Trim();
 
                 context.SaveChanges();
-
                 modal_Hide.Visibility = Visibility.Collapsed;
-
                 ShowInfo("出庫情報を非表示にしました。");
-
                 LoadShippings();
             }
             catch (Exception ex)
             {
-                ShowError(
-                    "出庫情報の非表示に失敗しました。\n"
-                    + ex.Message);
+                ShowError("出庫情報の非表示に失敗しました。\n" + ex.Message);
             }
         }
 
-        /// <summary>
-        /// 登録・編集画面を閉じる
-        /// </summary>
-        private void btn_CancelEditor_Click(
-            object sender, RoutedEventArgs e)
+        private void btn_CancelEditor_Click(object sender, RoutedEventArgs e)
         {
             modal_Editor.Visibility = Visibility.Collapsed;
         }
 
-        /// <summary>
-        /// 登録・編集画面の背景クリックで閉じる
-        /// </summary>
         private void modal_Editor_Backdrop_Click(
-            object sender,
-            System.Windows.Input.MouseButtonEventArgs e)
+            object sender, MouseButtonEventArgs e)
         {
             modal_Editor.Visibility = Visibility.Collapsed;
         }
 
-        /// <summary>
-        /// 非表示画面を閉じる
-        /// </summary>
-        private void btn_CancelHide_Click(
-            object sender, RoutedEventArgs e)
+        private void btn_CancelHide_Click(object sender, RoutedEventArgs e)
         {
             modal_Hide.Visibility = Visibility.Collapsed;
         }
 
-        /// <summary>
-        /// 非表示画面の背景クリックで閉じる
-        /// </summary>
         private void modal_Hide_Backdrop_Click(
-            object sender,
-            System.Windows.Input.MouseButtonEventArgs e)
+            object sender, MouseButtonEventArgs e)
         {
             modal_Hide.Visibility = Visibility.Collapsed;
         }
 
-        /// <summary>
-        /// 任意入力の整数を検証する
-        /// </summary>
-        private static bool TryParseOptionalInt(
-            string? text,
-            out int? value)
+        private static bool TryParseOptionalInt(string? text, out int? value)
         {
             value = null;
-
             if (string.IsNullOrWhiteSpace(text))
                 return true;
-
-            if (!int.TryParse(text.Trim(), out int parsed) ||
-                parsed < 1)
-            {
+            if (!int.TryParse(text.Trim(), out int parsed) || parsed < 1)
                 return false;
-            }
-
             value = parsed;
             return true;
         }
 
-        private static void ShowWarning(string message)
-        {
-            MessageBox.Show(
-                message,
-                "出庫管理",
-                MessageBoxButton.OK,
-                MessageBoxImage.Warning);
-        }
+        private static void ShowWarning(string message) =>
+            MessageBox.Show(message, "出庫管理", MessageBoxButton.OK, MessageBoxImage.Warning);
 
-        private static void ShowError(string message)
-        {
-            MessageBox.Show(
-                message,
-                "出庫管理",
-                MessageBoxButton.OK,
-                MessageBoxImage.Error);
-        }
+        private static void ShowError(string message) =>
+            MessageBox.Show(message, "出庫管理", MessageBoxButton.OK, MessageBoxImage.Error);
 
-        private static void ShowInfo(string message)
-        {
-            MessageBox.Show(
-                message,
-                "出庫管理",
-                MessageBoxButton.OK,
-                MessageBoxImage.Information);
-        }
+        private static void ShowInfo(string message) =>
+            MessageBox.Show(message, "出庫管理", MessageBoxButton.OK, MessageBoxImage.Information);
 
-        /// <summary>
-        /// 出庫一覧表示用クラス
-        /// </summary>
         private sealed class ShippingRow
         {
             public int SyId { get; set; }
@@ -683,9 +586,6 @@ namespace SalesManagement_SysDev
             public string FlagDisplay { get; set; } = string.Empty;
         }
 
-        /// <summary>
-        /// 受注選択用クラス
-        /// </summary>
         private sealed class OrderChoice
         {
             public int OrId { get; set; }
@@ -693,22 +593,15 @@ namespace SalesManagement_SysDev
             public int ClId { get; set; }
             public int SoId { get; set; }
             public string ClientName { get; set; } = string.Empty;
-
-            public string DisplayText =>
-                $"受注ID: {OrId} / {OrDate:yyyy/MM/dd} / {ClientName}";
+            public string DisplayText => $"受注ID: {OrId} / {OrDate:yyyy/MM/dd} / {ClientName}";
         }
 
-        /// <summary>
-        /// 商品選択用クラス
-        /// </summary>
         private sealed class ProductChoice
         {
             public int PrId { get; set; }
             public string PrName { get; set; } = string.Empty;
             public int OrderedQuantity { get; set; }
-
-            public string DisplayText =>
-                $"{PrId} / {PrName}（受注数量: {OrderedQuantity}）";
+            public string DisplayText => $"{PrId} / {PrName}（受注数量: {OrderedQuantity}）";
         }
     }
 }
