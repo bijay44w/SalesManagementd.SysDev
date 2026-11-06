@@ -37,7 +37,12 @@ namespace SalesManagement_SysDev
 
         // 表示用プロパティ
         public string DisplayDate => CreatedAt.ToString("yyyy/MM/dd HH:mm");
-        public string Summary => Content.Length > 60 ? Content.Substring(0, 60) + "..." : Content;
+        public string Summary =>
+         IsConfidential
+         ? "🔒 本文は認証後に表示されます"
+         : (Content.Length > 60
+             ? Content.Substring(0, 60) + "..."
+             : Content);
 
         public string PriorityBackground => Priority switch
         {
@@ -120,29 +125,29 @@ namespace SalesManagement_SysDev
             {
                 if (!File.Exists(_sharedMemoFilePath))
                 {
-                    var initialMemos = CreateInitialSharedMemos();
-                    SaveSharedMemos(initialMemos);
-                    return initialMemos;
+                    var emptyMemos = new List<SharedMemoItem>();
+                    SaveSharedMemos(emptyMemos);
+                    return emptyMemos;
                 }
 
                 string json = File.ReadAllText(_sharedMemoFilePath);
-                var list = JsonSerializer.Deserialize<List<SharedMemoItem>>(json, _jsonOptions);
-                
-                // 旧形式データの場合や空の場合の補正
-                if (list == null || list.Count == 0 || !list.Any(m => m.AccessLevel == "AdminOnly" || m.AccessLevel == "Confidential"))
-                {
-                    var initialMemos = CreateInitialSharedMemos();
-                    SaveSharedMemos(initialMemos);
-                    return initialMemos;
-                }
 
-                return list.OrderByDescending(m => m.Priority == "重要")
-                           .ThenByDescending(m => m.CreatedAt)
-                           .ToList();
+                var list = JsonSerializer.Deserialize<List<SharedMemoItem>>(
+                    json, _jsonOptions
+                );
+
+                return (list ?? new List<SharedMemoItem>())
+                    .OrderByDescending(m => m.Priority == "重要")
+                    .ThenByDescending(m => m.CreatedAt)
+                    .ToList();
             }
-            catch
+            catch (Exception ex)
             {
-                return CreateInitialSharedMemos();
+                System.Diagnostics.Debug.WriteLine(
+                    $"Failed to load shared memos: {ex.Message}"
+                );
+
+                return new List<SharedMemoItem>();
             }
         }
 
@@ -296,7 +301,7 @@ namespace SalesManagement_SysDev
                     Id = Guid.NewGuid().ToString(),
                     EmployeeId = employeeId,
                     Title = "業務メモ・ToDo備忘録",
-                    Content = "・ここはログイン社員様専用の個人メモ帳です。\n・自分だけの備忘録や日々のタスク、連絡事項の下書きなどを自由に記録できます。\n・右上の「保存」ボタンで内容が保存されます。",
+                    Content = "",
                     UpdatedAt = DateTime.Now
                 };
                 userMemos.Add(initialMemo);

@@ -156,9 +156,6 @@
                     <GroupBox Background="#D4D0C8"
                               BorderBrush="#E0E0E0"
                               BorderThickness="1">
-                        <GroupBox.Header>
-                            <TextBlock Text=" 社内連絡事項（全体メモ） ＆ 社員専用 個人メモ " FontWeight="Bold" Foreground="#000000" FontSize="13"/>
-                        </GroupBox.Header>
 
                         <Border Background="#FFFDE7"
                                 BorderBrush="#A0A0A0"
@@ -662,12 +659,7 @@
                                     <!-- 連絡事項のアクセス区分 -->
                                     <Border Background="#FEF3C7" BorderBrush="#F59E0B" BorderThickness="1" CornerRadius="4" Padding="12" Margin="0,0,0,14">
                                         <StackPanel>
-                                            <TextBlock Text="■ 社内連絡事項（全体メモ）のセキュリティ区分" FontWeight="Bold" FontSize="13.5" Foreground="#B45309" Margin="0,0,0,6"/>
-                                            <TextBlock Text="社内連絡事項には3つのアクセス区分が設定されており、情報セキュリティを確保しています：" FontSize="12" Margin="0,0,0,6"/>
-                                            
-                                            <TextBlock Text="① 一般的な業務連絡 (青バッジ) : 全社員がログイン後、そのまま自由に閲覧できます。" Margin="0,2" FontWeight="SemiBold" Foreground="#1E3A8A"/>
-                                            <TextBlock Text="② 管理者向けの重要な連絡 (橙バッジ) : 管理者権限を持つアカウントのみ閲覧可能です（一般社員には非表示/アクセス不可）。" Margin="0,2" FontWeight="SemiBold" Foreground="#B45309"/>
-                                            <TextBlock Text="③ 機密情報を含む連絡 (紫バッジ) : 閲覧時に追加の暗証パスコード（初期設定: 9999）の入力が必要です。" Margin="0,2" FontWeight="SemiBold" Foreground="#6B21A8"/>
+                                           
                                         </StackPanel>
                                     </Border>
 
