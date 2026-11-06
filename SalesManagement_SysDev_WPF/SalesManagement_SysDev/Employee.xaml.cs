@@ -8,6 +8,12 @@ namespace SalesManagement_SysDev
 {
     public partial class Employee : UserControl
     {
+        private readonly EmployeeService _employeeService = new();
+        private List<EmployeeDisplayModel> _cachedList = new();
+        private List<MSalesOffice> _offices = new();
+        private List<MPosition> _positions = new();
+        private int _selectedEmployeeIdForHide = 0;
+
         public Employee()
         {
             InitializeComponent();

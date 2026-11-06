@@ -1,4 +1,4 @@
-<Window x:Class="SalesManagement_SysDev.F_Home"
+﻿<Window x:Class="SalesManagement_SysDev.F_Home"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:shell="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -162,16 +162,30 @@
         <!-- ======================================================== -->
         <!-- Top Title Bar (White Background with Subtle Divider)     -->
         <!-- ======================================================== -->
+
         <Border Grid.Row="0" Background="#FFFFFF" BorderBrush="#E5E7EB" BorderThickness="0,0,0,1">
             <Grid>
                 <!-- Left: App Identity (Blue Logo Box + Title) -->
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="20,0,0,0">
+                    <!-- ハンバーガーボタン -->
+
                     <!-- Rounded Blue App Icon Badge -->
-                    <Border Width="36" Height="36" CornerRadius="8" Background="#2563EB" Margin="0,0,12,0">
-                        <Path Fill="#FFFFFF" Width="20" Height="20" Stretch="Uniform"
-                              Data="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z" />
-                    </Border>
-                    <TextBlock Text="販売管理システム" FontSize="17.5" FontWeight="Bold" Foreground="#0F172A" VerticalAlignment="Center" />
+                    
+                    <!-- ハンバーガーボタン -->
+                    <Button x:Name="btn_ToggleSidebar"
+                        Content="☰"
+                        Width="50"
+                        Height="50"
+                        FontSize="24"
+                        Background="Transparent"
+                        Foreground="#2563EB"
+                        BorderThickness="0"
+                        Cursor="Hand"
+                        shell:WindowChrome.IsHitTestVisibleInChrome="True"
+                        Click="btn_ToggleSidebar_Click"/>   
+
+                    <shell:TextBlock Text="販売管理システム" FontSize="17.5" FontWeight="Bold" Foreground="#0F172A" VerticalAlignment="Center" />
+
                 </StackPanel>
 
                 <!-- Hidden Employee Display elements to keep code-behind functional -->
@@ -238,7 +252,7 @@
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
                 <!-- Left Sidebar -->
-                <ColumnDefinition Width="200" />
+                <ColumnDefinition x:Name="SidebarColumn" Width="200" />
                 <!-- Content Area -->
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
@@ -261,8 +275,27 @@
                     <!-- Top Navigation List -->
                     <StackPanel VerticalAlignment="Top">
 
+                        <!-- 0. メインメニュー -->
+                        <Button x:Name="btn_NavMainMenu"
+                                Style="{StaticResource SidebarActiveButtonStyle}"
+                                Click="MenuButton_Click"
+                                Tag="00">
+                            <StackPanel Orientation="Horizontal">
+                                <Path Fill="#FFFFFF"
+                                      Width="18"
+                                      Height="18"
+                                      Stretch="Uniform"
+                                      Margin="0,0,12,0"
+                                      Data="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
+                                <TextBlock Text="メインメニュー"
+                                           FontSize="14"
+                                           FontWeight="SemiBold"
+                                           VerticalAlignment="Center" />
+                            </StackPanel>
+                        </Button>
+
                         <!-- 1. 顧客管理 -->
-                        <Button Style="{StaticResource SidebarActiveButtonStyle}"
+                        <Button Style="{StaticResource SidebarButtonStyle}"
                              Click="MenuButton_Click"
                              Tag="03">
                             <StackPanel Orientation="Horizontal">
@@ -321,43 +354,75 @@
 
 
 
-                        <!-- 06. 社員管理 -->
+                        <!-- 社員管理 -->
                         <Button Style="{StaticResource SidebarButtonStyle}"
-                Click="MenuButton_Click"
-                Tag="06">
+                                Click="MenuButton_Click"
+                                Tag="06">
                             <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="06" Width="30" FontSize="12" VerticalAlignment="Center"/>
-                                <TextBlock Text="社員管理" FontSize="14" VerticalAlignment="Center"/>
+                                <Path Fill="#FFFFFF"
+                                      Width="18"
+                                      Height="18"
+                                      Stretch="Uniform"
+                                      Margin="0,0,12,0"
+                                      Data="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+                                <TextBlock Text="社員管理"
+                                           FontSize="14"
+                                           FontWeight="SemiBold"
+                                           VerticalAlignment="Center" />
                             </StackPanel>
                         </Button>
 
-                        <!-- 07. 売上管理 -->
+                        <!-- 売上管理 -->
                         <Button Style="{StaticResource SidebarButtonStyle}"
-                Click="MenuButton_Click"
-                Tag="07">
+                                Click="MenuButton_Click"
+                                Tag="07">
                             <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="07" Width="30" FontSize="12" VerticalAlignment="Center"/>
-                                <TextBlock Text="売上管理" FontSize="14" VerticalAlignment="Center"/>
+                                <Path Fill="#FFFFFF"
+                                      Width="18"
+                                      Height="18"
+                                      Stretch="Uniform"
+                                      Margin="0,0,12,0"
+                                      Data="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z" />
+                                <TextBlock Text="売上管理"
+                                           FontSize="14"
+                                           FontWeight="SemiBold"
+                                           VerticalAlignment="Center" />
                             </StackPanel>
                         </Button>
 
-                        <!-- 08. 受注管理 -->
+                        <!-- 受注管理 -->
                         <Button Style="{StaticResource SidebarButtonStyle}"
-                Click="MenuButton_Click"
-                Tag="08">
+                                Click="MenuButton_Click"
+                                Tag="08">
                             <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="08" Width="30" FontSize="12" VerticalAlignment="Center"/>
-                                <TextBlock Text="受注管理" FontSize="14" VerticalAlignment="Center"/>
+                                <Path Fill="#FFFFFF"
+                                      Width="18"
+                                      Height="18"
+                                      Stretch="Uniform"
+                                      Margin="0,0,12,0"
+                                      Data="M19 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 14l-5-5 1.41-1.41L11 13.17V7h2v6.17l2.59-2.58L17 12l-5 5z" />
+                                <TextBlock Text="受注管理"
+                                           FontSize="14"
+                                           FontWeight="SemiBold"
+                                           VerticalAlignment="Center" />
                             </StackPanel>
                         </Button>
 
-                        <!-- 09. 注文管理 -->
+                        <!-- 注文管理 -->
                         <Button Style="{StaticResource SidebarButtonStyle}"
-                Click="MenuButton_Click"
-                Tag="09">
+                                Click="MenuButton_Click"
+                                Tag="09">
                             <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="09" Width="30" FontSize="12" VerticalAlignment="Center"/>
-                                <TextBlock Text="注文管理" FontSize="14" VerticalAlignment="Center"/>
+                                <Path Fill="#FFFFFF"
+                                      Width="18"
+                                      Height="18"
+                                      Stretch="Uniform"
+                                      Margin="0,0,12,0"
+                                      Data="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-9 14l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
+                                <TextBlock Text="注文管理"
+                                           FontSize="14"
+                                           FontWeight="SemiBold"
+                                           VerticalAlignment="Center" />
                             </StackPanel>
                         </Button>
 
@@ -436,7 +501,7 @@
                     </LinearGradientBrush>
                 </Grid.Background>
 
-                <Grid x:Name="CustomerContent">
+                <Grid x:Name="CustomerContent" Visibility="Collapsed">
                     <Grid.RowDefinitions>
                         <!-- Section Header Area -->
                         <RowDefinition Height="Auto" />
@@ -462,9 +527,9 @@
                     <!-- 3x2 Action Cards Grid (5 Cards matching screenshot layout) -->
                     <Grid Grid.Row="1" Margin="26,0,36,30">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="259*" />
-                            <ColumnDefinition Width="260*" />
-                            <ColumnDefinition Width="259*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="*" />
@@ -596,7 +661,7 @@
 
                     </Grid>
                 </Grid>
-                <ContentControl x:Name="MainContentArea" Visibility="Collapsed" />
+                <ContentControl x:Name="MainContentArea" Visibility="Visible" />
             </Grid>
         </Grid>
 

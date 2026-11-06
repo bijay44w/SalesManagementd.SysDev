@@ -5,6 +5,22 @@ using Microsoft.EntityFrameworkCore;
 
 namespace SalesManagement_SysDev
 {
+    
+    public class ClientDisplayModel
+    {
+        public int ClId { get; set; }
+        public string ClName { get; set; } = string.Empty;
+        public int SoId { get; set; }
+        public string SoName { get; set; } = string.Empty;
+        public string ClPostal { get; set; } = string.Empty;
+        public string ClAddress { get; set; } = string.Empty;
+        public string ClPhone { get; set; } = string.Empty;
+        public string ClFax { get; set; } = string.Empty;
+        public int ClFlag { get; set; }
+        public string FlagDisplay => ClFlag == 2 ? "非表示 (2)" : "通常 (0)";
+        public string ClHidden { get; set; } = string.Empty;
+    }
+
     public class ClientService
     {
         /// <summary>
@@ -305,5 +321,22 @@ namespace SalesManagement_SysDev
                 return null;
             }
         }
-    }
+    
+        public ClientDisplayModel ToDisplayModel(MClient c)
+        {
+            return new ClientDisplayModel
+            {
+                ClId = c.ClId,
+                ClName = c.ClName ?? "",
+                SoId = c.SoId,
+                SoName = c.So?.SoName ?? $"営業所 #{c.SoId}",
+                ClPostal = c.ClPostal ?? "",
+                ClAddress = c.ClAddress ?? "",
+                ClPhone = c.ClPhone ?? "",
+                ClFax = c.ClFax ?? "",
+                ClFlag = c.ClFlag,
+                ClHidden = c.ClHidden ?? ""
+            };
+        }
+}
 }

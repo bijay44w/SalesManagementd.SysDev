@@ -15,10 +15,28 @@ namespace SalesManagement_SysDev
         private readonly MEmployee _loggedInEmployee;
         private readonly ClientService _clientService = new ClientService();
         private List<ClientDisplayModel> _cachedClientList = new List<ClientDisplayModel>();
+        private bool _isSidebarVisible = true;
+
+        private void btn_ToggleSidebar_Click(object sender, RoutedEventArgs e)
+        {
+
+            if (_isSidebarVisible)
+            {
+                SidebarColumn.Width = new GridLength(0);
+                _isSidebarVisible = false;
+            }
+            else
+            {
+                SidebarColumn.Width = new GridLength(200);
+                _isSidebarVisible = true;
+            }
+        }
 
         private bool _isCurrentRevealed = false;
         private bool _isNewRevealed = false;
         private bool _isConfirmRevealed = false;
+
+        private MainMenu? _mainMenu;
 
         public F_Home() : this(null!)
         {
@@ -29,7 +47,16 @@ namespace SalesManagement_SysDev
             InitializeComponent();
             _loggedInEmployee = employee;
 
+            _mainMenu = new MainMenu();
+            _mainMenu.NavigationRequested += OnMainMenuNavigationRequested;
+            _mainMenu.SetEmployeeInfo(_loggedInEmployee);
+
             LoadEmployeeInfo();
+
+            Loaded += (s, e) =>
+            {
+                NavigateToTag("00");
+            };
         }
 
         private void LoadEmployeeInfo()
@@ -885,11 +912,24 @@ namespace SalesManagement_SysDev
 
 
 
-        private void MenuButton_Click(object sender, RoutedEventArgs e)
+        private void OnMainMenuNavigationRequested(string tag)
         {
-            if (sender is not Button button)
-                return;
+            if (tag == "EXIT")
+            {
+                btn_Logout_Click(this, new RoutedEventArgs());
+            }
+            else if (tag == "PROFILE")
+            {
+                OpenUserProfileModal();
+            }
+            else
+            {
+                NavigateToTag(tag);
+            }
+        }
 
+        public void NavigateToTag(string tag)
+        {
             // すべてのメニューを通常のスタイルに戻す
             foreach (var item in FindVisualChildren<Button>(this))
             {
@@ -900,23 +940,32 @@ namespace SalesManagement_SysDev
             }
 
             // クリックしたメニューを選択状態にする
-            button.Style = (Style)FindResource("SidebarActiveButtonStyle");
-
-            string tag = button.Tag?.ToString() ?? "";
+            foreach (var item in FindVisualChildren<Button>(this))
+            {
+                if (item.Tag?.ToString() == tag)
+                {
+                    item.Style = (Style)FindResource("SidebarActiveButtonStyle");
+                    break;
+                }
+            }
 
             switch (tag)
             {
+                case "00": // メインメニュー
+                    CustomerContent.Visibility = Visibility.Collapsed;
+                    if (_mainMenu == null)
+                    {
+                        _mainMenu = new MainMenu();
+                        _mainMenu.NavigationRequested += OnMainMenuNavigationRequested;
+                        _mainMenu.SetEmployeeInfo(_loggedInEmployee);
+                    }
+                    MainContentArea.Content = _mainMenu;
+                    MainContentArea.Visibility = Visibility.Visible;
+                    break;
+
                 case "03": // 顧客管理
                     CustomerContent.Visibility = Visibility.Collapsed;
-
-                    var customer = new Customer();
-
-                    customer.ClientRegisterRequested += (s, args) =>
-                    {
-                        OpenClientRegisterModal();
-                    };
-
-                    MainContentArea.Content = customer;
+                    MainContentArea.Content = new Customer();
                     MainContentArea.Visibility = Visibility.Visible;
                     break;
 
@@ -988,6 +1037,15 @@ namespace SalesManagement_SysDev
             }
         }
 
+        private void MenuButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is not Button button)
+                return;
+
+            string tag = button.Tag?.ToString() ?? "";
+            NavigateToTag(tag);
+        }
+
         // 指定した要素の中にある Button を取得する
         private static IEnumerable<T> FindVisualChildren<T>(
             DependencyObject parent) where T : DependencyObject
@@ -1007,23 +1065,7 @@ namespace SalesManagement_SysDev
             }
         }
 
-        /// <summary>
-        /// UI binding model for client DataGrid views
-        /// </summary>
-        public class ClientDisplayModel
-        {
-            public int ClId { get; set; }
-            public string ClName { get; set; } = "";
-            public int SoId { get; set; }
-            public string SoName { get; set; } = "";
-            public string ClPostal { get; set; } = "";
-            public string ClAddress { get; set; } = "";
-            public string ClPhone { get; set; } = "";
-            public string ClFax { get; set; } = "";
-            public int ClFlag { get; set; }
-            public string FlagDisplay => ClFlag == 2 ? "非表示 (2)" : "通常 (0)";
-            public string ClHidden { get; set; } = "";
-        }
+// ClientDisplayModel moved to ClientService.cs
     }
 }
 
