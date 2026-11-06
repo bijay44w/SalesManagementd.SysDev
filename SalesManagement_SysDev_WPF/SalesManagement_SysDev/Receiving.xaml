@@ -109,8 +109,9 @@
                                    Margin="0,0,6,0" />
                         <TextBox x:Name="txt_SearchWaId"
                                  Style="{StaticResource RetroTextBoxStyle}"
-                                 Width="80" />
-                    </StackPanel>
+                                 Width="80" 
+                                 TextChanged="txt_SearchWaId_TextChanged" />
+
                     <StackPanel Orientation="Horizontal" Margin="0,4,16,4"
                                 VerticalAlignment="Center">
                         <TextBlock Text="発注ID:" FontWeight="SemiBold"
@@ -131,7 +132,7 @@
                     </StackPanel>
                     <CheckBox x:Name="chk_IncludeHidden" Content="非表示を含む"
                               VerticalAlignment="Center" Margin="6,4,16,4"
-                              Foreground="#334155" FontWeight="SemiBold" />
+                              Foreground="#334155" FontWeight="SemiBold" Checked="chk_IncludeHidden_Checked" />
                 </WrapPanel>
                 <StackPanel Grid.Row="1" Orientation="Horizontal"
                             HorizontalAlignment="Right" Margin="0,6,0,0">
@@ -157,6 +158,18 @@
                 </StackPanel>
             </Grid>
         </Border>
+                            Background="#EFF6FF"
+                            CornerRadius="18"
+                            HorizontalAlignment="Right"
+                            VerticalAlignment="Bottom">
+                        <TextBlock Text="→"
+                                   FontSize="20"
+                                   Foreground="#2563EB"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"/>
+                    </Border>
+                </Grid>
+            </Border>
 
         <!-- 2. 操作ツールバー -->
         <Grid Grid.Row="2" Margin="16,0,16,8">

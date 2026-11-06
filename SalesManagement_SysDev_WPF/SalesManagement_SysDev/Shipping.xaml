@@ -26,16 +26,13 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="bd"
-                                        Property="Opacity" Value="0.88" />
+                                <Setter TargetName="bd" Property="Opacity" Value="0.88" />
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="bd"
-                                        Property="Opacity" Value="0.75" />
+                                <Setter TargetName="bd" Property="Opacity" Value="0.75" />
                             </Trigger>
                             <Trigger Property="IsEnabled" Value="False">
-                                <Setter TargetName="bd"
-                                        Property="Opacity" Value="0.45" />
+                                <Setter TargetName="bd" Property="Opacity" Value="0.45" />
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -140,9 +137,11 @@
                                    Foreground="#334155"
                                    VerticalAlignment="Center"
                                    Margin="0,0,6,0" />
+
                         <TextBox x:Name="txt_SearchSyId"
                                  Style="{StaticResource RetroTextBoxStyle}"
-                                 Width="80" />
+                                 Width="80"
+                                 TextChanged="txt_SearchSyId_TextChanged" />
                     </StackPanel>
 
                     <StackPanel Orientation="Horizontal"
@@ -153,6 +152,7 @@
                                    Foreground="#334155"
                                    VerticalAlignment="Center"
                                    Margin="0,0,6,0" />
+
                         <TextBox x:Name="txt_SearchOrId"
                                  Style="{StaticResource RetroTextBoxStyle}"
                                  Width="80" />
@@ -166,6 +166,7 @@
                                    Foreground="#334155"
                                    VerticalAlignment="Center"
                                    Margin="0,0,6,0" />
+
                         <TextBox x:Name="txt_SearchProductName"
                                  Style="{StaticResource RetroTextBoxStyle}"
                                  Width="150" />
@@ -191,8 +192,8 @@
                             Margin="0,0,8,0"
                             Click="btn_Search_Click">
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="🔍" Margin="0,0,4,0" />
-                            <TextBlock Text="検索" FontWeight="Bold" />
+                            <TextBlock Text="🔍" Margin="0,0,4,0"/>
+                            <TextBlock Text="検索" FontWeight="Bold"/>
                         </StackPanel>
                     </Button>
 
@@ -204,8 +205,8 @@
                             BorderThickness="1"
                             Click="btn_Clear_Click">
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="✕" Margin="0,0,4,0" />
-                            <TextBlock Text="条件クリア" />
+                            <TextBlock Text="✕" Margin="0,0,4,0"/>
+                            <TextBlock Text="条件クリア"/>
                         </StackPanel>
                     </Button>
                 </StackPanel>
@@ -215,11 +216,12 @@
         <!-- 2. 操作ツールバー -->
         <Grid Grid.Row="2" Margin="16,0,16,8">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
-            <StackPanel Grid.Column="0" Orientation="Horizontal">
+            <StackPanel Grid.Column="0"
+                        Orientation="Horizontal">
 
                 <Button x:Name="btn_NewRegister"
                         Style="{StaticResource ActionButtonStyle}"
@@ -230,9 +232,9 @@
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="＋"
                                    Margin="0,0,4,0"
-                                   FontWeight="Bold" />
+                                   FontWeight="Bold"/>
                         <TextBlock Text="新規出庫登録"
-                                   FontWeight="Bold" />
+                                   FontWeight="Bold"/>
                     </StackPanel>
                 </Button>
 
@@ -243,9 +245,9 @@
                         Margin="0,0,8,0"
                         Click="btn_EditSelected_Click">
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="✎" Margin="0,0,4,0" />
+                        <TextBlock Text="✎" Margin="0,0,4,0"/>
                         <TextBlock Text="選択項目を編集"
-                                   FontWeight="Bold" />
+                                   FontWeight="Bold"/>
                     </StackPanel>
                 </Button>
 
@@ -256,9 +258,9 @@
                         Margin="0,0,8,0"
                         Click="btn_HideSelected_Click">
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="⊘" Margin="0,0,4,0" />
+                        <TextBlock Text="⊘" Margin="0,0,4,0"/>
                         <TextBlock Text="非表示設定"
-                                   FontWeight="Bold" />
+                                   FontWeight="Bold"/>
                     </StackPanel>
                 </Button>
             </StackPanel>
@@ -295,52 +297,52 @@
 
                 <DataGrid.ColumnHeaderStyle>
                     <Style TargetType="DataGridColumnHeader">
-                        <Setter Property="Background" Value="#E2E8F0" />
-                        <Setter Property="Foreground" Value="#1E293B" />
-                        <Setter Property="FontWeight" Value="SemiBold" />
-                        <Setter Property="Height" Value="34" />
-                        <Setter Property="Padding" Value="10,0" />
-                        <Setter Property="BorderThickness" Value="0,0,1,1" />
-                        <Setter Property="BorderBrush" Value="#CBD5E1" />
+                        <Setter Property="Background" Value="#E2E8F0"/>
+                        <Setter Property="Foreground" Value="#1E293B"/>
+                        <Setter Property="FontWeight" Value="SemiBold"/>
+                        <Setter Property="Height" Value="34"/>
+                        <Setter Property="Padding" Value="10,0"/>
+                        <Setter Property="BorderThickness" Value="0,0,1,1"/>
+                        <Setter Property="BorderBrush" Value="#CBD5E1"/>
                     </Style>
                 </DataGrid.ColumnHeaderStyle>
 
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="出庫ID"
                                         Binding="{Binding SyId}"
-                                        Width="75" />
+                                        Width="75"/>
 
                     <DataGridTextColumn Header="受注ID"
                                         Binding="{Binding OrId}"
-                                        Width="75" />
+                                        Width="75"/>
 
                     <DataGridTextColumn Header="出庫日"
                                         Binding="{Binding SyDate, StringFormat=yyyy/MM/dd}"
-                                        Width="105" />
+                                        Width="105"/>
 
                     <DataGridTextColumn Header="担当社員"
                                         Binding="{Binding EmployeeName}"
-                                        Width="120" />
+                                        Width="120"/>
 
                     <DataGridTextColumn Header="顧客名"
                                         Binding="{Binding ClientName}"
-                                        Width="140" />
+                                        Width="140"/>
 
                     <DataGridTextColumn Header="商品ID"
                                         Binding="{Binding PrId}"
-                                        Width="75" />
+                                        Width="75"/>
 
                     <DataGridTextColumn Header="商品名"
                                         Binding="{Binding ProductName}"
-                                        Width="*" />
+                                        Width="*"/>
 
                     <DataGridTextColumn Header="出庫数量"
                                         Binding="{Binding SyQuantity}"
-                                        Width="90" />
+                                        Width="90"/>
 
                     <DataGridTextColumn Header="状態"
                                         Binding="{Binding FlagDisplay}"
-                                        Width="100" />
+                                        Width="100"/>
                 </DataGrid.Columns>
             </DataGrid>
         </Border>
@@ -352,7 +354,7 @@
               Panel.ZIndex="1000">
 
             <Border Background="#66000000"
-                    MouseLeftButtonDown="modal_Editor_Backdrop_Click" />
+                    MouseLeftButtonDown="modal_Editor_Backdrop_Click"/>
 
             <Border Width="520"
                     MaxHeight="650"
@@ -369,7 +371,7 @@
                                       Opacity="0.2"
                                       BlurRadius="20"
                                       ShadowDepth="6"
-                                      Direction="270" />
+                                      Direction="270"/>
                 </Border.Effect>
 
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
@@ -380,49 +382,49 @@
                                    FontSize="18"
                                    FontWeight="Bold"
                                    Foreground="#004D40"
-                                   Margin="0,0,0,16" />
+                                   Margin="0,0,0,16"/>
 
                         <TextBlock Text="受注ID *"
-                                   Style="{StaticResource ModalLabelStyle}" />
+                                   Style="{StaticResource ModalLabelStyle}"/>
 
                         <ComboBox x:Name="cmb_OrId"
                                   Height="30"
                                   Margin="0,0,0,10"
                                   DisplayMemberPath="DisplayText"
                                   SelectedValuePath="OrId"
-                                  SelectionChanged="cmb_OrId_SelectionChanged" />
+                                  SelectionChanged="cmb_OrId_SelectionChanged"/>
 
                         <TextBlock Text="担当社員"
-                                   Style="{StaticResource ModalLabelStyle}" />
+                                   Style="{StaticResource ModalLabelStyle}"/>
 
                         <ComboBox x:Name="cmb_Employee"
                                   Height="30"
                                   Margin="0,0,0,10"
                                   DisplayMemberPath="EmName"
-                                  SelectedValuePath="EmId" />
+                                  SelectedValuePath="EmId"/>
 
                         <TextBlock Text="出庫日 *"
-                                   Style="{StaticResource ModalLabelStyle}" />
+                                   Style="{StaticResource ModalLabelStyle}"/>
 
                         <DatePicker x:Name="dp_SyDate"
                                     Height="30"
-                                    Margin="0,0,0,10" />
+                                    Margin="0,0,0,10"/>
 
                         <TextBlock Text="商品 *（選択した受注に含まれる商品）"
-                                   Style="{StaticResource ModalLabelStyle}" />
+                                   Style="{StaticResource ModalLabelStyle}"/>
 
                         <ComboBox x:Name="cmb_Product"
                                   Height="30"
                                   Margin="0,0,0,10"
                                   DisplayMemberPath="DisplayText"
-                                  SelectedValuePath="PrId" />
+                                  SelectedValuePath="PrId"/>
 
                         <TextBlock Text="出庫数量 *"
-                                   Style="{StaticResource ModalLabelStyle}" />
+                                   Style="{StaticResource ModalLabelStyle}"/>
 
                         <TextBox x:Name="txt_SyQuantity"
                                  Style="{StaticResource RetroTextBoxStyle}"
-                                 Margin="0,0,0,16" />
+                                 Margin="0,0,0,16"/>
 
                         <StackPanel Orientation="Horizontal"
                                     HorizontalAlignment="Right">
@@ -434,14 +436,14 @@
                                     BorderBrush="#94A3B8"
                                     BorderThickness="1"
                                     Margin="0,0,8,0"
-                                    Click="btn_CancelEditor_Click" />
+                                    Click="btn_CancelEditor_Click"/>
 
                             <Button x:Name="btn_ExecuteEditor"
                                     Style="{StaticResource ActionButtonStyle}"
                                     Content="登録実行"
                                     Background="#006666"
                                     Foreground="White"
-                                    Click="btn_ExecuteEditor_Click" />
+                                    Click="btn_ExecuteEditor_Click"/>
                         </StackPanel>
                     </StackPanel>
                 </ScrollViewer>
@@ -455,7 +457,7 @@
               Panel.ZIndex="1100">
 
             <Border Background="#66000000"
-                    MouseLeftButtonDown="modal_Hide_Backdrop_Click" />
+                    MouseLeftButtonDown="modal_Hide_Backdrop_Click"/>
 
             <Border Width="450"
                     Background="White"
@@ -471,29 +473,30 @@
                                       Opacity="0.2"
                                       BlurRadius="20"
                                       ShadowDepth="6"
-                                      Direction="270" />
+                                      Direction="270"/>
                 </Border.Effect>
 
                 <StackPanel>
+
                     <TextBlock Text="出庫非表示設定（論理削除）"
                                FontSize="18"
                                FontWeight="Bold"
                                Foreground="#DC2626"
-                               Margin="0,0,0,12" />
+                               Margin="0,0,0,12"/>
 
                     <TextBlock x:Name="hide_txt_TargetInfo"
                                Text="出庫ID: -"
                                FontSize="14"
                                Foreground="#1E293B"
                                Margin="0,0,0,12"
-                               FontWeight="SemiBold" />
+                               FontWeight="SemiBold"/>
 
                     <TextBlock Text="非表示理由"
-                               Style="{StaticResource ModalLabelStyle}" />
+                               Style="{StaticResource ModalLabelStyle}"/>
 
                     <TextBox x:Name="hide_txt_Reason"
                              Style="{StaticResource RetroTextBoxStyle}"
-                             Margin="0,0,0,16" />
+                             Margin="0,0,0,16"/>
 
                     <StackPanel Orientation="Horizontal"
                                 HorizontalAlignment="Right">
@@ -505,13 +508,13 @@
                                 BorderBrush="#94A3B8"
                                 BorderThickness="1"
                                 Margin="0,0,8,0"
-                                Click="btn_CancelHide_Click" />
+                                Click="btn_CancelHide_Click"/>
 
                         <Button Style="{StaticResource ActionButtonStyle}"
                                 Content="非表示に設定"
                                 Background="#DC2626"
                                 Foreground="White"
-                                Click="btn_ExecuteHide_Click" />
+                                Click="btn_ExecuteHide_Click"/>
                     </StackPanel>
                 </StackPanel>
             </Border>
