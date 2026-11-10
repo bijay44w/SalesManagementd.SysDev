@@ -306,7 +306,7 @@ namespace SalesManagement_SysDev
         }
 
         // =====================================================================
-        // 非表示 (論理削除)
+        // 非表示 (論理削除)//
         // =====================================================================
         private void btn_HideSelected_Click(object sender, RoutedEventArgs e)
         {

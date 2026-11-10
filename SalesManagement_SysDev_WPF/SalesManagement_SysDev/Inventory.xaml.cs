@@ -1,5 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+
+using System;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -7,11 +7,19 @@ using System.Windows.Input;
 
 namespace SalesManagement_SysDev
 {
+    /// <summary>
+    /// 在庫管理画面
+    /// 在庫登録・更新・一覧・検索・非表示を管理する。
+    /// </summary>
     public partial class Inventory : UserControl
     {
         private readonly StockService _stockService = new();
         private readonly ProductService _productService = new();
-        private List<StockDisplayModel> _cachedStockList = new();
+
+        private System.Collections.Generic.List<StockDisplayModel>
+            _cachedStockList = new();
+
+        private int _selectedStockId = 0;
 
         public Inventory()
         {
@@ -19,63 +27,115 @@ namespace SalesManagement_SysDev
             Loaded += Inventory_Loaded;
         }
 
+        // =========================================================
+        // 初期表示
+        // =========================================================
+
         private void Inventory_Loaded(object sender, RoutedEventArgs e)
         {
             LoadMainMasters();
+            LoadRegisterProducts();
             ExecuteMainSearch();
             UpdateMainActionButtonsState();
         }
 
         private void LoadMainMasters()
         {
-            var makers = _productService.GetMakers();
-            var searchMakers = new List<MMaker> { new MMaker { MaId = 0, MaName = "すべてのメーカー" } };
-            searchMakers.AddRange(makers);
-            cmb_MainMaker.ItemsSource = searchMakers;
-            cmb_MainMaker.SelectedIndex = 0;
+            try
+            {
+                cmb_MainMaker.ItemsSource = _productService.GetMakers();
+                cmb_MainMaker.SelectedIndex = -1;
+
+                newprod_cmb_Maker.ItemsSource =
+                    _productService.GetMakers();
+
+                newprod_cmb_SmallClass.ItemsSource =
+                    _productService.GetSmallClassifications();
+            }
+            catch (Exception ex)
+            {
+                ShowError("マスタ情報の取得に失敗しました。", ex);
+            }
         }
+
+        private void LoadRegisterProducts()
+        {
+            try
+            {
+                reg_cmb_Product.ItemsSource =
+                    _productService.GetAllProducts(false);
+
+                reg_cmb_Product.SelectedIndex = -1;
+            }
+            catch (Exception ex)
+            {
+                ShowError("商品一覧の取得に失敗しました。", ex);
+            }
+        }
+
+        // =========================================================
+        // メイン一覧・検索
+        // =========================================================
 
         private void ExecuteMainSearch()
         {
-            int? stId = null;
-            if (int.TryParse(txt_MainStId.Text.Trim(), out int id)) stId = id;
-
-            string prName = txt_MainPrName.Text.Trim();
-
-            int? maId = null;
-            if (cmb_MainMaker.SelectedValue is int mId && mId > 0) maId = mId;
-
-            bool includeHidden = chk_MainIncludeHidden.IsChecked == true;
-
-            var results = _stockService.SearchStocks(stId: stId, prId: null, prName: prName, maId: maId, scId: null, minQty: null, maxQty: null, includeHidden: includeHidden);
-
-            if (chk_MainBelowSafety.IsChecked == true)
+            try
             {
-                results = results.Where(s => s.StQuantity < s.PrSafetyStock).ToList();
+                int? stockId = null;
+
+                if (!string.IsNullOrWhiteSpace(txt_MainStId.Text))
+                {
+                    if (!int.TryParse(txt_MainStId.Text, out int id)
+                        || id <= 0)
+                    {
+                        ShowMessage("在庫IDは正しい数値で入力してください。");
+                        return;
+                    }
+
+                    stockId = id;
+                }
+
+                int? makerId = null;
+
+                if (cmb_MainMaker.SelectedValue != null)
+                {
+                    makerId = Convert.ToInt32(
+                        cmb_MainMaker.SelectedValue);
+                }
+
+                bool includeHidden =
+                    chk_MainIncludeHidden.IsChecked == true;
+
+                _cachedStockList = _stockService.SearchStocks(
+                    stId: stockId,
+                    prName: txt_MainPrName.Text,
+                    maId: makerId,
+                    includeHidden: includeHidden
+                );
+
+                if (chk_MainBelowSafety.IsChecked == true)
+                {
+                    _cachedStockList = _cachedStockList
+                        .Where(s => s.StQuantity < s.PrSafetyStock)
+                        .ToList();
+                }
+
+                dg_MainStocks.ItemsSource = null;
+                dg_MainStocks.ItemsSource = _cachedStockList;
+
+                txt_MainStockCount.Text =
+                    $"該当件数：{_cachedStockList.Count}件";
+
+                UpdateMainActionButtonsState();
             }
-
-            _cachedStockList = results;
-            dg_MainStocks.ItemsSource = _cachedStockList;
-            txt_MainStockCount.Text = $"表示件数: {_cachedStockList.Count} 件";
-            UpdateMainActionButtonsState();
+            catch (Exception ex)
+            {
+                ShowError("在庫検索に失敗しました。", ex);
+            }
         }
 
-        private void btn_MainSearch_Click(object sender, RoutedEventArgs e)
-        {
-            ExecuteMainSearch();
-        }
-
-        private void btn_MainClear_Click(object sender, RoutedEventArgs e)
-        {
-            txt_MainStId.Text = string.Empty;
-            txt_MainPrName.Text = string.Empty;
-            cmb_MainMaker.SelectedIndex = 0;
-            chk_MainBelowSafety.IsChecked = false;
-            chk_MainIncludeHidden.IsChecked = false;
-            ExecuteMainSearch();
-        }
-
-        private void SearchField_KeyDown(object sender, KeyEventArgs e)
+        private void SearchField_KeyDown(
+            object sender, KeyEventArgs e)
         {
             if (e.Key == Key.Enter)
             {
@@ -83,105 +143,143 @@ namespace SalesManagement_SysDev
             }
         }
 
-        private void chk_Filter_Click(object sender, RoutedEventArgs e)
+        private void chk_Filter_Click(
+            object sender, RoutedEventArgs e)
         {
             ExecuteMainSearch();
         }
 
-        private void UpdateMainActionButtonsState()
+        private void btn_MainSearch_Click(
+            object sender, RoutedEventArgs e)
         {
-            bool hasSelection = dg_MainStocks.SelectedItem is StockDisplayModel;
-            btn_MainEditSelected.IsEnabled = hasSelection;
-            btn_MainHideSelected.IsEnabled = hasSelection;
+            ExecuteMainSearch();
         }
 
-        private void dg_MainStocks_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void btn_MainClear_Click(
+            object sender, RoutedEventArgs e)
+        {
+            txt_MainStId.Clear();
+            txt_MainPrName.Clear();
+
+            cmb_MainMaker.SelectedIndex = -1;
+            chk_MainBelowSafety.IsChecked = false;
+            chk_MainIncludeHidden.IsChecked = false;
+
+            ExecuteMainSearch();
+        }
+
+        private void dg_MainStocks_SelectionChanged(
+            object sender, SelectionChangedEventArgs e)
         {
             UpdateMainActionButtonsState();
         }
 
-        private void dg_MainStocks_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        private void dg_MainStocks_MouseDoubleClick(
+            object sender, MouseButtonEventArgs e)
         {
-            if (dg_MainStocks.SelectedItem is StockDisplayModel selected)
+            if (dg_MainStocks.SelectedItem is StockDisplayModel stock)
             {
-                OpenInventoryUpdateModal(selected.StId);
+                OpenInventoryUpdate(stock);
             }
         }
 
-        private void btn_MainNewRegister_Click(object sender, RoutedEventArgs e)
+        private void UpdateMainActionButtonsState()
         {
-            OpenInventoryRegisterModal();
+            bool selected =
+                dg_MainStocks.SelectedItem is StockDisplayModel;
+
+            btn_MainEditSelected.IsEnabled = selected;
+            btn_MainHideSelected.IsEnabled = selected;
         }
 
-        private void btn_MainEditSelected_Click(object sender, RoutedEventArgs e)
+        // =========================================================
+        // メイン操作ボタン
+        // =========================================================
+
+        private void btn_MainNewRegister_Click(
+            object sender, RoutedEventArgs e)
         {
-            if (dg_MainStocks.SelectedItem is StockDisplayModel selected)
+            OpenInventoryRegister();
+        }
+
+        private void btn_MainNewProduct_Click(
+            object sender, RoutedEventArgs e)
+        {
+            OpenInventoryCreateProduct();
+        }
+
+        private void btn_MainEditSelected_Click(
+            object sender, RoutedEventArgs e)
+        {
+            if (dg_MainStocks.SelectedItem is StockDisplayModel stock)
             {
-                OpenInventoryUpdateModal(selected.StId);
+                OpenInventoryUpdate(stock);
+            }
+            else
+            {
+                ShowMessage("更新する在庫を選択してください。");
             }
         }
 
-        private void btn_MainHideSelected_Click(object sender, RoutedEventArgs e)
+        private void btn_MainHideSelected_Click(
+            object sender, RoutedEventArgs e)
         {
-            if (dg_MainStocks.SelectedItem is StockDisplayModel selected)
+            if (dg_MainStocks.SelectedItem is StockDisplayModel stock)
             {
-                OpenInventoryHideModal(selected.StId);
+                OpenInventoryHide(stock);
+            }
+            else
+            {
+                ShowMessage("非表示にする在庫を選択してください。");
             }
         }
 
-        // =====================================================================
-        // カードクリック イベントハンドラ
-        // =====================================================================
-        private void card_InventoryRegister_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
-        {
-            OpenInventoryRegisterModal();
-        }
+        // =========================================================
+        // 在庫登録
+        // =========================================================
 
-        private void card_InventoryUpdate_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        private void OpenInventoryRegister()
         {
-            OpenInventoryUpdateModal();
-        }
+            ClearRegisterMessage();
 
-        private void card_InventoryList_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
-        {
-            OpenInventoryListModal();
-        }
-
-        private void card_InventorySearch_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
-        {
-            OpenInventorySearchModal();
-        }
-
-        private void card_InventoryHide_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
-        {
-            OpenInventoryHideModal();
-        }
-
-        // =====================================================================
-        // モーダル: 在庫登録
-        // =====================================================================
-        public void OpenInventoryRegisterModal()
-        {
-            border_RegErrorAlert.Visibility = Visibility.Collapsed;
-            border_RegSuccessAlert.Visibility = Visibility.Collapsed;
-
-            var products = _productService.GetAllProducts(includeHidden: false);
-            reg_cmb_Product.ItemsSource = products;
-            if (products.Count > 0)
-            {
-                reg_cmb_Product.SelectedIndex = 0;
-            }
             reg_txt_Quantity.Text = "0";
+            reg_cmb_Product.SelectedIndex = -1;
 
-            modal_InventoryRegister.Visibility = Visibility.Visible;
+            modal_InventoryRegister.Visibility =
+                Visibility.Visible;
         }
 
-        private void reg_cmb_Product_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void modal_InventoryRegister_Backdrop_MouseLeftButtonDown(
+            object sender, MouseButtonEventArgs e)
         {
-            if (reg_cmb_Product.SelectedItem is ProductDisplayModel p)
+            if (e.OriginalSource == sender)
             {
-                reg_txt_ProductInfo.Text = $"{p.MaName} / {p.ScName}";
-                reg_txt_SafetyStock.Text = $"{p.PrSafetyStock} 個";
+                CloseInventoryRegister();
+            }
+        }
+
+        private void btn_CloseInventoryRegister_Click(
+            object sender, RoutedEventArgs e)
+        {
+            CloseInventoryRegister();
+        }
+
+        private void CloseInventoryRegister()
+        {
+            modal_InventoryRegister.Visibility =
+                Visibility.Collapsed;
+        }
+
+        private void reg_cmb_Product_SelectionChanged(
+            object sender, SelectionChangedEventArgs e)
+        {
+            if (reg_cmb_Product.SelectedItem is ProductDisplayModel product)
+            {
+                reg_txt_ProductInfo.Text =
+                    $"{product.MaName} / {product.ScName}";
+
+                reg_txt_SafetyStock.Text =
+                    product.PrSafetyStock.ToString();
             }
             else
             {
@@ -190,305 +288,537 @@ namespace SalesManagement_SysDev
             }
         }
 
-        private void btn_CloseInventoryRegister_Click(object sender, RoutedEventArgs e)
+        private void btn_ExecuteInventoryRegister_Click(
+            object sender, RoutedEventArgs e)
         {
-            modal_InventoryRegister.Visibility = Visibility.Collapsed;
+            if (reg_cmb_Product.SelectedValue == null)
+            {
+                ShowRegisterError("商品を選択してください。");
+                return;
+            }
+
+            if (!int.TryParse(reg_txt_Quantity.Text, out int quantity)
+                || quantity < 0)
+            {
+                ShowRegisterError(
+                    "在庫数は0以上の整数で入力してください。");
+                return;
+            }
+
+            int productId =
+                Convert.ToInt32(reg_cmb_Product.SelectedValue);
+
+            var result =
+                _stockService.RegisterStock(productId, quantity);
+
+            if (!result.Success)
+            {
+                ShowRegisterError(result.Message);
+                return;
+            }
+
+            ShowRegisterSuccess(result.Message);
+
+            ExecuteMainSearch();
+            LoadRegisterProducts();
+
+            ShowMessage(result.Message);
+            CloseInventoryRegister();
         }
 
-        private void modal_InventoryRegister_Backdrop_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        // =========================================================
+        // 在庫更新
+        // =========================================================
+
+        private void OpenInventoryUpdate(StockDisplayModel stock)
         {
-            modal_InventoryRegister.Visibility = Visibility.Collapsed;
+            _selectedStockId = stock.StId;
+
+            ClearUpdateMessage();
+
+            upd_txt_SearchStId.Text = stock.StId.ToString();
+
+            LoadStockForUpdate(stock.StId);
+
+            modal_InventoryUpdate.Visibility =
+                Visibility.Visible;
         }
 
-        private void btn_ExecuteInventoryRegister_Click(object sender, RoutedEventArgs e)
+        private void modal_InventoryUpdate_Backdrop_MouseLeftButtonDown(
+            object sender, MouseButtonEventArgs e)
+        {
+            if (e.OriginalSource == sender)
+            {
+                CloseInventoryUpdate();
+            }
+        }
+
+        private void btn_CloseInventoryUpdate_Click(
+            object sender, RoutedEventArgs e)
+        {
+            CloseInventoryUpdate();
+        }
+
+        private void CloseInventoryUpdate()
+        {
+            modal_InventoryUpdate.Visibility =
+                Visibility.Collapsed;
+
+            _selectedStockId = 0;
+        }
+
+        private void upd_txt_SearchStId_KeyUp(
+            object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                LoadStockForUpdateFromText();
+            }
+        }
+
+        private void btn_LoadStockForUpdate_Click(
+            object sender, RoutedEventArgs e)
+        {
+            LoadStockForUpdateFromText();
+        }
+
+        private void LoadStockForUpdateFromText()
+        {
+            if (!int.TryParse(
+                upd_txt_SearchStId.Text, out int stockId)
+                || stockId <= 0)
+            {
+                ShowUpdateError("正しい在庫IDを入力してください。");
+                return;
+            }
+
+            LoadStockForUpdate(stockId);
+        }
+
+        private void LoadStockForUpdate(int stockId)
+        {
+            var stock = _stockService.GetStockById(stockId);
+
+            if (stock == null)
+            {
+                ShowUpdateError("対象の在庫が見つかりません。");
+                return;
+            }
+
+            var display = _stockService.ToDisplayModel(stock);
+
+            _selectedStockId = stock.StId;
+
+            upd_txt_DisplayPrName.Text = display.PrName;
+            upd_txt_DisplayMaker.Text = display.MaName;
+            upd_txt_DisplaySafetyStock.Text =
+                display.PrSafetyStock.ToString();
+
+            upd_txt_DisplayCurrentQty.Text =
+                display.StQuantity.ToString();
+
+            upd_txt_Quantity.Text =
+                display.StQuantity.ToString();
+
+            foreach (ComboBoxItem item in upd_cmb_StFlag.Items)
+            {
+                if (Convert.ToInt32(item.Tag) == stock.StFlag)
+                {
+                    upd_cmb_StFlag.SelectedItem = item;
+                    break;
+                }
+            }
+        }
+
+        private void btn_ExecuteInventoryUpdate_Click(
+            object sender, RoutedEventArgs e)
+        {
+            if (_selectedStockId <= 0)
+            {
+                ShowUpdateError("更新対象の在庫を読み込んでください。");
+                return;
+            }
+
+            if (!int.TryParse(
+                upd_txt_Quantity.Text, out int quantity)
+                || quantity < 0)
+            {
+                ShowUpdateError(
+                    "在庫数は0以上の整数で入力してください。");
+                return;
+            }
+
+            if (upd_cmb_StFlag.SelectedItem is not ComboBoxItem flagItem)
+            {
+                ShowUpdateError("在庫管理フラグを選択してください。");
+                return;
+            }
+
+            int flag = Convert.ToInt32(flagItem.Tag);
+
+            var result = _stockService.UpdateStock(
+                _selectedStockId, quantity, flag);
+
+            if (!result.Success)
+            {
+                ShowUpdateError(result.Message);
+                return;
+            }
+
+            ShowMessage(result.Message);
+
+            ExecuteMainSearch();
+            CloseInventoryUpdate();
+        }
+
+        // =========================================================
+        // 在庫非表示
+        // =========================================================
+
+        private void OpenInventoryHide(StockDisplayModel stock)
+        {
+            _selectedStockId = stock.StId;
+
+            ClearHideMessage();
+
+            hide_txt_StId.Text = stock.StId.ToString();
+
+            LoadStockForHide(stock.StId);
+
+            modal_InventoryHide.Visibility =
+                Visibility.Visible;
+        }
+
+        private void modal_InventoryHide_Backdrop_MouseLeftButtonDown(
+            object sender, MouseButtonEventArgs e)
+        {
+            if (e.OriginalSource == sender)
+            {
+                CloseInventoryHide();
+            }
+        }
+
+        private void btn_CloseInventoryHide_Click(
+            object sender, RoutedEventArgs e)
+        {
+            CloseInventoryHide();
+        }
+
+        private void CloseInventoryHide()
+        {
+            modal_InventoryHide.Visibility =
+                Visibility.Collapsed;
+
+            _selectedStockId = 0;
+        }
+
+        private void hide_txt_StId_KeyUp(
+            object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                LoadStockForHideFromText();
+            }
+        }
+
+        private void btn_LoadStockForHide_Click(
+            object sender, RoutedEventArgs e)
+        {
+            LoadStockForHideFromText();
+        }
+
+        private void LoadStockForHideFromText()
+        {
+            if (!int.TryParse(
+                hide_txt_StId.Text, out int stockId)
+                || stockId <= 0)
+            {
+                ShowHideError("正しい在庫IDを入力してください。");
+                return;
+            }
+
+            LoadStockForHide(stockId);
+        }
+
+        private void LoadStockForHide(int stockId)
+        {
+            var stock = _stockService.GetStockById(stockId);
+
+            if (stock == null)
+            {
+                ShowHideError("対象の在庫が見つかりません。");
+                return;
+            }
+
+            var display = _stockService.ToDisplayModel(stock);
+
+            _selectedStockId = stock.StId;
+
+            hide_txt_DisplayPrName.Text = display.PrName;
+            hide_txt_DisplayMaker.Text = display.MaName;
+            hide_txt_DisplayQty.Text =
+                display.StQuantity.ToString();
+
+            hide_txt_DisplayFlag.Text =
+                display.FlagFormatted;
+        }
+
+        private void btn_ExecuteInventoryHide_Click(
+            object sender, RoutedEventArgs e)
+        {
+            if (_selectedStockId <= 0)
+            {
+                ShowHideError("非表示にする在庫を読み込んでください。");
+                return;
+            }
+
+            var answer = MessageBox.Show(
+                "この在庫を非表示にしますか？",
+                "在庫非表示確認",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Question);
+
+            if (answer != MessageBoxResult.Yes)
+                return;
+
+            var result =
+                _stockService.SetStockHiddenFlag(_selectedStockId);
+
+            if (!result.Success)
+            {
+                ShowHideError(result.Message);
+                return;
+            }
+
+            ShowMessage(result.Message);
+
+            ExecuteMainSearch();
+            CloseInventoryHide();
+        }
+
+        // =========================================================
+        // 商品新規登録
+        // =========================================================
+
+        private void OpenInventoryCreateProduct()
+        {
+            ClearNewProductMessage();
+
+            newprod_txt_PrName.Clear();
+            newprod_txt_Price.Clear();
+            newprod_txt_ModelNumber.Clear();
+            newprod_txt_Color.Clear();
+
+            newprod_txt_SafetyStock.Text = "10";
+            newprod_txt_InitialStock.Text = "50";
+
+            newprod_cmb_Maker.SelectedIndex = -1;
+            newprod_cmb_SmallClass.SelectedIndex = -1;
+
+            modal_InventoryCreateProduct.Visibility =
+                Visibility.Visible;
+        }
+
+        private void btn_QuickCreateProduct_Click(
+            object sender, RoutedEventArgs e)
+        {
+            OpenInventoryCreateProduct();
+        }
+
+        private void modal_InventoryCreateProduct_Backdrop_MouseLeftButtonDown(
+            object sender, MouseButtonEventArgs e)
+        {
+            if (e.OriginalSource == sender)
+            {
+                CloseInventoryCreateProduct();
+            }
+        }
+
+        private void btn_CloseInventoryCreateProduct_Click(
+            object sender, RoutedEventArgs e)
+        {
+            CloseInventoryCreateProduct();
+        }
+
+        private void CloseInventoryCreateProduct()
+        {
+            modal_InventoryCreateProduct.Visibility =
+                Visibility.Collapsed;
+        }
+
+        private void btn_ExecuteInventoryCreateProduct_Click(
+            object sender, RoutedEventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(newprod_txt_PrName.Text))
+            {
+                ShowNewProdError("商品名を入力してください。");
+                return;
+            }
+
+            if (!decimal.TryParse(
+                newprod_txt_Price.Text, out decimal price)
+                || price < 0)
+            {
+                ShowNewProdError("価格を正しく入力してください。");
+                return;
+            }
+
+            if (newprod_cmb_Maker.SelectedValue == null)
+            {
+                ShowNewProdError("メーカーを選択してください。");
+                return;
+            }
+
+            if (newprod_cmb_SmallClass.SelectedValue == null)
+            {
+                ShowNewProdError("小分類を選択してください。");
+                return;
+            }
+
+            if (!int.TryParse(
+                newprod_txt_SafetyStock.Text, out int safetyStock)
+                || safetyStock < 0)
+            {
+                ShowNewProdError("安全在庫数を正しく入力してください。");
+                return;
+            }
+
+            if (!int.TryParse(
+                newprod_txt_InitialStock.Text, out int initialStock)
+                || initialStock < 0)
+            {
+                ShowNewProdError("初期在庫数を正しく入力してください。");
+                return;
+            }
+
+            var product = new MProduct
+            {
+                PrName = newprod_txt_PrName.Text.Trim(),
+                Price = price,
+                MaId = Convert.ToInt32(
+                    newprod_cmb_Maker.SelectedValue),
+                ScId = Convert.ToInt32(
+                    newprod_cmb_SmallClass.SelectedValue),
+                PrSafetyStock = safetyStock,
+                PrModelNumber =
+                    newprod_txt_ModelNumber.Text.Trim(),
+                PrColor =
+                    newprod_txt_Color.Text.Trim(),
+                PrReleaseDate = DateTime.Today,
+                PrFlag = 0
+            };
+
+            var result =
+                _productService.RegisterProduct(product);
+
+            if (!result.Success || result.Product == null)
+            {
+                ShowNewProdError(result.Message);
+                return;
+            }
+
+            // 商品登録時に在庫0のレコードが自動生成される。
+            // そのため、在庫登録サービスで初期数量を追加する。
+            var stockResult = _stockService.RegisterStock(
+                result.Product.PrId, initialStock);
+
+            if (!stockResult.Success)
+            {
+                ShowNewProdError(
+                    "商品は登録されましたが、初期在庫の登録に失敗しました。\n"
+                    + stockResult.Message);
+                return;
+            }
+
+            ShowMessage(
+                "商品と初期在庫を登録しました。\n"
+                + result.Message);
+
+            LoadRegisterProducts();
+            ExecuteMainSearch();
+
+            CloseInventoryCreateProduct();
+        }
+
+        // =========================================================
+        // メッセージ表示
+        // =========================================================
+
+        private void ShowMessage(string message)
+        {
+            MessageBox.Show(
+                message,
+                "在庫管理",
+                MessageBoxButton.OK,
+                MessageBoxImage.Information);
+        }
+
+        private void ShowError(string message, Exception ex)
+        {
+            MessageBox.Show(
+                message + "\n" + ex.Message,
+                "在庫管理エラー",
+                MessageBoxButton.OK,
+                MessageBoxImage.Error);
+        }
+
+        private void ShowRegisterError(string message)
+        {
+            border_RegErrorAlert.Visibility = Visibility.Visible;
+            border_RegSuccessAlert.Visibility = Visibility.Collapsed;
+            txt_RegErrorMessage.Text = message;
+        }
+
+        private void ShowRegisterSuccess(string message)
+        {
+            border_RegSuccessAlert.Visibility = Visibility.Visible;
+            border_RegErrorAlert.Visibility = Visibility.Collapsed;
+            txt_RegSuccessMessage.Text = message;
+        }
+
+        private void ClearRegisterMessage()
         {
             border_RegErrorAlert.Visibility = Visibility.Collapsed;
             border_RegSuccessAlert.Visibility = Visibility.Collapsed;
-
-            if (reg_cmb_Product.SelectedValue is not int prId || prId <= 0)
-            {
-                ShowRegError("対象商品を選択してください。");
-                return;
-            }
-
-            if (!int.TryParse(reg_txt_Quantity.Text.Trim(), out int qty) || qty < 0)
-            {
-                ShowRegError("在庫数は0以上の半角整数を入力してください。");
-                return;
-            }
-
-            var result = _stockService.RegisterStock(prId, qty);
-            if (result.Success)
-            {
-                ShowRegSuccess(result.Message);
-            }
-            else
-            {
-                ShowRegError(result.Message);
-            }
         }
 
-        private void ShowRegError(string msg)
+        private void ShowUpdateError(string message)
         {
-            txt_RegErrorMessage.Text = msg;
-            border_RegErrorAlert.Visibility = Visibility.Visible;
-        }
-
-        private void ShowRegSuccess(string msg)
-        {
-            txt_RegSuccessMessage.Text = msg;
-            border_RegSuccessAlert.Visibility = Visibility.Visible;
-        }
-
-        // =====================================================================
-        // 5.1 モーダル: 在庫更新
-        // =====================================================================
-        public void OpenInventoryUpdateModal(int? targetStId = null)
-        {
-            border_UpdErrorAlert.Visibility = Visibility.Collapsed;
-            border_UpdSuccessAlert.Visibility = Visibility.Collapsed;
-
-            ClearUpdateFields();
-            upd_txt_SearchStId.Text = targetStId.HasValue ? targetStId.Value.ToString() : "";
-            modal_InventoryUpdate.Visibility = Visibility.Visible;
-
-            if (targetStId.HasValue && targetStId.Value > 0)
-            {
-                LoadStockForUpdate(targetStId.Value);
-            }
-            else
-            {
-                upd_txt_SearchStId.Focus();
-            }
-        }
-
-        private void ClearUpdateFields()
-        {
-            upd_txt_DisplayPrName.Text = "-";
-            upd_txt_DisplayMaker.Text = "-";
-            upd_txt_DisplaySafetyStock.Text = "-";
-            upd_txt_DisplayCurrentQty.Text = "-";
-            upd_txt_Quantity.Text = "";
-            upd_cmb_StFlag.SelectedIndex = 0;
-        }
-
-        private void btn_CloseInventoryUpdate_Click(object sender, RoutedEventArgs e)
-        {
-            modal_InventoryUpdate.Visibility = Visibility.Collapsed;
-        }
-
-        private void modal_InventoryUpdate_Backdrop_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            modal_InventoryUpdate.Visibility = Visibility.Collapsed;
-        }
-
-        private void upd_txt_SearchStId_KeyUp(object sender, KeyEventArgs e)
-        {
-            if (e.Key == Key.Enter)
-            {
-                btn_LoadStockForUpdate_Click(sender, e);
-            }
-        }
-
-        private void btn_LoadStockForUpdate_Click(object sender, RoutedEventArgs e)
-        {
-            border_UpdErrorAlert.Visibility = Visibility.Collapsed;
-            border_UpdSuccessAlert.Visibility = Visibility.Collapsed;
-
-            if (!int.TryParse(upd_txt_SearchStId.Text.Trim(), out int stId) || stId <= 0)
-            {
-                ShowUpdError("有効な在庫IDを半角数値で入力してください。");
-                return;
-            }
-
-            LoadStockForUpdate(stId);
-        }
-
-        private void LoadStockForUpdate(int stId)
-        {
-            var stock = _stockService.GetStockById(stId);
-            if (stock == null)
-            {
-                ShowUpdError($"在庫ID: {stId} のデータは見つかりませんでした。");
-                ClearUpdateFields();
-                return;
-            }
-
-            upd_txt_SearchStId.Text = stock.StId.ToString();
-            upd_txt_DisplayPrName.Text = stock.Pr?.PrName ?? $"商品ID: {stock.PrId}";
-            upd_txt_DisplayMaker.Text = $"{stock.Pr?.Ma?.MaName ?? "-"} / {stock.Pr?.Sc?.ScName ?? "-"}";
-            upd_txt_DisplaySafetyStock.Text = $"{stock.Pr?.PrSafetyStock ?? 0} 個";
-            upd_txt_DisplayCurrentQty.Text = $"{stock.StQuantity:N0} 個";
-            upd_txt_Quantity.Text = stock.StQuantity.ToString();
-            upd_cmb_StFlag.SelectedIndex = stock.StFlag == 2 ? 1 : 0;
-        }
-
-        private void btn_ExecuteInventoryUpdate_Click(object sender, RoutedEventArgs e)
-        {
-            border_UpdErrorAlert.Visibility = Visibility.Collapsed;
-            border_UpdSuccessAlert.Visibility = Visibility.Collapsed;
-
-            if (!int.TryParse(upd_txt_SearchStId.Text.Trim(), out int stId) || stId <= 0)
-            {
-                ShowUpdError("対象の在庫IDを入力して情報を呼び出してください。");
-                return;
-            }
-
-            if (!int.TryParse(upd_txt_Quantity.Text.Trim(), out int qty) || qty < 0)
-            {
-                ShowUpdError("更新後の在庫数は0以上の半角整数を入力してください。");
-                return;
-            }
-
-            int stFlag = upd_cmb_StFlag.SelectedIndex == 1 ? 2 : 0;
-            var result = _stockService.UpdateStock(stId, qty, stFlag);
-            if (result.Success)
-            {
-                ExecuteMainSearch();
-            ShowUpdSuccess(result.Message);
-                upd_txt_DisplayCurrentQty.Text = $"{qty:N0} 個";
-            }
-            else
-            {
-                ShowUpdError(result.Message);
-            }
-        }
-
-        private void ShowUpdError(string msg)
-        {
-            txt_UpdErrorMessage.Text = msg;
             border_UpdErrorAlert.Visibility = Visibility.Visible;
+            border_UpdSuccessAlert.Visibility = Visibility.Collapsed;
+            txt_UpdErrorMessage.Text = message;
         }
 
-        private void ShowUpdSuccess(string msg)
+        private void ClearUpdateMessage()
         {
-            txt_UpdSuccessMessage.Text = msg;
-            border_UpdSuccessAlert.Visibility = Visibility.Visible;
+            border_UpdErrorAlert.Visibility = Visibility.Collapsed;
+            border_UpdSuccessAlert.Visibility = Visibility.Collapsed;
         }
 
-        // =====================================================================
-        // 5.2 / 5.3: メイン画面で直接検索・一覧表示を行うためモーダル不要
-        public void OpenInventoryListModal() => ExecuteMainSearch();
-        public void OpenInventorySearchModal() => ExecuteMainSearch();
-
-        // 5.4 モーダル: 在庫非表示 (フラグ 0 -> 2 更新)
-        // =====================================================================
-        public void OpenInventoryHideModal(int? targetStId = null)
+        private void ShowHideError(string message)
         {
-            border_HideErrorAlert.Visibility = Visibility.Collapsed;
-            border_HideSuccessAlert.Visibility = Visibility.Collapsed;
-
-            hide_txt_StId.Text = targetStId.HasValue ? targetStId.Value.ToString() : "";
-            hide_txt_DisplayPrName.Text = "-";
-            hide_txt_DisplayMaker.Text = "-";
-            hide_txt_DisplayQty.Text = "-";
-            hide_txt_DisplayFlag.Text = "-";
-
-            modal_InventoryHide.Visibility = Visibility.Visible;
-
-            if (targetStId.HasValue && targetStId.Value > 0)
-            {
-                LoadStockForHide(targetStId.Value);
-            }
-            else
-            {
-                hide_txt_StId.Focus();
-            }
-        }
-
-        private void btn_CloseInventoryHide_Click(object sender, RoutedEventArgs e)
-        {
-            modal_InventoryHide.Visibility = Visibility.Collapsed;
-        }
-
-        private void modal_InventoryHide_Backdrop_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            modal_InventoryHide.Visibility = Visibility.Collapsed;
-        }
-
-        private void hide_txt_StId_KeyUp(object sender, KeyEventArgs e)
-        {
-            if (e.Key == Key.Enter)
-            {
-                btn_LoadStockForHide_Click(sender, e);
-            }
-        }
-
-        private void btn_LoadStockForHide_Click(object sender, RoutedEventArgs e)
-        {
-            border_HideErrorAlert.Visibility = Visibility.Collapsed;
-            border_HideSuccessAlert.Visibility = Visibility.Collapsed;
-
-            if (!int.TryParse(hide_txt_StId.Text.Trim(), out int stId) || stId <= 0)
-            {
-                ShowHideError("有効な在庫IDを入力してください。");
-                return;
-            }
-
-            LoadStockForHide(stId);
-        }
-
-        private void LoadStockForHide(int stId)
-        {
-            var stock = _stockService.GetStockById(stId);
-            if (stock == null)
-            {
-                ShowHideError($"在庫ID: {stId} のデータが見つかりません。");
-                hide_txt_DisplayPrName.Text = "-";
-                hide_txt_DisplayMaker.Text = "-";
-                hide_txt_DisplayQty.Text = "-";
-                hide_txt_DisplayFlag.Text = "-";
-                return;
-            }
-
-            hide_txt_StId.Text = stock.StId.ToString();
-            hide_txt_DisplayPrName.Text = stock.Pr?.PrName ?? $"商品ID: {stock.PrId}";
-            hide_txt_DisplayMaker.Text = $"{stock.Pr?.Ma?.MaName ?? "-"} / {stock.Pr?.Sc?.ScName ?? "-"}";
-            hide_txt_DisplayQty.Text = $"{stock.StQuantity:N0} 個";
-            hide_txt_DisplayFlag.Text = stock.StFlag == 2 ? "2 (すでに非表示)" : "0 (通常表示中)";
-        }
-
-        private void btn_ExecuteInventoryHide_Click(object sender, RoutedEventArgs e)
-        {
-            border_HideErrorAlert.Visibility = Visibility.Collapsed;
-            border_HideSuccessAlert.Visibility = Visibility.Collapsed;
-
-            if (!int.TryParse(hide_txt_StId.Text.Trim(), out int stId) || stId <= 0)
-            {
-                ShowHideError("対象の在庫IDを入力して情報を呼び出してください。");
-                return;
-            }
-
-            var confirm = MessageBox.Show(
-                $"在庫ID: {stId}（{hide_txt_DisplayPrName.Text}）の在庫管理フラグを 2 (非表示) に更新しますか？\n（更新後は通常の一覧や検索に表示されなくなります）",
-                "在庫非表示更新の確認",
-                MessageBoxButton.YesNo,
-                MessageBoxImage.Warning);
-
-            if (confirm != MessageBoxResult.Yes) return;
-
-            var result = _stockService.SetStockHiddenFlag(stId);
-            if (result.Success)
-            {
-                ShowHideSuccess(result.Message);
-                hide_txt_DisplayFlag.Text = "2 (非表示)";
-            }
-            else
-            {
-                ShowHideError(result.Message);
-            }
-        }
-
-        private void ShowHideError(string msg)
-        {
-            txt_HideErrorMessage.Text = msg;
             border_HideErrorAlert.Visibility = Visibility.Visible;
+            border_HideSuccessAlert.Visibility = Visibility.Collapsed;
+            txt_HideErrorMessage.Text = message;
         }
 
-        private void ShowHideSuccess(string msg)
+        private void ClearHideMessage()
         {
-            txt_HideSuccessMessage.Text = msg;
-            border_HideSuccessAlert.Visibility = Visibility.Visible;
+            border_HideErrorAlert.Visibility = Visibility.Collapsed;
+            border_HideSuccessAlert.Visibility = Visibility.Collapsed;
+        }
+
+        private void ShowNewProdError(string message)
+        {
+            border_NewProdErrorAlert.Visibility = Visibility.Visible;
+            border_NewProdSuccessAlert.Visibility = Visibility.Collapsed;
+            txt_NewProdErrorMessage.Text = message;
+        }
+
+        private void ClearNewProductMessage()
+        {
+            border_NewProdErrorAlert.Visibility = Visibility.Collapsed;
+            border_NewProdSuccessAlert.Visibility = Visibility.Collapsed;
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
@@ -471,7 +471,7 @@ namespace SalesManagement_SysDev
             return new ProductDisplayModel
             {
                 PrId = product.PrId,
-                PrName = product.PrName,
+                PrName = StringSanitizer.FixMojibake(product.PrName),
                 MaId = product.MaId,
                 MaName = product.Ma?.MaName ?? $"(メーカー #{product.MaId})",
                 ScId = product.ScId,
@@ -482,7 +482,7 @@ namespace SalesManagement_SysDev
                 PrJcode = product.PrJcode,
                 PrSafetyStock = product.PrSafetyStock,
                 PrModelNumber = product.PrModelNumber ?? "-",
-                PrColor = product.PrColor ?? "-",
+                PrColor = StringSanitizer.FixMojibake(product.PrColor) ?? "-",
                 PrReleaseDate = product.PrReleaseDate,
                 PrFlag = product.PrFlag,
                 PrHidden = product.PrHidden,

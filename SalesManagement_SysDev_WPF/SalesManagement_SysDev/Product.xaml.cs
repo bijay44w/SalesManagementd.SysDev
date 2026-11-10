@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
@@ -263,6 +263,7 @@ namespace SalesManagement_SysDev
             if (result.Success)
             {
                 ShowRegSuccess(result.Message);
+                ExecuteMainSearch();
                 // 入力欄クリア
                 reg_txt_PrName.Text = "";
                 reg_txt_Price.Text = "";

@@ -15,6 +15,22 @@ namespace SalesManagement_SysDev
         private readonly MEmployee _loggedInEmployee;
         private readonly ClientService _clientService = new ClientService();
         private List<ClientDisplayModel> _cachedClientList = new List<ClientDisplayModel>();
+        private bool _isSidebarVisible = true;
+
+        private void btn_ToggleSidebar_Click(object sender, RoutedEventArgs e)
+        {
+
+            if (_isSidebarVisible)
+            {
+                SidebarColumn.Width = new GridLength(0);
+                _isSidebarVisible = false;
+            }
+            else
+            {
+                SidebarColumn.Width = new GridLength(200);
+                _isSidebarVisible = true;
+            }
+        }
 
         private bool _isCurrentRevealed = false;
         private bool _isNewRevealed = false;
