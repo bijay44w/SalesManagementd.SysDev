@@ -67,6 +67,13 @@ namespace SalesManagement_SysDev
                 return;
             }
 
+            if (e.Args.Contains("--test-shipment"))
+            {
+                int exitCode = ShipmentServiceSelfCheck.RunAllTests();
+                Environment.Exit(exitCode);
+                return;
+            }
+
             if (e.Args.Contains("--test"))
             {
                 int exit1 = ClientServiceSelfCheck.RunAllTests();
@@ -76,8 +83,9 @@ namespace SalesManagement_SysDev
                 int exit5 = SalesServiceSelfCheck.RunAllTests();
                 int exit6 = OrderServiceSelfCheck.RunAllTests();
                 int exit7 = ChumonServiceSelfCheck.RunAllTests();
-                int exit8 = ModuleSelfCheck.RunAllTests();
-                int finalExit = exit1 != 0 ? exit1 : (exit2 != 0 ? exit2 : (exit3 != 0 ? exit3 : (exit4 != 0 ? exit4 : (exit5 != 0 ? exit5 : (exit6 != 0 ? exit6 : (exit7 != 0 ? exit7 : exit8))))));
+                int exit8 = ShipmentServiceSelfCheck.RunAllTests();
+                int exit9 = ModuleSelfCheck.RunAllTests();
+                int finalExit = exit1 != 0 ? exit1 : (exit2 != 0 ? exit2 : (exit3 != 0 ? exit3 : (exit4 != 0 ? exit4 : (exit5 != 0 ? exit5 : (exit6 != 0 ? exit6 : (exit7 != 0 ? exit7 : (exit8 != 0 ? exit8 : exit9)))))));
                 Environment.Exit(finalExit);
                 return;
             }
