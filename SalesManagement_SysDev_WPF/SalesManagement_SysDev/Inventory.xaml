@@ -109,7 +109,7 @@
                     <!-- 在庫ID -->
                     <StackPanel Orientation="Horizontal" Margin="0,4,16,4" VerticalAlignment="Center">
                         <TextBlock Text="在庫ID:" FontWeight="SemiBold" Foreground="#334155" VerticalAlignment="Center" Margin="0,0,6,0" />
-                        <TextBox x:Name="txt_MainStId" Style="{StaticResource RetroTextBoxStyle}" Width="70" KeyDown="SearchField_KeyDown" />
+                        <TextBox x:Name="txt_MainStId" Style="{StaticResource RetroTextBoxStyle}" Width="70" KeyDown="SearchField_KeyDown" PreviewTextInput="Numeric_PreviewTextInput" InputMethod.IsInputMethodEnabled="False" />
                     </StackPanel>
 
                     <!-- 商品名 -->
@@ -297,7 +297,7 @@
                     <!-- 在庫数 -->
                     <StackPanel Margin="0,0,0,18">
                         <TextBlock Text="初期在庫数 / 追加在庫数 *" FontSize="12" FontWeight="SemiBold" Foreground="#334155" Margin="0,0,0,4" />
-                        <TextBox x:Name="reg_txt_Quantity" Height="36" Padding="8,0" VerticalContentAlignment="Center" BorderBrush="#CBD5E1" MaxLength="6" Text="0" />
+                        <TextBox x:Name="reg_txt_Quantity" Height="36" Padding="8,0" VerticalContentAlignment="Center" BorderBrush="#CBD5E1" MaxLength="6" Text="0" PreviewTextInput="Numeric_PreviewTextInput" InputMethod.IsInputMethodEnabled="False" />
                     </StackPanel>
 
                     <Grid>
@@ -400,7 +400,7 @@
                         </Grid.ColumnDefinitions>
                         <StackPanel Grid.Column="0" Margin="0,0,8,0">
                             <TextBlock Text="更新後の在庫数 *" FontSize="12" FontWeight="SemiBold" Foreground="#334155" Margin="0,0,0,4" />
-                            <TextBox x:Name="upd_txt_Quantity" Height="36" Padding="8,0" VerticalContentAlignment="Center" BorderBrush="#CBD5E1" MaxLength="6" />
+                            <TextBox x:Name="upd_txt_Quantity" Height="36" Padding="8,0" VerticalContentAlignment="Center" BorderBrush="#CBD5E1" MaxLength="6" PreviewTextInput="Numeric_PreviewTextInput" InputMethod.IsInputMethodEnabled="False" />
                         </StackPanel>
                         <StackPanel Grid.Column="1" Margin="8,0,0,0">
                             <TextBlock Text="在庫管理フラグ *" FontSize="12" FontWeight="SemiBold" Foreground="#334155" Margin="0,0,0,4" />
@@ -560,7 +560,7 @@
                             </StackPanel>
                             <StackPanel Grid.Column="1" Margin="8,0,0,0">
                                 <TextBlock Text="価格 (円) *" FontSize="12" FontWeight="SemiBold" Foreground="#334155" Margin="0,0,0,4" />
-                                <TextBox x:Name="newprod_txt_Price" Height="36" Padding="8,0" VerticalContentAlignment="Center" BorderBrush="#CBD5E1" MaxLength="9" />
+                                <TextBox x:Name="newprod_txt_Price" Height="36" Padding="8,0" VerticalContentAlignment="Center" BorderBrush="#CBD5E1" MaxLength="9" PreviewTextInput="Numeric_PreviewTextInput" InputMethod.IsInputMethodEnabled="False" />
                             </StackPanel>
                         </Grid>
 
@@ -588,11 +588,11 @@
                             </Grid.ColumnDefinitions>
                             <StackPanel Grid.Column="0" Margin="0,0,8,0">
                                 <TextBlock Text="安全在庫数 *" FontSize="12" FontWeight="SemiBold" Foreground="#334155" Margin="0,0,0,4" />
-                                <TextBox x:Name="newprod_txt_SafetyStock" Text="10" Height="36" Padding="8,0" VerticalContentAlignment="Center" BorderBrush="#CBD5E1" MaxLength="6" />
+                                <TextBox x:Name="newprod_txt_SafetyStock" Text="10" Height="36" Padding="8,0" VerticalContentAlignment="Center" BorderBrush="#CBD5E1" MaxLength="6" PreviewTextInput="Numeric_PreviewTextInput" InputMethod.IsInputMethodEnabled="False" />
                             </StackPanel>
                             <StackPanel Grid.Column="1" Margin="8,0,0,0">
                                 <TextBlock Text="初期在庫数 *" FontSize="12" FontWeight="SemiBold" Foreground="#334155" Margin="0,0,0,4" />
-                                <TextBox x:Name="newprod_txt_InitialStock" Text="50" Height="36" Padding="8,0" VerticalContentAlignment="Center" BorderBrush="#CBD5E1" MaxLength="6" />
+                                <TextBox x:Name="newprod_txt_InitialStock" Text="50" Height="36" Padding="8,0" VerticalContentAlignment="Center" BorderBrush="#CBD5E1" MaxLength="6" PreviewTextInput="Numeric_PreviewTextInput" InputMethod.IsInputMethodEnabled="False" />
                             </StackPanel>
                         </Grid>
 

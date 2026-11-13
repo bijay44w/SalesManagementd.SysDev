@@ -1,6 +1,7 @@
 
 using System;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -819,6 +820,11 @@ namespace SalesManagement_SysDev
         {
             border_NewProdErrorAlert.Visibility = Visibility.Collapsed;
             border_NewProdSuccessAlert.Visibility = Visibility.Collapsed;
+        }
+
+        private void Numeric_PreviewTextInput(object sender, TextCompositionEventArgs e)
+        {
+            e.Handled = !Regex.IsMatch(e.Text, @"^[0-9]+$");
         }
     }
 }
