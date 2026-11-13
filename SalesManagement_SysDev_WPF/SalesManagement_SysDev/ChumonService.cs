@@ -429,6 +429,44 @@ namespace SalesManagement_SysDev
             }
         }
 
+        /// <summary>
+        /// 注文完全削除機能
+        /// </summary>
+        public (bool Success, string Message) DeleteChumon(int chId)
+        {
+            if (chId <= 0)
+            {
+                return (false, "削除対象の注文IDが正しくありません。");
+            }
+
+            try
+            {
+                using var context = new SalesManagementContext();
+                var chumon = context.TChumons
+                    .Include(c => c.TChumonDetails)
+                    .FirstOrDefault(c => c.ChId == chId);
+
+                if (chumon == null)
+                {
+                    return (false, $"注文ID: {chId} のデータが見つかりません。");
+                }
+
+                if (chumon.TChumonDetails != null && chumon.TChumonDetails.Any())
+                {
+                    context.TChumonDetails.RemoveRange(chumon.TChumonDetails);
+                }
+
+                context.TChumons.Remove(chumon);
+                context.SaveChanges();
+
+                return (true, $"注文ID: {chId} の注文データを完全に削除しました。");
+            }
+            catch (Exception ex)
+            {
+                return (false, $"注文削除中にエラーが発生しました: {ex.Message}");
+            }
+        }
+
         private ChumonDisplayModel ToDisplayModel(TChumon c)
         {
             int count = c.TChumonDetails?.Count ?? 0;

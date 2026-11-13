@@ -118,6 +118,7 @@ namespace SalesManagement_SysDev
             bool hasSelection = dg_Shipments.SelectedItem is ShipmentDisplayModel;
             btn_OpenDetail.IsEnabled = hasSelection;
             btn_OpenHide.IsEnabled = hasSelection;
+            btn_OpenDelete.IsEnabled = hasSelection;
         }
 
         private void btn_Search_Click(object sender, RoutedEventArgs e) => ExecuteSearch();
@@ -371,6 +372,42 @@ namespace SalesManagement_SysDev
             modal_Hide.Tag = selected.ShId;
 
             modal_Hide.Visibility = Visibility.Visible;
+        }
+
+        private void btn_OpenDelete_Click(object sender, RoutedEventArgs e)
+        {
+            if (dg_Shipments.SelectedItem is not ShipmentDisplayModel selected)
+            {
+                MessageBox.Show("削除する出荷を選択してください。");
+                return;
+            }
+
+            var result = MessageBox.Show(
+                $"次の出荷データを完全に削除しますか？\n\n" +
+                $"出荷ID：{selected.ShId}\n" +
+                $"受注ID：{selected.OrId}\n" +
+                $"顧客名：{selected.ClName}\n\n" +
+                "この操作は取り消せません。",
+                "出荷の完全削除確認",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Warning);
+
+            if (result != MessageBoxResult.Yes)
+                return;
+
+            var (success, message) = _shipmentService.DeleteShipment(selected.ShId);
+
+            if (!success)
+            {
+                MessageBox.Show(message, "削除できません",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            MessageBox.Show(message, "削除完了",
+                MessageBoxButton.OK, MessageBoxImage.Information);
+
+            ExecuteSearch();
         }
 
         private void btn_CancelHide_Click(object sender, RoutedEventArgs e) => modal_Hide.Visibility = Visibility.Collapsed;

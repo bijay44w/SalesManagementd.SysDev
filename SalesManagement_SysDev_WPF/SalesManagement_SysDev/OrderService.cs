@@ -402,6 +402,53 @@ namespace SalesManagement_SysDev
             }
         }
 
+        /// <summary>
+        /// 受注完全削除機能
+        /// </summary>
+        public (bool Success, string Message) DeleteOrder(int orId)
+        {
+            if (orId <= 0)
+            {
+                return (false, "削除対象の受注IDが正しくありません。");
+            }
+
+            try
+            {
+                using var context = new SalesManagementContext();
+                var order = context.TOrders
+                    .Include(o => o.TOrderDetails)
+                    .FirstOrDefault(o => o.OrId == orId);
+
+                if (order == null)
+                {
+                    return (false, $"受注ID: {orId} のデータが見つかりません。");
+                }
+
+                // 関連データ（出庫・注文等）が存在するか確認
+                bool hasRelated = context.TSyukkos.Any(x => x.OrId == orId) ||
+                                  context.TChumons.Any(x => x.OrId == orId);
+                if (hasRelated)
+                {
+                    return (false,
+                        "この受注には関連する後続業務データ（出庫・注文など）が存在するため、完全削除できません。\n非表示機能を使用してください。");
+                }
+
+                if (order.TOrderDetails != null && order.TOrderDetails.Any())
+                {
+                    context.TOrderDetails.RemoveRange(order.TOrderDetails);
+                }
+
+                context.TOrders.Remove(order);
+                context.SaveChanges();
+
+                return (true, $"受注ID: {orId} の受注データを完全に削除しました。");
+            }
+            catch (Exception ex)
+            {
+                return (false, $"受注削除中にエラーが発生しました: {ex.Message}");
+            }
+        }
+
         private OrderDisplayModel ToDisplayModel(TOrder o)
         {
             decimal total = o.TOrderDetails?.Sum(d => d.OrTotalPrice) ?? 0m;

@@ -152,6 +152,7 @@ namespace SalesManagement_SysDev
             bool hasSelection = dg_Orders.SelectedItem is OrderDisplayModel;
             btn_DetailSelected.IsEnabled = hasSelection;
             btn_HideSelected.IsEnabled = hasSelection;
+            btn_DeleteSelected.IsEnabled = hasSelection;
         }
 
         private void dg_Orders_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -344,6 +345,42 @@ namespace SalesManagement_SysDev
                 modal_Hide.Visibility = Visibility.Visible;
                 hide_txt_Reason.Focus();
             }
+        }
+
+        private void btn_DeleteSelected_Click(object sender, RoutedEventArgs e)
+        {
+            if (dg_Orders.SelectedItem is not OrderDisplayModel selected)
+            {
+                MessageBox.Show("削除する受注を選択してください。");
+                return;
+            }
+
+            var result = MessageBox.Show(
+                $"次の受注データを完全に削除しますか？\n\n" +
+                $"受注ID：{selected.OrId}\n" +
+                $"顧客名：{selected.ClName}\n" +
+                $"受注金額：{selected.TotalAmountFormatted}\n\n" +
+                "この操作は取り消せません。",
+                "受注の完全削除確認",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Warning);
+
+            if (result != MessageBoxResult.Yes)
+                return;
+
+            var (success, message) = _orderService.DeleteOrder(selected.OrId);
+
+            if (!success)
+            {
+                MessageBox.Show(message, "削除できません",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            MessageBox.Show(message, "削除完了",
+                MessageBoxButton.OK, MessageBoxImage.Information);
+
+            ExecuteSearch();
         }
 
         private void btn_CancelHide_Click(object sender, RoutedEventArgs e)

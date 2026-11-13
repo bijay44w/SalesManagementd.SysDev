@@ -110,6 +110,7 @@ namespace SalesManagement_SysDev
             bool hasSelection = dg_Customers.SelectedItem is ClientDisplayModel;
             btn_EditSelected.IsEnabled = hasSelection;
             btn_HideSelected.IsEnabled = hasSelection;
+            btn_DeleteSelected.IsEnabled = hasSelection;
         }
 
         private void dg_Customers_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -344,6 +345,46 @@ namespace SalesManagement_SysDev
 
             MessageBox.Show("顧客を非表示に設定しました。", "非表示完了", MessageBoxButton.OK, MessageBoxImage.Information);
             modal_Hide.Visibility = Visibility.Collapsed;
+            ExecuteSearch();
+        }
+
+        private void btn_DeleteSelected_Click(object sender, RoutedEventArgs e)
+        {
+            // 選択された顧客を取得
+            if (dg_Customers.SelectedItem is not ClientDisplayModel selected)
+            {
+                MessageBox.Show("削除する顧客を選択してください。");
+                return;
+            }
+
+            // 削除確認
+            var result = MessageBox.Show(
+                $"次の顧客を完全に削除しますか？\n\n" +
+                $"顧客ID：{selected.ClId}\n" +
+                $"顧客名：{selected.ClName}\n\n" +
+                "この操作は取り消せません。",
+                "顧客の完全削除確認",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Warning);
+
+            // 「いいえ」なら終了
+            if (result != MessageBoxResult.Yes)
+                return;
+
+            // データベースから完全削除
+            var (success, message) = _clientService.DeleteClient(selected.ClId);
+
+            if (!success)
+            {
+                MessageBox.Show(message, "削除できません",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            MessageBox.Show(message, "削除完了",
+                MessageBoxButton.OK, MessageBoxImage.Information);
+
+            // 一覧を再読み込み
             ExecuteSearch();
         }
     }

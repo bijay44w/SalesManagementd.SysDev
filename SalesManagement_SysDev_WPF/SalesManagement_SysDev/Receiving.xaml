@@ -193,6 +193,15 @@
                         <TextBlock Text="非表示設定" FontWeight="Bold"/>
                     </StackPanel>
                 </Button>
+                <Button x:Name="btn_DeleteSelected"
+                        Style="{StaticResource ActionButtonStyle}"
+                        Background="#991B1B" Foreground="White"
+                        Margin="0,0,8,0" Click="btn_DeleteSelected_Click" Width="109">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="🗑" Margin="0,0,4,0"/>
+                        <TextBlock Text="削除" FontWeight="Bold"/>
+                    </StackPanel>
+                </Button>
             </StackPanel>
             <TextBlock x:Name="txt_RecordCount" Grid.Column="1"
                        Text="表示件数: 0 件" FontSize="13"

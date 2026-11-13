@@ -1,4 +1,4 @@
-﻿
+
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -501,6 +501,8 @@ namespace SalesManagement_SysDev
             btn_MainNewRegister.IsEnabled = false;
             btn_MainEditSelected.IsEnabled = false;
             btn_MainHideSelected.IsEnabled = false;
+            if (btn_MainDeleteSelected != null)
+                btn_MainDeleteSelected.IsEnabled = false;
             btn_MainReceiveSelected.IsEnabled = false;
         }
 
@@ -1238,6 +1240,92 @@ namespace SalesManagement_SysDev
             }
         }
 
+        private void btn_MainDeleteSelected_Click(
+            object sender,
+            RoutedEventArgs e)
+        {
+            if (currentView != "Order")
+                return;
+
+            var selectedOrder =
+                dg_MainOrders.SelectedItem as PurchaseOrderItem;
+
+            if (selectedOrder == null)
+            {
+                MessageBox.Show(
+                    "削除する発注情報を選択してください。",
+                    "確認",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Warning);
+                return;
+            }
+
+            var result = MessageBox.Show(
+                $"次の発注データを完全に削除しますか？\n\n" +
+                $"発注番号：{selectedOrder.OrderId}\n" +
+                $"仕入先名：{selectedOrder.SupplierName}\n" +
+                $"発注金額：{selectedOrder.TotalAmount:N0} 円\n\n" +
+                "この操作は取り消せません。",
+                "発注の完全削除確認",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Warning);
+
+            if (result != MessageBoxResult.Yes)
+                return;
+
+            try
+            {
+                using var context = new SalesManagementContext();
+                var entity = context.THattyus
+                    .Include(h => h.THattyuDetails)
+                    .FirstOrDefault(x => x.HaId == selectedOrder.DatabaseId);
+
+                if (entity == null)
+                {
+                    MessageBox.Show("発注情報が見つかりません。");
+                    ReloadAndDisplay();
+                    return;
+                }
+
+                // 関連入庫データがあるか確認
+                bool hasReceiving = context.TWarehousings.Any(w => w.HaId == entity.HaId) ||
+                                    entity.WaWarehouseFlag == 1;
+                if (hasReceiving)
+                {
+                    MessageBox.Show(
+                        "この発注には入庫データが存在するため、完全削除できません。\n非表示機能を使用してください。",
+                        "削除できません",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Warning);
+                    return;
+                }
+
+                if (entity.THattyuDetails != null && entity.THattyuDetails.Any())
+                {
+                    context.THattyuDetails.RemoveRange(entity.THattyuDetails);
+                }
+
+                context.THattyus.Remove(entity);
+                context.SaveChanges();
+
+                MessageBox.Show(
+                    $"発注番号「{selectedOrder.OrderId}」を完全に削除しました。",
+                    "完了",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Information);
+
+                ReloadAndDisplay();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(
+                    "発注情報の削除中にエラーが発生しました。\n" + ex.Message,
+                    "DBエラー",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+            }
+        }
+
         // =========================================
         // 入庫確定
         // =========================================
@@ -1574,6 +1662,12 @@ namespace SalesManagement_SysDev
             if (btn_MainHideSelected != null)
             {
                 btn_MainHideSelected.IsEnabled =
+                    isVisible;
+            }
+
+            if (btn_MainDeleteSelected != null)
+            {
+                btn_MainDeleteSelected.IsEnabled =
                     isVisible;
             }
 

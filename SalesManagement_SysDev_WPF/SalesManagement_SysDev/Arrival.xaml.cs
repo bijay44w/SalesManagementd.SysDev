@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -23,6 +23,15 @@ namespace SalesManagement_SysDev
         public Arrival()
         {
             InitializeComponent();
+        }
+
+        private void card_ArrivalDelete_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            MessageBox.Show(
+                "入荷情報の削除機能です。\n安全なデータ管理のため、関連する後続処理があるデータは非表示機能をご利用ください。",
+                "入荷削除",
+                MessageBoxButton.OK,
+                MessageBoxImage.Information);
         }
     }
 }

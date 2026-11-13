@@ -81,6 +81,13 @@
             <Setter Property="IsEnabled" Value="False"/>
         </Style>
 
+        <Style x:Key="DeleteButtonStyle"
+               TargetType="Button"
+               BasedOn="{StaticResource ActionButtonStyle}">
+            <Setter Property="Background" Value="#991B1B"/>
+            <Setter Property="IsEnabled" Value="False"/>
+        </Style>
+
         <Style x:Key="ReceiveButtonStyle"
                TargetType="Button"
                BasedOn="{StaticResource ActionButtonStyle}">
@@ -421,6 +428,11 @@
                             Content="⊘ 非表示設定"
                             Style="{StaticResource HideButtonStyle}"
                             Click="btn_MainHideSelected_Click"/>
+
+                    <Button x:Name="btn_MainDeleteSelected"
+                            Content="🗑 削除"
+                            Style="{StaticResource DeleteButtonStyle}"
+                            Click="btn_MainDeleteSelected_Click"/>
 
                     <Button x:Name="btn_MainReceiveSelected"
                             Content="✓ 入庫確定"
