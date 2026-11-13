@@ -1,308 +1,886 @@
 <UserControl x:Class="SalesManagement_SysDev.PurchaseOrder"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             Background="#F4F8FD"
-             FontFamily="Segoe UI, Meiryo, Yu Gothic UI"
-             FontSize="14">
+             Background="#F1F5F9"
+             FontFamily="Yu Gothic UI"
+             FontSize="13">
 
     <UserControl.Resources>
-        <Style x:Key="PurchaseOrderCardStyle" TargetType="Border">
-            <Setter Property="Background" Value="#FFFFFF"/>
-            <Setter Property="CornerRadius" Value="18"/>
-            <Setter Property="BorderBrush" Value="#E2E8F0"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Padding" Value="24,22"/>
-            <Setter Property="Margin" Value="8"/>
+
+        <SolidColorBrush x:Key="HeaderColor" Color="#00574F"/>
+        <SolidColorBrush x:Key="AccentColor" Color="#00A99D"/>
+        <SolidColorBrush x:Key="BackgroundColor" Color="#F1F5F9"/>
+
+        <!-- 共通ボタン -->
+        <Style x:Key="ActionButtonStyle" TargetType="Button">
+            <Setter Property="Height" Value="34"/>
+            <Setter Property="MinWidth" Value="105"/>
+            <Setter Property="Padding" Value="12,0"/>
+            <Setter Property="Margin" Value="0,0,8,0"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Background" Value="#007F79"/>
+            <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Effect">
+            <Setter Property="Template">
                 <Setter.Value>
-                    <DropShadowEffect Color="#0F172A"
-                                      Opacity="0.04"
-                                      BlurRadius="20"
-                                      ShadowDepth="4"
-                                      Direction="270"/>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="ButtonBorder"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="4">
+                            <ContentPresenter
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                Margin="{TemplateBinding Padding}"/>
+                        </Border>
+
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="ButtonBorder"
+                                        Property="Opacity"
+                                        Value="0.82"/>
+                            </Trigger>
+
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="ButtonBorder"
+                                        Property="Opacity"
+                                        Value="0.68"/>
+                            </Trigger>
+
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="ButtonBorder"
+                                        Property="Opacity"
+                                        Value="0.45"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
                 </Setter.Value>
             </Setter>
         </Style>
+
+        <Style x:Key="RegisterButtonStyle"
+               TargetType="Button"
+               BasedOn="{StaticResource ActionButtonStyle}">
+            <Setter Property="Background" Value="#008080"/>
+        </Style>
+
+        <Style x:Key="EditButtonStyle"
+               TargetType="Button"
+               BasedOn="{StaticResource ActionButtonStyle}">
+            <Setter Property="Background" Value="#0284C7"/>
+            <Setter Property="IsEnabled" Value="False"/>
+        </Style>
+
+        <Style x:Key="HideButtonStyle"
+               TargetType="Button"
+               BasedOn="{StaticResource ActionButtonStyle}">
+            <Setter Property="Background" Value="#DC2626"/>
+            <Setter Property="IsEnabled" Value="False"/>
+        </Style>
+
+        <Style x:Key="ReceiveButtonStyle"
+               TargetType="Button"
+               BasedOn="{StaticResource ActionButtonStyle}">
+            <Setter Property="Background" Value="#16A34A"/>
+            <Setter Property="IsEnabled" Value="False"/>
+        </Style>
+
+        <Style x:Key="ListButtonStyle"
+               TargetType="Button"
+               BasedOn="{StaticResource ActionButtonStyle}">
+            <Setter Property="Background" Value="#475569"/>
+        </Style>
+
+        <Style x:Key="ClearButtonStyle"
+               TargetType="Button"
+               BasedOn="{StaticResource ActionButtonStyle}">
+            <Setter Property="Foreground" Value="#334155"/>
+            <Setter Property="Background" Value="#F1F5F9"/>
+            <Setter Property="BorderBrush" Value="#B8C8DC"/>
+            <Setter Property="BorderThickness" Value="1"/>
+        </Style>
+
+        <!-- 検索テキスト -->
+        <Style x:Key="SearchTextBoxStyle" TargetType="TextBox">
+            <Setter Property="Height" Value="30"/>
+            <Setter Property="Padding" Value="7,0"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="Foreground" Value="#243B5A"/>
+            <Setter Property="BorderBrush" Value="#9CAFC7"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="FontSize" Value="13"/>
+        </Style>
+
+        <!-- 検索コンボボックス -->
+        <Style x:Key="SearchComboBoxStyle" TargetType="ComboBox">
+            <Setter Property="Height" Value="30"/>
+            <Setter Property="Padding" Value="5,0"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="Foreground" Value="#243B5A"/>
+            <Setter Property="BorderBrush" Value="#AAB7C8"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="FontSize" Value="13"/>
+        </Style>
+
+        <!-- 日付 -->
+        <Style x:Key="EditDatePickerStyle" TargetType="DatePicker">
+            <Setter Property="Height" Value="32"/>
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="BorderBrush" Value="#9CAFC7"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="FontSize" Value="13"/>
+        </Style>
+
+        <!-- DataGrid共通 -->
+        <Style x:Key="PurchaseDataGridStyle" TargetType="DataGrid">
+            <Setter Property="Background" Value="#F0F0F0"/>
+            <Setter Property="Foreground" Value="#243B5A"/>
+            <Setter Property="BorderBrush" Value="#C9D5E4"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="RowHeight" Value="38"/>
+            <Setter Property="GridLinesVisibility" Value="Horizontal"/>
+            <Setter Property="HorizontalGridLinesBrush" Value="#DCE4ED"/>
+            <Setter Property="VerticalGridLinesBrush" Value="#E4EAF1"/>
+            <Setter Property="HeadersVisibility" Value="Column"/>
+            <Setter Property="CanUserAddRows" Value="False"/>
+            <Setter Property="CanUserDeleteRows" Value="False"/>
+            <Setter Property="AutoGenerateColumns" Value="False"/>
+            <Setter Property="IsReadOnly" Value="True"/>
+            <Setter Property="SelectionMode" Value="Single"/>
+            <Setter Property="SelectionUnit" Value="FullRow"/>
+            <Setter Property="AlternationCount" Value="2"/>
+            <Setter Property="RowBackground" Value="#F8FAFC"/>
+            <Setter Property="AlternatingRowBackground" Value="#F0F4F8"/>
+        </Style>
+
+        <Style TargetType="DataGridColumnHeader">
+            <Setter Property="Height" Value="34"/>
+            <Setter Property="Background" Value="#E2E8F0"/>
+            <Setter Property="Foreground" Value="#243B5A"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Padding" Value="10,0"/>
+            <Setter Property="BorderBrush" Value="#CBD5E1"/>
+            <Setter Property="BorderThickness" Value="0,0,1,1"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        </Style>
+
+        <Style TargetType="DataGridCell">
+            <Setter Property="Padding" Value="10,0"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        </Style>
+
+        <Style TargetType="DataGridRow">
+            <Setter Property="Background" Value="#F8FAFC"/>
+            <Setter Property="Foreground" Value="#243B5A"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#E0F2FE"/>
+                </Trigger>
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="Background" Value="#BFDBFE"/>
+                    <Setter Property="Foreground" Value="#1E3A5F"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="SearchLabelStyle" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#243B5A"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Margin" Value="0,0,5,0"/>
+        </Style>
+
     </UserControl.Resources>
 
-    <Grid>
-        <Grid.Background>
-            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                <GradientStop Color="#F4F8FD" Offset="0"/>
-                <GradientStop Color="#ECF2FB" Offset="1"/>
-            </LinearGradientBrush>
-        </Grid.Background>
+    <Grid Background="{StaticResource BackgroundColor}">
 
         <Grid.RowDefinitions>
+            <RowDefinition Height="67"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="48"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- タイトルエリア -->
-        <StackPanel Grid.Row="0"
-                    Orientation="Horizontal"
-                    VerticalAlignment="Center"
-                    Margin="36,30,36,18">
+        <!-- タイトルバー -->
+        <Border Grid.Row="0"
+                Background="{StaticResource HeaderColor}"
+                BorderBrush="#003F39"
+                BorderThickness="0,0,0,2">
 
-            <Border Background="#DBEAFE"
-                    Width="54"
-                    Height="54"
-                    CornerRadius="27"
-                    Margin="0,0,16,0">
-                <Path Fill="#2563EB"
-                      Width="26"
-                      Height="26"
-                      Stretch="Uniform"
-                      Data="M4 4h16v3H4z M4 9h16v3H4z M4 14h10v3H4z"/>
-            </Border>
+            <Grid Margin="20,0">
 
-            <StackPanel VerticalAlignment="Center">
-                <TextBlock Text="発注管理"
-                           FontSize="25"
-                           FontWeight="Bold"
-                           Foreground="#0F172A"/>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="46"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
 
-                <TextBlock Text="商品の発注登録・更新・検索などの発注情報を管理します。"
+                <Border Grid.Column="0"
+                        Width="35"
+                        Height="35"
+                        CornerRadius="5"
+                        Background="{StaticResource AccentColor}"
+                        VerticalAlignment="Center">
+
+                    <TextBlock Text="▤"
+                               FontSize="22"
+                               FontWeight="Bold"
+                               Foreground="#003F39"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"/>
+                </Border>
+
+                <StackPanel Grid.Column="1"
+                            VerticalAlignment="Center"
+                            Margin="0,0,10,0">
+
+                    <TextBlock Text="発注管理"
+                               FontSize="18"
+                               FontWeight="Bold"
+                               Foreground="White"/>
+
+                    <TextBlock Text="発注情報の検索・一覧・登録・更新・入庫確定・非表示管理"
+                               FontSize="11"
+                               Foreground="#B2DFDB"
+                               Margin="0,2,0,0"/>
+                </StackPanel>
+
+                <TextBlock Grid.Column="2"
+                           Text="[直接検索 / 即時反映]"
+                           Foreground="White"
+                           FontSize="11"
+                           FontWeight="SemiBold"
+                           VerticalAlignment="Center"
+                           Margin="10,0,16,0"/>
+            </Grid>
+        </Border>
+
+        <!-- 検索条件 -->
+        <Border Grid.Row="1"
+                Background="White"
+                BorderBrush="#CBD5E1"
+                BorderThickness="1"
+                CornerRadius="7"
+                Margin="16,12,16,6"
+                Padding="14,12">
+
+            <Grid>
+
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <Grid Grid.Row="0">
+
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="110"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="170"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="145"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="135"/>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Grid.Column="0"
+                               Text="発注番号:"
+                               Style="{StaticResource SearchLabelStyle}"/>
+
+                    <TextBox x:Name="txt_MainOrderId"
+                             Grid.Column="1"
+                             Style="{StaticResource SearchTextBoxStyle}"
+                             Margin="0,0,12,0"
+                             KeyDown="SearchField_KeyDown"/>
+
+                    <TextBlock Grid.Column="2"
+                               Text="仕入先名:"
+                               Style="{StaticResource SearchLabelStyle}"/>
+
+                    <TextBox x:Name="txt_MainSupplierName"
+                             Grid.Column="3"
+                             Style="{StaticResource SearchTextBoxStyle}"
+                             Margin="0,0,12,0"
+                             KeyDown="SearchField_KeyDown"/>
+
+                    <TextBlock Grid.Column="4"
+                               Text="発注状態:"
+                               Style="{StaticResource SearchLabelStyle}"/>
+
+                    <ComboBox x:Name="cmb_MainOrderStatus"
+                              Grid.Column="5"
+                              Style="{StaticResource SearchComboBoxStyle}"
+                              Margin="0,0,12,0">
+
+                        <ComboBoxItem Content="すべて"
+                                      IsSelected="True"/>
+                        <ComboBoxItem Content="未発注"/>
+                        <ComboBoxItem Content="発注済み"/>
+                        <ComboBoxItem Content="入荷待ち"/>
+                        <ComboBoxItem Content="完了"/>
+                    </ComboBox>
+
+                    <TextBlock Grid.Column="6"
+                               Text="発注日:"
+                               Style="{StaticResource SearchLabelStyle}"/>
+
+                    <DatePicker x:Name="dp_MainOrderDate"
+                                Grid.Column="7"
+                                Style="{StaticResource EditDatePickerStyle}"/>
+                </Grid>
+
+                <Grid Grid.Row="1"
+                      Margin="0,10,0,0">
+
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Grid.Column="0"
+                                Orientation="Horizontal"
+                                VerticalAlignment="Center">
+
+                        <CheckBox x:Name="chk_MainIncludeHidden"
+                                  Content="非表示を含む"
+                                  Foreground="#243B5A"
+                                  FontSize="12"
+                                  VerticalAlignment="Center"
+                                  Click="chk_MainIncludeHidden_Click"
+                                  Margin="0,0,20,0"/>
+
+                        <CheckBox x:Name="chk_MainIncludeReceived"
+                                  Content="入庫済みも含む"
+                                  Foreground="#243B5A"
+                                  FontSize="12"
+                                  VerticalAlignment="Center"
+                                  Click="chk_MainIncludeReceived_Click"/>
+                    </StackPanel>
+
+                    <Button x:Name="btn_MainSearch"
+                            Grid.Column="1"
+                            Content="⌕  検索"
+                            Style="{StaticResource ActionButtonStyle}"
+                            Click="btn_MainSearch_Click"
+                            Margin="0,0,8,0"
+                            MinWidth="90"/>
+
+                    <Button x:Name="btn_MainClear"
+                            Grid.Column="2"
+                            Content="×  条件クリア"
+                            Style="{StaticResource ClearButtonStyle}"
+                            Click="btn_MainClear_Click"
+                            Margin="0"
+                            MinWidth="110"/>
+                </Grid>
+            </Grid>
+        </Border>
+
+        <!-- 操作ボタン・件数 -->
+        <Border Grid.Row="2"
+                Background="#F1F5F9"
+                BorderBrush="#C9D5E4"
+                BorderThickness="0,0,0,1"
+                Padding="16,5">
+
+            <Grid>
+
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0"
+                            Orientation="Horizontal"
+                            VerticalAlignment="Center">
+
+                    <Button x:Name="btn_MainNewRegister"
+                            Content="＋ 新規発注登録"
+                            Style="{StaticResource RegisterButtonStyle}"
+                            Click="btn_MainNewRegister_Click"/>
+
+                    <Button x:Name="btn_MainEditSelected"
+                            Content="✎ 選択項目を編集"
+                            Style="{StaticResource EditButtonStyle}"
+                            Click="btn_MainEditSelected_Click"/>
+
+                    <Button x:Name="btn_MainHideSelected"
+                            Content="⊘ 非表示設定"
+                            Style="{StaticResource HideButtonStyle}"
+                            Click="btn_MainHideSelected_Click"/>
+
+                    <Button x:Name="btn_MainReceiveSelected"
+                            Content="✓ 入庫確定"
+                            Style="{StaticResource ReceiveButtonStyle}"
+                            Click="btn_MainReceiveSelected_Click"/>
+
+                    <Button x:Name="btn_MainShowOrders"
+                            Content="発注一覧"
+                            Style="{StaticResource ListButtonStyle}"
+                            Click="btn_MainShowOrders_Click"/>
+
+                    <Button x:Name="btn_MainShowReceiving"
+                            Content="入庫一覧"
+                            Style="{StaticResource ListButtonStyle}"
+                            Click="btn_MainShowReceiving_Click"/>
+
+                    <Button x:Name="btn_MainShowStock"
+                            Content="在庫一覧"
+                            Style="{StaticResource ListButtonStyle}"
+                            Click="btn_MainShowStock_Click"
+                            Margin="0"/>
+                </StackPanel>
+
+                <TextBlock x:Name="txt_MainOrderCount"
+                           Grid.Column="1"
+                           Text="表示件数：0 件"
+                           Foreground="#334E68"
+                           FontWeight="SemiBold"
                            FontSize="13"
-                           Foreground="#64748B"
-                           Margin="0,5,0,0"/>
-            </StackPanel>
-        </StackPanel>
+                           VerticalAlignment="Center"
+                           Margin="12,0,0,0"/>
+            </Grid>
+        </Border>
 
-        <!-- 操作カード：3列×2行 -->
-        <Grid Grid.Row="1"
-              Margin="26,0,36,30">
+        <!-- 一覧表示 -->
+        <Border Grid.Row="3"
+                Background="#F0F0F0"
+                BorderBrush="#C9D5E4"
+                BorderThickness="1"
+                CornerRadius="5"
+                Margin="16,0,16,16"
+                Padding="0">
 
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
+            <Grid>
 
-            <Grid.RowDefinitions>
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
+                <!-- 発注一覧 -->
+                <DataGrid x:Name="dg_MainOrders"
+                          Style="{StaticResource PurchaseDataGridStyle}"
+                          SelectionChanged="dg_MainOrders_SelectionChanged"
+                          MouseDoubleClick="dg_MainOrders_MouseDoubleClick"
+                          Visibility="Visible">
 
-            <!-- 発注登録 -->
-            <Border Grid.Row="0" Grid.Column="0"
-                    Style="{StaticResource PurchaseOrderCardStyle}">
+                    <DataGrid.Columns>
+
+                        <DataGridTextColumn Header="発注番号"
+                                            Binding="{Binding OrderId}"
+                                            Width="140"/>
+
+                        <DataGridTextColumn Header="仕入先名"
+                                            Binding="{Binding SupplierName}"
+                                            Width="*"
+                                            MinWidth="160"/>
+
+                        <DataGridTextColumn Header="発注日"
+                                            Binding="{Binding OrderDate, StringFormat={}{0:yyyy/MM/dd}}"
+                                            Width="130"/>
+
+                        <DataGridTextColumn Header="合計金額"
+                                            Binding="{Binding TotalAmount, StringFormat={}{0:N0} 円}"
+                                            Width="150"/>
+
+                        <DataGridTextColumn Header="発注状態"
+                                            Binding="{Binding OrderStatus}"
+                                            Width="130"/>
+
+                        <DataGridTextColumn Header="入庫状況"
+                                            Binding="{Binding WarehouseReceivedText}"
+                                            Width="120"/>
+
+                    </DataGrid.Columns>
+                </DataGrid>
+
+                <!-- 入庫一覧 -->
+                <DataGrid x:Name="dg_MainReceivings"
+                          Style="{StaticResource PurchaseDataGridStyle}"
+                          Visibility="Collapsed">
+
+                    <DataGrid.Columns>
+
+                        <DataGridTextColumn Header="入庫番号"
+                                            Binding="{Binding ReceivingId}"
+                                            Width="130"/>
+
+                        <DataGridTextColumn Header="発注番号"
+                                            Binding="{Binding OrderId}"
+                                            Width="130"/>
+
+                        <DataGridTextColumn Header="仕入先名"
+                                            Binding="{Binding SupplierName}"
+                                            Width="*"
+                                            MinWidth="150"/>
+
+                        <DataGridTextColumn Header="商品コード"
+                                            Binding="{Binding ProductCode}"
+                                            Width="120"/>
+
+                        <DataGridTextColumn Header="商品名"
+                                            Binding="{Binding ProductName}"
+                                            Width="*"
+                                            MinWidth="150"/>
+
+                        <DataGridTextColumn Header="入庫数量"
+                                            Binding="{Binding ReceivedQuantity}"
+                                            Width="100"/>
+
+                        <DataGridTextColumn Header="入庫日"
+                                            Binding="{Binding ReceivingDate, StringFormat={}{0:yyyy/MM/dd}}"
+                                            Width="130"/>
+
+                    </DataGrid.Columns>
+                </DataGrid>
+
+                <!-- 在庫一覧 -->
+                <DataGrid x:Name="dg_MainStocks"
+                          Style="{StaticResource PurchaseDataGridStyle}"
+                          Visibility="Collapsed">
+
+                    <DataGrid.Columns>
+
+                        <DataGridTextColumn Header="商品コード"
+                                            Binding="{Binding ProductCode}"
+                                            Width="150"/>
+
+                        <DataGridTextColumn Header="商品名"
+                                            Binding="{Binding ProductName}"
+                                            Width="*"
+                                            MinWidth="200"/>
+
+                        <DataGridTextColumn Header="現在庫数"
+                                            Binding="{Binding StockQuantity}"
+                                            Width="150"/>
+
+                        <DataGridTextColumn Header="在庫状況"
+                                            Binding="{Binding StockStatus}"
+                                            Width="150"/>
+
+                    </DataGrid.Columns>
+                </DataGrid>
+
+            </Grid>
+        </Border>
+
+        <!-- 発注登録・編集ダイアログ -->
+        <Grid x:Name="modal_OrderEdit"
+              Grid.RowSpan="4"
+              Visibility="Collapsed"
+              Panel.ZIndex="100"
+              Background="#80000000"
+              MouseLeftButtonDown="modal_OrderEdit_Backdrop_MouseLeftButtonDown">
+
+            <Border Width="760"
+                    MaxHeight="720"
+                    Background="White"
+                    BorderBrush="#CBD5E1"
+                    BorderThickness="1"
+                    CornerRadius="8"
+                    Padding="22"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    MouseLeftButtonDown="EditDialog_MouseLeftButtonDown">
+
                 <Grid>
-                    <StackPanel VerticalAlignment="Top">
-                        <Border Background="#EFF6FF"
-                                Width="44" Height="44"
-                                CornerRadius="22"
-                                HorizontalAlignment="Left"
-                                Margin="0,0,0,14">
-                            <TextBlock Text="+"
-                                       FontSize="28"
-                                       Foreground="#2563EB"
-                                       HorizontalAlignment="Center"
-                                       VerticalAlignment="Center"/>
-                        </Border>
 
-                        <TextBlock Text="発注登録"
-                                   FontSize="17.5"
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="170"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- ダイアログタイトル -->
+                    <Border Grid.Row="0"
+                            Background="#00574F"
+                            CornerRadius="5"
+                            Padding="14,11"
+                            Margin="0,0,0,15">
+
+                        <TextBlock x:Name="txt_EditTitle"
+                                   Text="発注登録"
+                                   FontSize="18"
                                    FontWeight="Bold"
-                                   Foreground="#0F172A"
-                                   Margin="0,0,0,8"/>
+                                   Foreground="White"/>
+                    </Border>
 
-                        <TextBlock Text="仕入先や商品、数量などを入力し、&#x0a;新しい発注情報を登録します。"
-                                   FontSize="12"
-                                   Foreground="#64748B"
-                                   LineHeight="19"
-                                   TextWrapping="Wrap"/>
+                    <!-- 仕入先・発注日 -->
+                    <Grid Grid.Row="1"
+                          Margin="0,0,0,14">
+
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="18"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Column="0">
+
+                            <TextBlock Text="仕入先名（メーカー）"
+                                       FontWeight="SemiBold"
+                                       Foreground="#243B5A"
+                                       Margin="0,0,0,5"/>
+
+                            <TextBox x:Name="txt_EditSupplierName"
+                                     Height="32"
+                                     Padding="7,0"
+                                     VerticalContentAlignment="Center"/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="2">
+
+                            <TextBlock Text="発注日"
+                                       FontWeight="SemiBold"
+                                       Foreground="#243B5A"
+                                       Margin="0,0,0,5"/>
+
+                            <DatePicker x:Name="dp_EditOrderDate"
+                                        Height="32"/>
+                        </StackPanel>
+                    </Grid>
+
+                    <!-- 商品明細入力 -->
+                    <Border Grid.Row="2"
+                            Background="#F1F5F9"
+                            BorderBrush="#CBD5E1"
+                            BorderThickness="1"
+                            CornerRadius="5"
+                            Padding="12"
+                            Margin="0,0,0,10">
+
+                        <StackPanel>
+
+                            <TextBlock Text="発注商品明細"
+                                       FontSize="14"
+                                       FontWeight="Bold"
+                                       Foreground="#00574F"
+                                       Margin="0,0,0,10"/>
+
+                            <Grid>
+
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="1.2*"/>
+                                    <ColumnDefinition Width="1.5*"/>
+                                    <ColumnDefinition Width="0.7*"/>
+                                    <ColumnDefinition Width="1*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <StackPanel Grid.Column="0"
+                                            Margin="0,0,7,0">
+
+                                    <TextBlock Text="商品コード"
+                                               FontSize="11"
+                                               Margin="0,0,0,4"/>
+
+                                    <TextBox x:Name="txt_EditProductCode"
+                                             Height="30"
+                                             Padding="6,0"
+                                             VerticalContentAlignment="Center"/>
+                                </StackPanel>
+
+                                <StackPanel Grid.Column="1"
+                                            Margin="0,0,7,0">
+
+                                    <TextBlock Text="商品名"
+                                               FontSize="11"
+                                               Margin="0,0,0,4"/>
+
+                                    <TextBox x:Name="txt_EditProductName"
+                                             Height="30"
+                                             Padding="6,0"
+                                             VerticalContentAlignment="Center"/>
+                                </StackPanel>
+
+                                <StackPanel Grid.Column="2"
+                                            Margin="0,0,7,0">
+
+                                    <TextBlock Text="発注数量"
+                                               FontSize="11"
+                                               Margin="0,0,0,4"/>
+
+                                    <TextBox x:Name="txt_EditQuantity"
+                                             Height="30"
+                                             Padding="6,0"
+                                             VerticalContentAlignment="Center"
+                                             Text="1"/>
+                                </StackPanel>
+
+                                <StackPanel Grid.Column="3">
+
+                                    <TextBlock Text="単価（円）"
+                                               FontSize="11"
+                                               Margin="0,0,0,4"/>
+
+                                    <TextBox x:Name="txt_EditUnitPrice"
+                                             Height="30"
+                                             Padding="6,0"
+                                             VerticalContentAlignment="Center"/>
+                                </StackPanel>
+                            </Grid>
+
+                            <Button x:Name="btn_EditAddDetail"
+                                    Content="＋ 明細を追加"
+                                    Height="32"
+                                    Width="125"
+                                    HorizontalAlignment="Right"
+                                    Margin="0,10,0,0"
+                                    Background="#007F79"
+                                    Foreground="White"
+                                    BorderThickness="0"
+                                    Click="btn_EditAddDetail_Click"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- 明細一覧 -->
+                    <DataGrid x:Name="dg_EditDetails"
+                              Grid.Row="3"
+                              AutoGenerateColumns="False"
+                              CanUserAddRows="False"
+                              IsReadOnly="True"
+                              SelectionMode="Single"
+                              SelectionUnit="FullRow"
+                              HeadersVisibility="Column"
+                              RowHeight="30"
+                              FontSize="12"
+                              Background="White"
+                              BorderBrush="#CBD5E1"
+                              BorderThickness="1"
+                              Margin="0,0,0,10">
+
+                        <DataGrid.Columns>
+
+                            <DataGridTextColumn Header="商品コード"
+                                                Binding="{Binding ProductCode}"
+                                                Width="1.1*"/>
+
+                            <DataGridTextColumn Header="商品名"
+                                                Binding="{Binding ProductName}"
+                                                Width="1.5*"/>
+
+                            <DataGridTextColumn Header="数量"
+                                                Binding="{Binding Quantity}"
+                                                Width="0.6*"/>
+
+                            <DataGridTextColumn Header="単価"
+                                                Binding="{Binding UnitPrice, StringFormat={}{0:N0} 円}"
+                                                Width="1*"/>
+
+                            <DataGridTextColumn Header="小計"
+                                                Binding="{Binding Subtotal, StringFormat={}{0:N0} 円}"
+                                                Width="1*"/>
+
+                        </DataGrid.Columns>
+                    </DataGrid>
+
+                    <!-- 明細削除 -->
+                    <Button x:Name="btn_EditRemoveDetail"
+                            Grid.Row="4"
+                            Content="選択した明細を削除"
+                            Height="30"
+                            Width="150"
+                            HorizontalAlignment="Left"
+                            VerticalAlignment="Top"
+                            Background="#DC2626"
+                            Foreground="White"
+                            BorderThickness="0"
+                            Click="btn_EditRemoveDetail_Click"
+                            Margin="0,0,0,10"/>
+
+                    <!-- 発注状態・合計 -->
+                    <Grid Grid.Row="5"
+                          Margin="0,0,0,10">
+
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Column="0">
+
+                            <TextBlock Text="発注状態"
+                                       FontWeight="SemiBold"
+                                       Foreground="#243B5A"
+                                       Margin="0,0,0,5"/>
+
+                            <ComboBox x:Name="cmb_EditOrderStatus"
+                                      Height="32"
+                                      SelectedIndex="0">
+
+                                <ComboBoxItem Content="未発注"/>
+                                <ComboBoxItem Content="発注済み"/>
+                                <ComboBoxItem Content="入荷待ち"/>
+                                <ComboBoxItem Content="完了"/>
+
+                            </ComboBox>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="1"
+                                    HorizontalAlignment="Right"
+                                    VerticalAlignment="Bottom"
+                                    Margin="20,0,0,0">
+
+                            <TextBlock Text="発注合計金額"
+                                       Foreground="#64748B"
+                                       FontSize="11"
+                                       HorizontalAlignment="Right"/>
+
+                            <TextBlock x:Name="txt_EditTotalAmount"
+                                       Text="0 円"
+                                       FontSize="20"
+                                       FontWeight="Bold"
+                                       Foreground="#00574F"
+                                       HorizontalAlignment="Right"/>
+                        </StackPanel>
+                    </Grid>
+
+                    <!-- エラー表示 -->
+                    <TextBlock x:Name="txt_EditError"
+                               Grid.Row="6"
+                               Foreground="#DC2626"
+                               FontSize="12"
+                               TextWrapping="Wrap"
+                               Visibility="Collapsed"
+                               Margin="0,0,0,10"/>
+
+                    <!-- 操作ボタン -->
+                    <StackPanel Grid.Row="7"
+                                Orientation="Horizontal"
+                                HorizontalAlignment="Right">
+
+                        <Button x:Name="btn_EditCancel"
+                                Content="キャンセル"
+                                Height="36"
+                                MinWidth="110"
+                                Margin="0,0,8,0"
+                                Click="btn_EditCancel_Click"/>
+
+                        <Button x:Name="btn_EditSave"
+                                Content="登録"
+                                Height="36"
+                                MinWidth="110"
+                                Background="#007F79"
+                                Foreground="White"
+                                BorderThickness="0"
+                                Click="btn_EditSave_Click"/>
                     </StackPanel>
 
-                    <Border Width="36" Height="36"
-                            CornerRadius="18"
-                            Background="#EFF6FF"
-                            HorizontalAlignment="Right"
-                            VerticalAlignment="Bottom">
-                        <TextBlock Text="→" FontSize="20"
-                                   Foreground="#2563EB"
-                                   HorizontalAlignment="Center"
-                                   VerticalAlignment="Center"/>
-                    </Border>
                 </Grid>
             </Border>
-
-            <!-- 発注更新 -->
-            <Border Grid.Row="0" Grid.Column="1"
-                    Style="{StaticResource PurchaseOrderCardStyle}">
-                <Grid>
-                    <StackPanel VerticalAlignment="Top">
-                        <Border Background="#EFF6FF"
-                                Width="44" Height="44"
-                                CornerRadius="22"
-                                HorizontalAlignment="Left"
-                                Margin="0,0,0,14">
-                            <TextBlock Text="✎"
-                                       FontSize="23"
-                                       Foreground="#2563EB"
-                                       HorizontalAlignment="Center"
-                                       VerticalAlignment="Center"/>
-                        </Border>
-
-                        <TextBlock Text="発注更新"
-                                   FontSize="17.5"
-                                   FontWeight="Bold"
-                                   Foreground="#0F172A"
-                                   Margin="0,0,0,8"/>
-
-                        <TextBlock Text="登録済みの発注情報を検索し、&#x0a;内容を編集・更新します。"
-                                   FontSize="12"
-                                   Foreground="#64748B"
-                                   LineHeight="19"
-                                   TextWrapping="Wrap"/>
-                    </StackPanel>
-
-                    <Border Width="36" Height="36"
-                            CornerRadius="18"
-                            Background="#EFF6FF"
-                            HorizontalAlignment="Right"
-                            VerticalAlignment="Bottom">
-                        <TextBlock Text="→" FontSize="20"
-                                   Foreground="#2563EB"
-                                   HorizontalAlignment="Center"
-                                   VerticalAlignment="Center"/>
-                    </Border>
-                </Grid>
-            </Border>
-
-            <!-- 発注一覧表示 -->
-            <Border Grid.Row="0" Grid.Column="2"
-                    Style="{StaticResource PurchaseOrderCardStyle}">
-                <Grid>
-                    <StackPanel VerticalAlignment="Top">
-                        <Border Background="#EFF6FF"
-                                Width="44" Height="44"
-                                CornerRadius="22"
-                                HorizontalAlignment="Left"
-                                Margin="0,0,0,14">
-                            <TextBlock Text="☷"
-                                       FontSize="24"
-                                       Foreground="#2563EB"
-                                       HorizontalAlignment="Center"
-                                       VerticalAlignment="Center"/>
-                        </Border>
-
-                        <TextBlock Text="発注一覧表示"
-                                   FontSize="17.5"
-                                   FontWeight="Bold"
-                                   Foreground="#0F172A"
-                                   Margin="0,0,0,8"/>
-
-                        <TextBlock Text="登録されている発注情報を&#x0a;一覧で表示します。"
-                                   FontSize="12"
-                                   Foreground="#64748B"
-                                   LineHeight="19"
-                                   TextWrapping="Wrap"/>
-                    </StackPanel>
-
-                    <Border Width="36" Height="36"
-                            CornerRadius="18"
-                            Background="#EFF6FF"
-                            HorizontalAlignment="Right"
-                            VerticalAlignment="Bottom">
-                        <TextBlock Text="→" FontSize="20"
-                                   Foreground="#2563EB"
-                                   HorizontalAlignment="Center"
-                                   VerticalAlignment="Center"/>
-                    </Border>
-                </Grid>
-            </Border>
-
-            <!-- 発注検索 -->
-            <Border Grid.Row="1" Grid.Column="0"
-                    Style="{StaticResource PurchaseOrderCardStyle}">
-                <Grid>
-                    <StackPanel VerticalAlignment="Top">
-                        <Border Background="#EFF6FF"
-                                Width="44" Height="44"
-                                CornerRadius="22"
-                                HorizontalAlignment="Left"
-                                Margin="0,0,0,14">
-                            <TextBlock Text="⌕"
-                                       FontSize="30"
-                                       Foreground="#2563EB"
-                                       HorizontalAlignment="Center"
-                                       VerticalAlignment="Center"/>
-                        </Border>
-
-                        <TextBlock Text="発注検索"
-                                   FontSize="17.5"
-                                   FontWeight="Bold"
-                                   Foreground="#0F172A"
-                                   Margin="0,0,0,8"/>
-
-                        <TextBlock Text="発注番号や仕入先などの条件で&#x0a;発注情報を検索します。"
-                                   FontSize="12"
-                                   Foreground="#64748B"
-                                   LineHeight="19"
-                                   TextWrapping="Wrap"/>
-                    </StackPanel>
-
-                    <Border Width="36" Height="36"
-                            CornerRadius="18"
-                            Background="#EFF6FF"
-                            HorizontalAlignment="Right"
-                            VerticalAlignment="Bottom">
-                        <TextBlock Text="→" FontSize="20"
-                                   Foreground="#2563EB"
-                                   HorizontalAlignment="Center"
-                                   VerticalAlignment="Center"/>
-                    </Border>
-                </Grid>
-            </Border>
-
-            <!-- 発注非表示 -->
-            <Border Grid.Row="1" Grid.Column="1"
-                    Style="{StaticResource PurchaseOrderCardStyle}">
-                <Grid>
-                    <StackPanel VerticalAlignment="Top">
-                        <Border Background="#EFF6FF"
-                                Width="44" Height="44"
-                                CornerRadius="22"
-                                HorizontalAlignment="Left"
-                                Margin="0,0,0,14">
-                            <TextBlock Text="⊘"
-                                       FontSize="25"
-                                       Foreground="#2563EB"
-                                       HorizontalAlignment="Center"
-                                       VerticalAlignment="Center"/>
-                        </Border>
-
-                        <TextBlock Text="発注非表示"
-                                   FontSize="17.5"
-                                   FontWeight="Bold"
-                                   Foreground="#0F172A"
-                                   Margin="0,0,0,8"/>
-
-                        <TextBlock Text="選択した発注情報を一覧から&#x0a;非表示にします。"
-                                   FontSize="12"
-                                   Foreground="#64748B"
-                                   LineHeight="19"
-                                   TextWrapping="Wrap"/>
-                    </StackPanel>
-
-                    <Border Width="36" Height="36"
-                            CornerRadius="18"
-                            Background="#EFF6FF"
-                            HorizontalAlignment="Right"
-                            VerticalAlignment="Bottom">
-                        <TextBlock Text="→" FontSize="20"
-                                   Foreground="#2563EB"
-                                   HorizontalAlignment="Center"
-                                   VerticalAlignment="Center"/>
-                    </Border>
-                </Grid>
-            </Border>
-
-            <!-- 6枚目は空欄 -->
-            <Grid Grid.Row="1" Grid.Column="2"/>
-
         </Grid>
     </Grid>
 </UserControl>

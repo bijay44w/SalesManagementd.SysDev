@@ -83,5 +83,15 @@ namespace SalesManagement_SysDev
             }
             return true;
         }
+
+        /// <summary>
+        /// 電話番号形式のチェック (半角数字・ハイフン形式: 0X-XXXX-XXXX 等、またはハイフンなし10-11桁)
+        /// 結果: True=正常, False=異常
+        /// </summary>
+        public static bool CheckPhone(string value)
+        {
+            if (string.IsNullOrWhiteSpace(value)) return false;
+            return Regex.IsMatch(value.Trim(), @"^0\d{1,4}-?\d{1,4}-?\d{3,4}$");
+        }
     }
 }

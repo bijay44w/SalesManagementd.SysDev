@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -182,6 +183,12 @@ namespace SalesManagement_SysDev
                 reg_txt_ClPhone.Focus();
                 return;
             }
+            if (!DataInputFormCheck.CheckPhone(phone))
+            {
+                MessageBox.Show("電話番号は半角数字とハイフンのみで入力してください（例: 06-1234-5678）。", "入力エラー", MessageBoxButton.OK, MessageBoxImage.Warning);
+                reg_txt_ClPhone.Focus();
+                return;
+            }
 
             var newClient = new MClient
             {
@@ -281,6 +288,12 @@ namespace SalesManagement_SysDev
                 upd_txt_ClPhone.Focus();
                 return;
             }
+            if (!DataInputFormCheck.CheckPhone(phone))
+            {
+                MessageBox.Show("電話番号は半角数字とハイフンのみで入力してください（例: 06-1234-5678）。", "入力エラー", MessageBoxButton.OK, MessageBoxImage.Warning);
+                upd_txt_ClPhone.Focus();
+                return;
+            }
 
             var updatedClient = new MClient
             {
@@ -345,6 +358,16 @@ namespace SalesManagement_SysDev
             MessageBox.Show("顧客を非表示に設定しました。", "非表示完了", MessageBoxButton.OK, MessageBoxImage.Information);
             modal_Hide.Visibility = Visibility.Collapsed;
             ExecuteSearch();
+        }
+
+        private void Phone_PreviewTextInput(object sender, TextCompositionEventArgs e)
+        {
+            e.Handled = !Regex.IsMatch(e.Text, @"^[0-9\-]+$");
+        }
+
+        private void Numeric_PreviewTextInput(object sender, TextCompositionEventArgs e)
+        {
+            e.Handled = !Regex.IsMatch(e.Text, @"^[0-9]+$");
         }
     }
 }
