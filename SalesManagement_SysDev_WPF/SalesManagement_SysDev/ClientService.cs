@@ -61,9 +61,9 @@ namespace SalesManagement_SysDev
             {
                 return (false, "電話番号を入力してください。", null);
             }
-            if (client.ClPhone.Length > 13)
+            if (client.ClPhone.Length > 13 || !DataInputFormCheck.CheckPhone(client.ClPhone))
             {
-                return (false, "電話番号は13文字以内で入力してください。", null);
+                return (false, "電話番号は半角数字とハイフンのみで入力してください（例: 06-1234-5678）。", null);
             }
 
             // Postal format sanitize (up to 7 chars)
@@ -147,9 +147,9 @@ namespace SalesManagement_SysDev
             {
                 return (false, "電話番号を入力してください。");
             }
-            if (updatedClient.ClPhone.Length > 13)
+            if (updatedClient.ClPhone.Length > 13 || !DataInputFormCheck.CheckPhone(updatedClient.ClPhone))
             {
-                return (false, "電話番号は13文字以内で入力してください。");
+                return (false, "電話番号は半角数字とハイフンのみで入力してください（例: 06-1234-5678）。");
             }
 
             try

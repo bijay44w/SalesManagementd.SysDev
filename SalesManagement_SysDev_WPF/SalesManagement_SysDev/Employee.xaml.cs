@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -259,9 +260,18 @@ namespace SalesManagement_SysDev
         private void btn_ExecuteRegister_Click(
             object sender, RoutedEventArgs e)
         {
-            if (string.IsNullOrWhiteSpace(reg_txt_EmName.Text))
+            string emName = reg_txt_EmName.Text.Trim();
+            if (string.IsNullOrWhiteSpace(emName))
             {
                 ShowMessage("社員名を入力してください。");
+                reg_txt_EmName.Focus();
+                return;
+            }
+
+            if (!DataInputFormCheck.CheckFullWidth(emName))
+            {
+                ShowMessage("社員名は全角文字で入力してください。");
+                reg_txt_EmName.Focus();
                 return;
             }
 
@@ -277,9 +287,18 @@ namespace SalesManagement_SysDev
                 return;
             }
 
-            if (string.IsNullOrWhiteSpace(reg_txt_Phone.Text))
+            string phone = reg_txt_Phone.Text.Trim();
+            if (string.IsNullOrWhiteSpace(phone))
             {
                 ShowMessage("電話番号を入力してください。");
+                reg_txt_Phone.Focus();
+                return;
+            }
+
+            if (!DataInputFormCheck.CheckPhone(phone))
+            {
+                ShowMessage("電話番号は半角数字とハイフンのみで入力してください（例: 06-1234-5678）。");
+                reg_txt_Phone.Focus();
                 return;
             }
 
@@ -393,9 +412,18 @@ namespace SalesManagement_SysDev
                 return;
             }
 
-            if (string.IsNullOrWhiteSpace(upd_txt_EmName.Text))
+            string emName = upd_txt_EmName.Text.Trim();
+            if (string.IsNullOrWhiteSpace(emName))
             {
                 ShowMessage("社員名を入力してください。");
+                upd_txt_EmName.Focus();
+                return;
+            }
+
+            if (!DataInputFormCheck.CheckFullWidth(emName))
+            {
+                ShowMessage("社員名は全角文字で入力してください。");
+                upd_txt_EmName.Focus();
                 return;
             }
 
@@ -411,9 +439,18 @@ namespace SalesManagement_SysDev
                 return;
             }
 
-            if (string.IsNullOrWhiteSpace(upd_txt_Phone.Text))
+            string phone = upd_txt_Phone.Text.Trim();
+            if (string.IsNullOrWhiteSpace(phone))
             {
                 ShowMessage("電話番号を入力してください。");
+                upd_txt_Phone.Focus();
+                return;
+            }
+
+            if (!DataInputFormCheck.CheckPhone(phone))
+            {
+                ShowMessage("電話番号は半角数字とハイフンのみで入力してください（例: 06-1234-5678）。");
+                upd_txt_Phone.Focus();
                 return;
             }
 
@@ -609,6 +646,16 @@ namespace SalesManagement_SysDev
                 MessageBoxButton.OK,
                 MessageBoxImage.Error
             );
+        }
+
+        private void Numeric_PreviewTextInput(object sender, TextCompositionEventArgs e)
+        {
+            e.Handled = !Regex.IsMatch(e.Text, @"^[0-9]+$");
+        }
+
+        private void Phone_PreviewTextInput(object sender, TextCompositionEventArgs e)
+        {
+            e.Handled = !Regex.IsMatch(e.Text, @"^[0-9\-]+$");
         }
     }
 }

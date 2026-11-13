@@ -96,7 +96,7 @@
                     <!-- 社員ID -->
                     <StackPanel Orientation="Horizontal" Margin="0,4,16,4" VerticalAlignment="Center">
                         <TextBlock Text="社員ID:" FontWeight="SemiBold" Foreground="#334155" VerticalAlignment="Center" Margin="0,0,6,0" />
-                        <TextBox x:Name="txt_SearchEmId" Style="{StaticResource RetroTextBoxStyle}" Width="70" KeyDown="SearchField_KeyDown" />
+                        <TextBox x:Name="txt_SearchEmId" Style="{StaticResource RetroTextBoxStyle}" Width="70" KeyDown="SearchField_KeyDown" PreviewTextInput="Numeric_PreviewTextInput" InputMethod.IsInputMethodEnabled="False" />
                     </StackPanel>
 
                     <!-- 社員名 -->
@@ -120,7 +120,7 @@
                     <!-- 電話番号 -->
                     <StackPanel Orientation="Horizontal" Margin="0,4,16,4" VerticalAlignment="Center">
                         <TextBlock Text="電話番号:" FontWeight="SemiBold" Foreground="#334155" VerticalAlignment="Center" Margin="0,0,6,0" />
-                        <TextBox x:Name="txt_SearchPhone" Style="{StaticResource RetroTextBoxStyle}" Width="110" KeyDown="SearchField_KeyDown" />
+                        <TextBox x:Name="txt_SearchPhone" Style="{StaticResource RetroTextBoxStyle}" Width="110" KeyDown="SearchField_KeyDown" PreviewTextInput="Phone_PreviewTextInput" InputMethod.IsInputMethodEnabled="False" />
                     </StackPanel>
 
                     <!-- 非表示を含む -->
@@ -292,7 +292,7 @@
                         </StackPanel>
                         <StackPanel Grid.Column="2">
                             <TextBlock Text="電話番号 *" FontWeight="SemiBold" Foreground="#334155" Margin="0,0,0,4" />
-                            <TextBox x:Name="reg_txt_Phone" Style="{StaticResource RetroTextBoxStyle}" />
+                            <TextBox x:Name="reg_txt_Phone" Style="{StaticResource RetroTextBoxStyle}" PreviewTextInput="Phone_PreviewTextInput" InputMethod.IsInputMethodEnabled="False" />
                         </StackPanel>
                     </Grid>
 
@@ -378,7 +378,7 @@
                         </StackPanel>
                         <StackPanel Grid.Column="2">
                             <TextBlock Text="電話番号 *" FontWeight="SemiBold" Foreground="#334155" Margin="0,0,0,4" />
-                            <TextBox x:Name="upd_txt_Phone" Style="{StaticResource RetroTextBoxStyle}" />
+                            <TextBox x:Name="upd_txt_Phone" Style="{StaticResource RetroTextBoxStyle}" PreviewTextInput="Phone_PreviewTextInput" InputMethod.IsInputMethodEnabled="False" />
                         </StackPanel>
                     </Grid>
 

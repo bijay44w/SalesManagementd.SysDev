@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -183,6 +184,12 @@ namespace SalesManagement_SysDev
                 reg_txt_ClPhone.Focus();
                 return;
             }
+            if (!DataInputFormCheck.CheckPhone(phone))
+            {
+                MessageBox.Show("電話番号は半角数字とハイフンのみで入力してください（例: 06-1234-5678）。", "入力エラー", MessageBoxButton.OK, MessageBoxImage.Warning);
+                reg_txt_ClPhone.Focus();
+                return;
+            }
 
             var newClient = new MClient
             {
@@ -279,6 +286,12 @@ namespace SalesManagement_SysDev
             if (string.IsNullOrWhiteSpace(phone))
             {
                 MessageBox.Show("電話番号を入力してください。", "入力エラー", MessageBoxButton.OK, MessageBoxImage.Warning);
+                upd_txt_ClPhone.Focus();
+                return;
+            }
+            if (!DataInputFormCheck.CheckPhone(phone))
+            {
+                MessageBox.Show("電話番号は半角数字とハイフンのみで入力してください（例: 06-1234-5678）。", "入力エラー", MessageBoxButton.OK, MessageBoxImage.Warning);
                 upd_txt_ClPhone.Focus();
                 return;
             }

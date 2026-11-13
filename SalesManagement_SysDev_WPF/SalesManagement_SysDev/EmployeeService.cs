@@ -58,6 +58,10 @@ namespace SalesManagement_SysDev
             {
                 return (false, "社員名は50文字以内で入力してください。", null);
             }
+            if (!DataInputFormCheck.CheckFullWidth(employee.EmName))
+            {
+                return (false, "社員名は全角文字で入力してください。", null);
+            }
 
             if (employee.SoId <= 0)
             {
@@ -73,9 +77,9 @@ namespace SalesManagement_SysDev
             {
                 return (false, "電話番号を入力してください。", null);
             }
-            if (employee.EmPhone.Length > 15)
+            if (employee.EmPhone.Length > 15 || !DataInputFormCheck.CheckPhone(employee.EmPhone))
             {
-                return (false, "電話番号は15文字以内で入力してください。", null);
+                return (false, "電話番号は半角数字とハイフンのみで入力してください（例: 06-1234-5678）。", null);
             }
 
             if (string.IsNullOrWhiteSpace(employee.EmPassword))
@@ -142,6 +146,10 @@ namespace SalesManagement_SysDev
             {
                 return (false, "社員名は50文字以内で入力してください。");
             }
+            if (!DataInputFormCheck.CheckFullWidth(employee.EmName))
+            {
+                return (false, "社員名は全角文字で入力してください。");
+            }
 
             if (employee.SoId <= 0)
             {
@@ -156,6 +164,10 @@ namespace SalesManagement_SysDev
             if (string.IsNullOrWhiteSpace(employee.EmPhone))
             {
                 return (false, "電話番号を入力してください。");
+            }
+            if (employee.EmPhone.Length > 15 || !DataInputFormCheck.CheckPhone(employee.EmPhone))
+            {
+                return (false, "電話番号は半角数字とハイフンのみで入力してください（例: 06-1234-5678）。");
             }
 
             if (updatePassword && !string.IsNullOrWhiteSpace(employee.EmPassword))
