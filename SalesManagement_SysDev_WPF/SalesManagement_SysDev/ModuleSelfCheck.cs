@@ -192,6 +192,25 @@ namespace SalesManagement_SysDev
                 Assert(itemAccess.DeleteItemData("IT999"), "ItemDataAccess.DeleteItemData: 削除処理");
                 Assert(!itemAccess.CheckItemCDExistence("IT999"), "ItemDataAccess: 削除後非存在確認");
 
+                // 9. Arrival UI XAML検証
+                Console.WriteLine("\n--- 9. Arrival UI XAML検証 ---");
+                Exception? uiEx = null;
+                var thread = new System.Threading.Thread(() =>
+                {
+                    try
+                    {
+                        var arrival = new Arrival();
+                    }
+                    catch (Exception ex)
+                    {
+                        uiEx = ex;
+                    }
+                });
+                thread.SetApartmentState(System.Threading.ApartmentState.STA);
+                thread.Start();
+                thread.Join();
+                Assert(uiEx == null, "Arrival UI: XAMLリソースパースとインスタンス生成");
+
                 Console.WriteLine("==================================================");
                 Console.WriteLine($" RESULT: ALL {passedTests}/{totalTests} MODULE TESTS PASSED!");
                 Console.WriteLine("==================================================");

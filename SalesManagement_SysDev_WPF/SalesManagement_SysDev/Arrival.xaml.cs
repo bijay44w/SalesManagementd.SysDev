@@ -315,6 +315,34 @@ namespace SalesManagement_SysDev
                 return (false, $"非表示設定エラー: {ex.InnerException?.Message ?? ex.Message}");
             }
         }
+
+        /// <summary>
+        /// 入荷物理削除
+        /// </summary>
+        public (bool Success, string Message) DeleteArrival(int arId)
+        {
+            if (arId <= 0)
+                return (false, "削除対象の入荷IDが正しくありません。");
+
+            try
+            {
+                using var ctx = new SalesManagementContext();
+                var arrival = ctx.TArrivals.FirstOrDefault(a => a.ArId == arId);
+                if (arrival == null)
+                    return (false, $"入荷ID: {arId} のデータが見つかりません。");
+
+                var details = ctx.TArrivalDetails.Where(d => d.ArId == arId).ToList();
+                ctx.TArrivalDetails.RemoveRange(details);
+                ctx.TArrivals.Remove(arrival);
+                ctx.SaveChanges();
+
+                return (true, $"入荷ID: {arId} のデータを削除しました。");
+            }
+            catch (Exception ex)
+            {
+                return (false, $"削除エラー: {ex.InnerException?.Message ?? ex.Message}");
+            }
+        }
     }
 
     // =========================================================================
@@ -417,6 +445,7 @@ namespace SalesManagement_SysDev
             bool has = dg_Arrivals.SelectedItem is ArrivalDisplayModel;
             btn_EditSelected.IsEnabled = has;
             btn_HideSelected.IsEnabled = has;
+            btn_DeleteSelected.IsEnabled = has;
         }
 
         private void dg_Arrivals_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -729,13 +758,36 @@ namespace SalesManagement_SysDev
             return 0;
         }
 
-        private void card_ArrivalDelete_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        private void btn_DeleteSelected_Click(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show(
-                "入荷情報の削除機能です。\n安全なデータ管理のため、関連する後続処理があるデータは非表示機能をご利用ください。",
-                "入荷削除",
-                MessageBoxButton.OK,
-                MessageBoxImage.Information);
+            if (dg_Arrivals.SelectedItem is not ArrivalDisplayModel selected)
+            {
+                MessageBox.Show("削除する入荷情報を選択してください。");
+                return;
+            }
+
+            var result = MessageBox.Show(
+                $"次の入荷データを完全に削除しますか？\n\n" +
+                $"入荷ID：{selected.ArId}\n" +
+                $"商品名：{selected.PrName}\n" +
+                $"数量：{selected.ArQuantityFormatted}\n\n" +
+                "この操作は取り消せません。",
+                "入荷データの完全削除確認",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Warning);
+
+            if (result != MessageBoxResult.Yes)
+                return;
+
+            var (success, message) = _service.DeleteArrival(selected.ArId);
+            if (!success)
+            {
+                MessageBox.Show(message, "削除エラー", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            MessageBox.Show(message, "削除完了", MessageBoxButton.OK, MessageBoxImage.Information);
+            ExecuteSearch();
         }
     }
 }
