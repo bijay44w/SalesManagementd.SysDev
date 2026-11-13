@@ -9,10 +9,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace SalesManagement_SysDev
 {
-    /// <summary>
-    /// 機能12 出庫管理。
-    /// 出庫登録・更新時に在庫数を減算し、更新時は旧出庫分を戻してから再計算する。
-    /// </summary>
+    // <summary>
+    // 機能12 出庫管理。
+    // 出庫登録・更新時に在庫数を減算し、更新時は旧出庫分を戻してから再計算する。
+    // </summary>
     public partial class Shipping : UserControl
     {
         private const int ActiveFlag = 0;
