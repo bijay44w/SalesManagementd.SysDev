@@ -191,6 +191,7 @@ namespace SalesManagement_SysDev
 
             btn_MainEditSelected.IsEnabled = selected;
             btn_MainHideSelected.IsEnabled = selected;
+            btn_MainDeleteSelected.IsEnabled = selected;
         }
 
         // =========================================================
@@ -233,6 +234,42 @@ namespace SalesManagement_SysDev
             {
                 ShowMessage("非表示にする在庫を選択してください。");
             }
+        }
+
+        private void btn_MainDeleteSelected_Click(object sender, RoutedEventArgs e)
+        {
+            if (dg_MainStocks.SelectedItem is not StockDisplayModel selected)
+            {
+                MessageBox.Show("削除する在庫を選択してください。");
+                return;
+            }
+
+            var result = MessageBox.Show(
+                $"次の在庫データを完全に削除しますか？\n\n" +
+                $"在庫ID：{selected.StId}\n" +
+                $"商品名：{selected.PrName}\n" +
+                $"在庫数：{selected.StQuantity} 個\n\n" +
+                "この操作は取り消せません。",
+                "在庫の完全削除確認",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Warning);
+
+            if (result != MessageBoxResult.Yes)
+                return;
+
+            var (success, message) = _stockService.DeleteStock(selected.StId);
+
+            if (!success)
+            {
+                MessageBox.Show(message, "削除できません",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            MessageBox.Show(message, "削除完了",
+                MessageBoxButton.OK, MessageBoxImage.Information);
+
+            ExecuteMainSearch();
         }
 
         // =========================================================

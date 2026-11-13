@@ -1,4 +1,4 @@
-﻿
+
 
 using System;
 using System.Linq;
@@ -488,6 +488,65 @@ namespace SalesManagement_SysDev
             hide_txt_Reason.Text = selected.SyHidden;
             modal_Hide.Tag = selected.SyId;
             modal_Hide.Visibility = Visibility.Visible;
+        }
+
+        private void btn_DeleteSelected_Click(object sender, RoutedEventArgs e)
+        {
+            if (dg_Syukkos.SelectedItem is not ShippingRow selected)
+            {
+                ShowWarning("削除する出庫情報を一覧から選択してください。");
+                return;
+            }
+
+            var result = MessageBox.Show(
+                $"次の出庫データを完全に削除しますか？\n\n" +
+                $"出庫ID：{selected.SyId}\n" +
+                $"受注ID：{selected.OrId}\n" +
+                $"商品名：{selected.ProductName}\n" +
+                $"出庫数：{selected.SyQuantity} 個\n\n" +
+                "この操作は取り消せません。",
+                "出庫の完全削除確認",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Warning);
+
+            if (result != MessageBoxResult.Yes)
+                return;
+
+            try
+            {
+                using var context = new SalesManagementContext();
+                var syukko = context.TSyukkos
+                    .Include(s => s.TSyukkoDetails)
+                    .FirstOrDefault(s => s.SyId == selected.SyId);
+
+                if (syukko == null)
+                {
+                    ShowWarning("対象の出庫情報が見つかりません。");
+                    LoadShippings();
+                    return;
+                }
+
+                if (syukko.SyStateFlag == 1)
+                {
+                    ShowWarning("出庫確定済みのデータは在庫処理に反映されているため、完全削除できません。\n非表示機能を使用してください。");
+                    return;
+                }
+
+                if (syukko.TSyukkoDetails != null && syukko.TSyukkoDetails.Any())
+                {
+                    context.TSyukkoDetails.RemoveRange(syukko.TSyukkoDetails);
+                }
+
+                context.TSyukkos.Remove(syukko);
+                context.SaveChanges();
+
+                ShowInfo($"出庫ID「{selected.SyId}」を完全に削除しました。");
+                LoadShippings();
+            }
+            catch (Exception ex)
+            {
+                ShowError("出庫情報の削除に失敗しました。\n" + ex.Message);
+            }
         }
 
         private void btn_ExecuteHide_Click(object sender, RoutedEventArgs e)

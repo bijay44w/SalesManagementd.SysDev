@@ -290,6 +290,59 @@ namespace SalesManagement_SysDev
             }
         }
 
+
+        /// <summary>
+        /// 顧客完全削除機能
+        /// 関連データが存在しない場合のみ顧客を削除する。
+        /// </summary>
+        public (bool Success, string Message) DeleteClient(int clId)
+        {
+            if (clId <= 0)
+            {
+                return (false, "削除対象の顧客IDが正しくありません。");
+            }
+
+            try
+            {
+                using var context = new SalesManagementContext();
+
+                var client = context.MClients
+                    .FirstOrDefault(x => x.ClId == clId);
+
+                if (client == null)
+                {
+                    return (false, $"顧客ID: {clId} のデータが見つかりません。");
+                }
+
+                // 関連データが存在するか確認
+                bool hasRelatedData =
+                    context.TArrivals.Any(x => x.ClId == clId) ||
+                    context.TChumons.Any(x => x.ClId == clId) ||
+                    context.TOrders.Any(x => x.ClId == clId) ||
+                    context.TSales.Any(x => x.ClId == clId) ||
+                    context.TShipments.Any(x => x.ClId == clId) ||
+                    context.TSyukkos.Any(x => x.ClId == clId);
+
+                if (hasRelatedData)
+                {
+                    return (false,
+                        "この顧客には関連する取引データがあるため、完全削除できません。\n非表示機能を使用してください。");
+                }
+
+                // 顧客情報を完全削除
+                context.MClients.Remove(client);
+                context.SaveChanges();
+
+                return (true,
+                    $"顧客「{client.ClName}」を完全に削除しました。");
+            }
+            catch (Exception ex)
+            {
+                return (false, $"顧客削除中にエラーが発生しました: {ex.Message}");
+            }
+        }
+
+
         /// <summary>
         /// 営業所一覧を取得 (コンボボックス用)
         /// </summary>

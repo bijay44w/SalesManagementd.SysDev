@@ -528,6 +528,65 @@ namespace SalesManagement_SysDev
             }*/
         }
 
+        private void btn_DeleteSelected_Click(object sender, RoutedEventArgs e)
+        {
+            if (dg_Warehousings.SelectedItem is not ReceivingRow selected)
+            {
+                ShowWarning("削除する入庫情報を一覧から選択してください。");
+                return;
+            }
+
+            var result = MessageBox.Show(
+                $"次の入庫データを完全に削除しますか？\n\n" +
+                $"入庫ID：{selected.WaId}\n" +
+                $"発注ID：{selected.HaId}\n" +
+                $"商品名：{selected.ProductName}\n" +
+                $"入庫数：{selected.WaQuantity} 個\n\n" +
+                "この操作は取り消せません。",
+                "入庫の完全削除確認",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Warning);
+
+            if (result != MessageBoxResult.Yes)
+                return;
+
+            try
+            {
+                using var context = new SalesManagementContext();
+                var warehousing = context.TWarehousings
+                    .Include(w => w.TWarehousingDetails)
+                    .FirstOrDefault(w => w.WaId == selected.WaId);
+
+                if (warehousing == null)
+                {
+                    ShowWarning("対象の入庫情報が見つかりません。");
+                    LoadWarehousings();
+                    return;
+                }
+
+                if (warehousing.WaShelfFlag == ShelvedFlag)
+                {
+                    ShowWarning("棚入れ済みの入庫データは在庫に反映されているため、完全削除できません。\n非表示機能を使用してください。");
+                    return;
+                }
+
+                if (warehousing.TWarehousingDetails != null && warehousing.TWarehousingDetails.Any())
+                {
+                    context.TWarehousingDetails.RemoveRange(warehousing.TWarehousingDetails);
+                }
+
+                context.TWarehousings.Remove(warehousing);
+                context.SaveChanges();
+
+                ShowInfo($"入庫ID「{selected.WaId}」を完全に削除しました。");
+                LoadWarehousings();
+            }
+            catch (Exception ex)
+            {
+                ShowError("入庫情報の削除に失敗しました。\n" + ex.Message);
+            }
+        }
+
         private void btn_ExecuteHide_Click(object sender, RoutedEventArgs e)
         {
             if (modal_Hide.Tag is not int waId)

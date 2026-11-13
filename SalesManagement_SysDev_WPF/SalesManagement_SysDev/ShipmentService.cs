@@ -487,6 +487,50 @@ namespace SalesManagement_SysDev
             }
         }
 
+        /// <summary>
+        /// 出荷完全削除機能
+        /// </summary>
+        public (bool Success, string Message) DeleteShipment(int shId)
+        {
+            if (shId <= 0)
+            {
+                return (false, "削除対象の出荷IDが正しくありません。");
+            }
+
+            try
+            {
+                using var context = new SalesManagementContext();
+                var shipment = context.TShipments
+                    .Include(s => s.TShipmentDetails)
+                    .FirstOrDefault(s => s.ShId == shId);
+
+                if (shipment == null)
+                {
+                    return (false, $"出荷ID: {shId} のデータが見つかりません。");
+                }
+
+                if (shipment.ShStateFlag == 1)
+                {
+                    return (false,
+                        "確定済みの出荷データは在庫処理に反映されているため、完全削除できません。\n非表示機能を使用してください。");
+                }
+
+                if (shipment.TShipmentDetails != null && shipment.TShipmentDetails.Any())
+                {
+                    context.TShipmentDetails.RemoveRange(shipment.TShipmentDetails);
+                }
+
+                context.TShipments.Remove(shipment);
+                context.SaveChanges();
+
+                return (true, $"出荷ID: {shId} の出荷データを完全に削除しました。");
+            }
+            catch (Exception ex)
+            {
+                return (false, $"出荷削除中にエラーが発生しました: {ex.Message}");
+            }
+        }
+
         private ShipmentDisplayModel ToDisplayModel(TShipment s)
         {
             int count = s.TShipmentDetails?.Count ?? 0;

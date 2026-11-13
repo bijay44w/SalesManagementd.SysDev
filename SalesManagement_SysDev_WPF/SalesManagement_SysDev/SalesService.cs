@@ -516,5 +516,42 @@ namespace SalesManagement_SysDev
                 // エラーは無視 (テーブル構成や権限に応じたベストエフォート)
             }
         }
+        /// <summary>
+        /// 売上完全削除機能
+        /// </summary>
+        public (bool Success, string Message) DeleteSale(int saId)
+        {
+            if (saId <= 0)
+            {
+                return (false, "削除対象の売上IDが正しくありません。");
+            }
+
+            try
+            {
+                using var context = new SalesManagementContext();
+                var sale = context.TSales
+                    .Include(s => s.TSaleDetails)
+                    .FirstOrDefault(s => s.SaId == saId);
+
+                if (sale == null)
+                {
+                    return (false, $"売上ID: {saId} のデータが見つかりません。");
+                }
+
+                if (sale.TSaleDetails != null && sale.TSaleDetails.Any())
+                {
+                    context.TSaleDetails.RemoveRange(sale.TSaleDetails);
+                }
+
+                context.TSales.Remove(sale);
+                context.SaveChanges();
+
+                return (true, $"売上ID: {saId} の売上データを完全に削除しました。");
+            }
+            catch (Exception ex)
+            {
+                return (false, $"売上削除中にエラーが発生しました: {ex.Message}");
+            }
+        }
     }
 }

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
@@ -362,6 +362,36 @@ namespace SalesManagement_SysDev
                 StQuantity = stock.StQuantity,
                 StFlag = stock.StFlag
             };
+        }
+
+        // =====================================================================
+        // 在庫完全削除機能
+        // =====================================================================
+        public (bool Success, string Message) DeleteStock(int stId)
+        {
+            if (stId <= 0)
+            {
+                return (false, "削除対象の在庫IDが正しくありません。");
+            }
+
+            try
+            {
+                using var context = new SalesManagementContext();
+                var stock = context.TStocks.FirstOrDefault(s => s.StId == stId);
+                if (stock == null)
+                {
+                    return (false, $"在庫ID: {stId} のデータが見つかりません。");
+                }
+
+                context.TStocks.Remove(stock);
+                context.SaveChanges();
+
+                return (true, $"在庫ID: {stId} の在庫データを完全に削除しました。");
+            }
+            catch (Exception ex)
+            {
+                return (false, $"在庫削除中にエラーが発生しました: {ex.Message}");
+            }
         }
 
         // =====================================================================

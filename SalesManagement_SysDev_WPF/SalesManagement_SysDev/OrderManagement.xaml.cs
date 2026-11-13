@@ -398,6 +398,7 @@ namespace SalesManagement_SysDev
                 isVisible && isUnconfirmed;
 
             btn_Hide.IsEnabled = isVisible;
+            btn_Delete.IsEnabled = isVisible;
         }
 
         // =====================================================
@@ -1040,6 +1041,72 @@ namespace SalesManagement_SysDev
                     "処理エラー",
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
+            }
+        }
+
+        private void btn_Delete_Click(object sender, RoutedEventArgs e)
+        {
+            if (_selectedOrder == null)
+            {
+                MessageBox.Show("削除する注文を選択してください。");
+                return;
+            }
+
+            var result = MessageBox.Show(
+                $"次の注文データを完全に削除しますか？\n\n" +
+                $"注文番号：{_selectedOrder.OrderId}\n" +
+                $"顧客名：{_selectedOrder.CustomerName}\n" +
+                $"商品名：{_selectedOrder.ProductName}\n" +
+                $"合計金額：{_selectedOrder.TotalAmount:N0} 円\n\n" +
+                "この操作は取り消せません。",
+                "注文の完全削除確認",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Warning);
+
+            if (result != MessageBoxResult.Yes)
+                return;
+
+            try
+            {
+                using var context = new SalesManagementContext();
+                var order = context.TOrders
+                    .Include(o => o.TOrderDetails)
+                    .FirstOrDefault(o => o.OrId == _selectedOrder.Id);
+
+                if (order == null)
+                {
+                    MessageBox.Show("対象の注文が見つかりません。");
+                    ExecuteSearch();
+                    return;
+                }
+
+                // 関連データ（出庫・注文等）が存在するか確認
+                bool hasRelated = context.TSyukkos.Any(x => x.OrId == order.OrId) ||
+                                  context.TChumons.Any(x => x.OrId == order.OrId);
+                if (hasRelated)
+                {
+                    MessageBox.Show("この注文には関連する出庫等の業務データが存在するため、完全削除できません。\n非表示機能を使用してください。",
+                        "削除できません", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
+                if (order.TOrderDetails != null && order.TOrderDetails.Any())
+                {
+                    context.TOrderDetails.RemoveRange(order.TOrderDetails);
+                }
+
+                context.TOrders.Remove(order);
+                context.SaveChanges();
+
+                MessageBox.Show($"注文「{_selectedOrder.OrderId}」を完全に削除しました。",
+                    "削除完了", MessageBoxButton.OK, MessageBoxImage.Information);
+
+                ExecuteSearch();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"注文の削除中にエラーが発生しました。\n{ex.Message}",
+                    "処理エラー", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 

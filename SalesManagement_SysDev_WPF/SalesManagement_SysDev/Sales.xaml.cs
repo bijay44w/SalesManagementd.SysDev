@@ -164,6 +164,7 @@ namespace SalesManagement_SysDev
             bool hasSelection = dg_Sales.SelectedItem is SaleDisplayModel;
             btn_DetailSelected.IsEnabled = hasSelection;
             btn_HideSelected.IsEnabled = hasSelection;
+            btn_DeleteSelected.IsEnabled = hasSelection;
         }
 
         private void dg_Sales_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -358,6 +359,42 @@ namespace SalesManagement_SysDev
                 modal_Hide.Visibility = Visibility.Visible;
                 hide_txt_Reason.Focus();
             }
+        }
+
+        private void btn_DeleteSelected_Click(object sender, RoutedEventArgs e)
+        {
+            if (dg_Sales.SelectedItem is not SaleDisplayModel selected)
+            {
+                MessageBox.Show("削除する売上を選択してください。");
+                return;
+            }
+
+            var result = MessageBox.Show(
+                $"次の売上データを完全に削除しますか？\n\n" +
+                $"売上ID：{selected.SaId}\n" +
+                $"顧客名：{selected.ClName}\n" +
+                $"売上金額：{selected.TotalAmountFormatted}\n\n" +
+                "この操作は取り消せません。",
+                "売上の完全削除確認",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Warning);
+
+            if (result != MessageBoxResult.Yes)
+                return;
+
+            var (success, message) = _salesService.DeleteSale(selected.SaId);
+
+            if (!success)
+            {
+                MessageBox.Show(message, "削除できません",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            MessageBox.Show(message, "削除完了",
+                MessageBoxButton.OK, MessageBoxImage.Information);
+
+            ExecuteSearch();
         }
 
         private void btn_CancelHide_Click(object sender, RoutedEventArgs e)

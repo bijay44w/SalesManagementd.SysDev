@@ -520,6 +520,41 @@ namespace SalesManagement_SysDev
             }
         }
 
+        private void btn_DeleteSelected_Click(object sender, RoutedEventArgs e)
+        {
+            if (dg_Employees.SelectedItem is not EmployeeDisplayModel selected)
+            {
+                MessageBox.Show("削除する社員を選択してください。");
+                return;
+            }
+
+            var result = MessageBox.Show(
+                $"次の社員を完全に削除しますか？\n\n" +
+                $"社員ID：{selected.EmId}\n" +
+                $"社員名：{selected.EmName}\n\n" +
+                "この操作は取り消せません。",
+                "社員の完全削除確認",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Warning);
+
+            if (result != MessageBoxResult.Yes)
+                return;
+
+            var (success, message) = _employeeService.DeleteEmployee(selected.EmId);
+
+            if (!success)
+            {
+                MessageBox.Show(message, "削除できません",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            MessageBox.Show(message, "削除完了",
+                MessageBoxButton.OK, MessageBoxImage.Information);
+
+            ExecuteSearch();
+        }
+
         private void OpenHideModal(EmployeeDisplayModel employee)
         {
             _selectedEmployeeIdForHide = employee.EmId;
