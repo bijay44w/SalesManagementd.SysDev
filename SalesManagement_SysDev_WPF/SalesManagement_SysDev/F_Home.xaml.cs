@@ -1007,7 +1007,7 @@ namespace SalesManagement_SysDev
 
                 case "10": // 発注管理
                     CustomerContent.Visibility = Visibility.Collapsed;
-                    MainContentArea.Content = new PurchaseOrder();
+                    MainContentArea.Content = new PurchaseOrder(_loggedInEmployee);
                     MainContentArea.Visibility = Visibility.Visible;
                     break;
 
