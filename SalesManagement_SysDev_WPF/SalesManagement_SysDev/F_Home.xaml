@@ -1,4 +1,4 @@
-﻿<Window x:Class="SalesManagement_SysDev.F_Home"
+<Window x:Class="SalesManagement_SysDev.F_Home"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:shell="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -1161,8 +1161,8 @@
                         <StackPanel Grid.Column="1" Margin="6,0,0,0">
                             <TextBlock Text="管理フラグ" FontSize="12" FontWeight="SemiBold" Foreground="#334155" Margin="0,0,0,4" />
                             <ComboBox x:Name="upd_cmb_ClFlag" Height="34" VerticalContentAlignment="Center" SelectedIndex="0">
-                                <ComboBoxItem Content="0: 通常表示 (有効)" Tag="0" />
-                                <ComboBoxItem Content="2: 非表示 (フラグ2)" Tag="2" />
+                                <ComboBoxItem Content="通常表示 (有効)" Tag="0" />
+                                <ComboBoxItem Content="非表示 (フラグ2)" Tag="2" />
                             </ComboBox>
                         </StackPanel>
                     </Grid>

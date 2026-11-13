@@ -177,7 +177,7 @@
                               VerticalAlignment="Center"
                               Margin="6,4,16,4"
                               Foreground="#334155"
-                              FontWeight="SemiBold" />
+                              FontWeight="SemiBold" Checked="chk_IncludeHidden_Checked_1" />
                 </WrapPanel>
 
                 <StackPanel Grid.Row="1"

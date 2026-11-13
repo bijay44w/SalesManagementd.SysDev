@@ -603,5 +603,10 @@ namespace SalesManagement_SysDev
             public int OrderedQuantity { get; set; }
             public string DisplayText => $"{PrId} / {PrName}（受注数量: {OrderedQuantity}）";
         }
+
+        private void chk_IncludeHidden_Checked_1(object sender, RoutedEventArgs e)
+        {
+
+        }
     }
 }

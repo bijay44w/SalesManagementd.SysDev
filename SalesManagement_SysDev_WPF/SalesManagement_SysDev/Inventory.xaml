@@ -405,8 +405,8 @@
                         <StackPanel Grid.Column="1" Margin="8,0,0,0">
                             <TextBlock Text="在庫管理フラグ *" FontSize="12" FontWeight="SemiBold" Foreground="#334155" Margin="0,0,0,4" />
                             <ComboBox x:Name="upd_cmb_StFlag" Height="36" VerticalContentAlignment="Center">
-                                <ComboBoxItem Content="0: 通常表示中" Tag="0" />
-                                <ComboBoxItem Content="2: 非表示" Tag="2" />
+                                <ComboBoxItem Content="通常表示中" Tag="0" />
+                                <ComboBoxItem Content="非表示" Tag="2" />
                             </ComboBox>
                         </StackPanel>
                     </Grid>
