@@ -103,6 +103,7 @@ namespace SalesManagement_SysDev
             bool hasSelection = dg_MainProducts.SelectedItem is ProductDisplayModel;
             btn_MainEditSelected.IsEnabled = hasSelection;
             btn_MainHideSelected.IsEnabled = hasSelection;
+            btn_MainDeleteSelected.IsEnabled = hasSelection;
         }
 
         private void dg_MainProducts_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -137,6 +138,41 @@ namespace SalesManagement_SysDev
             {
                 OpenProductHideModal(selected.PrId);
             }
+        }
+
+        private void btn_MainDeleteSelected_Click(object sender, RoutedEventArgs e)
+        {
+            if (dg_MainProducts.SelectedItem is not ProductDisplayModel selected)
+            {
+                MessageBox.Show("削除する商品を選択してください。");
+                return;
+            }
+
+            var result = MessageBox.Show(
+                $"次の商品を完全に削除しますか？\n\n" +
+                $"商品ID：{selected.PrId}\n" +
+                $"商品名：{selected.PrName}\n\n" +
+                "この操作は取り消せません。",
+                "商品の完全削除確認",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Warning);
+
+            if (result != MessageBoxResult.Yes)
+                return;
+
+            var (success, message) = _productService.DeleteProduct(selected.PrId);
+
+            if (!success)
+            {
+                MessageBox.Show(message, "削除できません",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            MessageBox.Show(message, "削除完了",
+                MessageBoxButton.OK, MessageBoxImage.Information);
+
+            ExecuteMainSearch();
         }
 
         // =====================================================================

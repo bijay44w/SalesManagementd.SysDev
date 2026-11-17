@@ -61,6 +61,11 @@ namespace SalesManagement_SysDev
                 Assert(DataInputFormCheck.CheckHalfChar("abc123DEF!@#"), "CheckHalfChar: 半角文字でTrue");
                 Assert(!DataInputFormCheck.CheckHalfChar("abc123漢字"), "CheckHalfChar: 全角混在でFalse");
 
+                Assert(DataInputFormCheck.CheckPhone("06-6813-5485"), "CheckPhone: 有効な電話番号でTrue");
+                Assert(DataInputFormCheck.CheckPhone("090-1111-2222"), "CheckPhone: 携帯電話番号でTrue");
+                Assert(!DataInputFormCheck.CheckPhone("dgg"), "CheckPhone: 英字混在でFalse");
+                Assert(!DataInputFormCheck.CheckPhone("12345"), "CheckPhone: 不正形式でFalse");
+
                 // 3. MessageDsp
                 Console.WriteLine("\n--- 3. MessageDsp (田中) ---");
                 MessageDsp.IsSilentMode = true;
@@ -186,6 +191,25 @@ namespace SalesManagement_SysDev
 
                 Assert(itemAccess.DeleteItemData("IT999"), "ItemDataAccess.DeleteItemData: 削除処理");
                 Assert(!itemAccess.CheckItemCDExistence("IT999"), "ItemDataAccess: 削除後非存在確認");
+
+                // 9. Arrival UI XAML検証
+                Console.WriteLine("\n--- 9. Arrival UI XAML検証 ---");
+                Exception? uiEx = null;
+                var thread = new System.Threading.Thread(() =>
+                {
+                    try
+                    {
+                        var arrival = new Arrival();
+                    }
+                    catch (Exception ex)
+                    {
+                        uiEx = ex;
+                    }
+                });
+                thread.SetApartmentState(System.Threading.ApartmentState.STA);
+                thread.Start();
+                thread.Join();
+                Assert(uiEx == null, "Arrival UI: XAMLリソースパースとインスタンス生成");
 
                 Console.WriteLine("==================================================");
                 Console.WriteLine($" RESULT: ALL {passedTests}/{totalTests} MODULE TESTS PASSED!");

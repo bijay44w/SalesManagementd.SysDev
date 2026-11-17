@@ -190,6 +190,13 @@
                         <TextBlock Text="非表示設定" FontWeight="Bold" />
                     </StackPanel>
                 </Button>
+
+                <Button x:Name="btn_MainDeleteSelected" Style="{StaticResource ActionButtonStyle}" Background="#991B1B" Foreground="#FFFFFF" Margin="0,0,8,0" Click="btn_MainDeleteSelected_Click" Width="109">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="🗑" Margin="0,0,4,0" />
+                        <TextBlock Text="削除" FontWeight="Bold" />
+                    </StackPanel>
+                </Button>
             </StackPanel>
 
             <TextBlock x:Name="txt_MainProductCount" Grid.Column="1" Text="表示件数: 0 件" FontSize="13" Foreground="#475569" FontWeight="SemiBold" HorizontalAlignment="Right" VerticalAlignment="Center" />
@@ -494,8 +501,8 @@
                             <StackPanel Grid.Column="0" Margin="0,0,8,0">
                                 <TextBlock Text="商品管理フラグ *" FontSize="12" FontWeight="SemiBold" Foreground="#334155" Margin="0,0,0,4" />
                                 <ComboBox x:Name="upd_cmb_PrFlag" Height="36" VerticalContentAlignment="Center">
-                                    <ComboBoxItem Content="0: 通常表示" Tag="0" />
-                                    <ComboBoxItem Content="2: 非表示" Tag="2" />
+                                    <ComboBoxItem Content="通常表示" Tag="0" />
+                                    <ComboBoxItem Content="非表示" Tag="2" />
                                 </ComboBox>
                             </StackPanel>
                             <StackPanel Grid.Column="1" Margin="8,0,0,0">

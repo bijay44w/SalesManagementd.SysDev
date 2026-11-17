@@ -177,7 +177,7 @@
                               VerticalAlignment="Center"
                               Margin="6,4,16,4"
                               Foreground="#334155"
-                              FontWeight="SemiBold" />
+                              FontWeight="SemiBold" Checked="chk_IncludeHidden_Checked_1" />
                 </WrapPanel>
 
                 <StackPanel Grid.Row="1"
@@ -238,6 +238,18 @@
                     </StackPanel>
                 </Button>
 
+                <Button x:Name="btn_ConfirmShipping"
+                        Style="{StaticResource ActionButtonStyle}"
+                        Background="#16A34A"
+                        Foreground="White"
+                        Margin="0,0,8,0"
+                        Click="btn_ConfirmShipping_Click">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="✔" Margin="0,0,4,0" FontWeight="Bold"/>
+                        <TextBlock Text="出庫確定" FontWeight="Bold"/>
+                    </StackPanel>
+                </Button>
+
                 <Button x:Name="btn_EditSelected"
                         Style="{StaticResource ActionButtonStyle}"
                         Background="#0284C7"
@@ -260,6 +272,20 @@
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="⊘" Margin="0,0,4,0"/>
                         <TextBlock Text="非表示設定"
+                                   FontWeight="Bold"/>
+                    </StackPanel>
+                </Button>
+
+                <Button x:Name="btn_DeleteSelected"
+                        Style="{StaticResource ActionButtonStyle}"
+                        Background="#991B1B"
+                        Foreground="White"
+                        Margin="0,0,8,0"
+                        Click="btn_DeleteSelected_Click"
+                        Width="109">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="🗑" Margin="0,0,4,0"/>
+                        <TextBlock Text="削除"
                                    FontWeight="Bold"/>
                     </StackPanel>
                 </Button>
@@ -339,6 +365,10 @@
                     <DataGridTextColumn Header="出庫数量"
                                         Binding="{Binding SyQuantity}"
                                         Width="90"/>
+
+                    <DataGridTextColumn Header="出庫状態"
+                                        Binding="{Binding StateDisplay}"
+                                        Width="85"/>
 
                     <DataGridTextColumn Header="状態"
                                         Binding="{Binding FlagDisplay}"

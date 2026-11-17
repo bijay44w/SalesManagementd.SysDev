@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -195,6 +195,22 @@ namespace SalesManagement_SysDev
         }
 
         /// <summary>
+        /// 発注管理画面へ戻る
+        /// </summary>
+        private void btn_BackToPurchaseOrder_Click(object sender, RoutedEventArgs e)
+        {
+            var home = Window.GetWindow(this) as F_Home;
+            if (home != null)
+            {
+                home.NavigateToTag("10"); // 発注管理へ戻る
+            }
+            else
+            {
+                ShowWarning("発注管理画面を表示できませんでした。");
+            }
+        }
+
+        /// <summary>
         /// 新規入庫登録画面を開く
         /// </summary>
         private void btn_NewRegister_Click(object sender, RoutedEventArgs e)
@@ -262,12 +278,14 @@ namespace SalesManagement_SysDev
                     .AsNoTracking()
                     .Include(h => h.Ma)
                     .Where(h => h.HaFlag == ActiveFlag)
-                    .OrderByDescending(h => h.HaDate)
+                    .OrderBy(h => h.WaWarehouseFlag == 1 ? 1 : 0)
+                    .ThenByDescending(h => h.HaDate)
                     .Select(h => new PurchaseChoice
                     {
                         HaId = h.HaId,
                         HaDate = h.HaDate,
-                        MakerName = h.Ma.MaName
+                        MakerName = h.Ma.MaName,
+                        WarehouseReceivedFlag = h.WaWarehouseFlag ?? 0
                     })
                     .ToList();
 
@@ -430,6 +448,7 @@ namespace SalesManagement_SysDev
                     detail.WaQuantity = quantity;
 
                     ChangeStock(context, prId, quantity);
+                    purchaseOrder.WaWarehouseFlag = 1;
                     context.SaveChanges();
                     transaction.Commit();
                     ShowInfo("入庫情報を更新し、在庫数に反映しました。");
@@ -454,6 +473,7 @@ namespace SalesManagement_SysDev
 
                     context.TWarehousings.Add(warehousing);
                     ChangeStock(context, prId, quantity);
+                    purchaseOrder.WaWarehouseFlag = 1;
                     context.SaveChanges();
                     transaction.Commit();
                     ShowInfo("入庫情報を登録し、棚入れ済みとして在庫数に反映しました。");
@@ -526,6 +546,79 @@ namespace SalesManagement_SysDev
 
                 hide_txt_Reason.Focus();
             }*/
+        }
+
+        private void btn_DeleteSelected_Click(object sender, RoutedEventArgs e)
+        {
+            if (dg_Warehousings.SelectedItem is not ReceivingRow selected)
+            {
+                ShowWarning("削除する入庫情報を一覧から選択してください。");
+                return;
+            }
+
+            var result = MessageBox.Show(
+                $"次の入庫データを完全に削除しますか？\n\n" +
+                $"入庫ID：{selected.WaId}\n" +
+                $"発注ID：{selected.HaId}\n" +
+                $"商品名：{selected.ProductName}\n" +
+                $"入庫数：{selected.WaQuantity} 個\n\n" +
+                "この操作は取り消せません。",
+                "入庫の完全削除確認",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Warning);
+
+            if (result != MessageBoxResult.Yes)
+                return;
+
+            try
+            {
+                using var context = new SalesManagementContext();
+                var warehousing = context.TWarehousings
+                    .Include(w => w.TWarehousingDetails)
+                    .FirstOrDefault(w => w.WaId == selected.WaId);
+
+                if (warehousing == null)
+                {
+                    ShowWarning("対象の入庫情報が見つかりません。");
+                    LoadWarehousings();
+                    return;
+                }
+
+                if (warehousing.WaShelfFlag == ShelvedFlag)
+                {
+                    ShowWarning("棚入れ済みの入庫データは在庫に反映されているため、完全削除できません。\n非表示機能を使用してください。");
+                    return;
+                }
+
+                if (warehousing.TWarehousingDetails != null && warehousing.TWarehousingDetails.Any())
+                {
+                    context.TWarehousingDetails.RemoveRange(warehousing.TWarehousingDetails);
+                }
+
+                int deletedHaId = warehousing.HaId;
+                context.TWarehousings.Remove(warehousing);
+                context.SaveChanges();
+
+                // 同じ発注に他に有効な入庫データが存在しない場合、未入庫に戻す
+                bool hasOtherReceiving = context.TWarehousings
+                    .Any(w => w.HaId == deletedHaId && w.WaFlag == ActiveFlag);
+                if (!hasOtherReceiving)
+                {
+                    var po = context.THattyus.FirstOrDefault(h => h.HaId == deletedHaId);
+                    if (po != null)
+                    {
+                        po.WaWarehouseFlag = 0;
+                        context.SaveChanges();
+                    }
+                }
+
+                ShowInfo($"入庫ID「{selected.WaId}」を完全に削除しました。");
+                LoadWarehousings();
+            }
+            catch (Exception ex)
+            {
+                ShowError("入庫情報の削除に失敗しました。\n" + ex.Message);
+            }
         }
 
         private void btn_ExecuteHide_Click(object sender, RoutedEventArgs e)
@@ -628,7 +721,8 @@ namespace SalesManagement_SysDev
             public int HaId { get; set; }
             public DateTime HaDate { get; set; }
             public string MakerName { get; set; } = string.Empty;
-            public string DisplayText => $"発注ID: {HaId} / {HaDate:yyyy/MM/dd} / {MakerName}";
+            public int WarehouseReceivedFlag { get; set; }
+            public string DisplayText => $"発注ID: {HaId} / {HaDate:yyyy/MM/dd} / {MakerName} ({(WarehouseReceivedFlag == 1 ? "入庫済" : "未入庫")})";
         }
 
         private sealed class ProductChoice

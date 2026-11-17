@@ -573,6 +573,61 @@ namespace SalesManagement_SysDev
         }
 
         // =====================================================================
+        // 商品完全削除機能
+        // 関連データが存在しない場合のみ商品を削除する。
+        // =====================================================================
+        public (bool Success, string Message) DeleteProduct(int prId)
+        {
+            if (prId <= 0)
+            {
+                return (false, "削除対象の商品IDが正しくありません。");
+            }
+
+            try
+            {
+                using var context = new SalesManagementContext();
+                var product = context.MProducts.FirstOrDefault(p => p.PrId == prId);
+                if (product == null)
+                {
+                    return (false, $"商品ID: {prId} のデータが見つかりません。");
+                }
+
+                // 関連取引データが存在するか確認
+                bool hasRelatedData =
+                    context.TOrderDetails.Any(x => x.PrId == prId) ||
+                    context.TChumonDetails.Any(x => x.PrId == prId) ||
+                    context.THattyuDetails.Any(x => x.PrId == prId) ||
+                    context.TSaleDetails.Any(x => x.PrId == prId) ||
+                    context.TSyukkoDetails.Any(x => x.PrId == prId) ||
+                    context.TArrivalDetails.Any(x => x.PrId == prId) ||
+                    context.TShipmentDetails.Any(x => x.PrId == prId) ||
+                    context.TWarehousingDetails.Any(x => x.PrId == prId);
+
+                if (hasRelatedData)
+                {
+                    return (false,
+                        "この商品には関連する取引データ（注文・売上など）が存在するため、完全削除できません。\n非表示機能を使用してください。");
+                }
+
+                // 在庫データがあれば一緒に削除
+                var stocks = context.TStocks.Where(s => s.PrId == prId).ToList();
+                if (stocks.Any())
+                {
+                    context.TStocks.RemoveRange(stocks);
+                }
+
+                context.MProducts.Remove(product);
+                context.SaveChanges();
+
+                return (true, $"商品「{product.PrName}」を完全に削除しました。");
+            }
+            catch (Exception ex)
+            {
+                return (false, $"商品削除中にエラーが発生しました: {ex.Message}");
+            }
+        }
+
+        // =====================================================================
         // テスト・クリーンアップ用: 商品および関連在庫の完全削除
         // =====================================================================
         public bool HardDeleteProductForTest(int prId)

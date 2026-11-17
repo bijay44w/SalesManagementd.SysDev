@@ -61,9 +61,9 @@ namespace SalesManagement_SysDev
             {
                 return (false, "電話番号を入力してください。", null);
             }
-            if (client.ClPhone.Length > 13)
+            if (client.ClPhone.Length > 13 || !DataInputFormCheck.CheckPhone(client.ClPhone))
             {
-                return (false, "電話番号は13文字以内で入力してください。", null);
+                return (false, "電話番号は半角数字とハイフンのみで入力してください（例: 06-1234-5678）。", null);
             }
 
             // Postal format sanitize (up to 7 chars)
@@ -147,9 +147,9 @@ namespace SalesManagement_SysDev
             {
                 return (false, "電話番号を入力してください。");
             }
-            if (updatedClient.ClPhone.Length > 13)
+            if (updatedClient.ClPhone.Length > 13 || !DataInputFormCheck.CheckPhone(updatedClient.ClPhone))
             {
-                return (false, "電話番号は13文字以内で入力してください。");
+                return (false, "電話番号は半角数字とハイフンのみで入力してください（例: 06-1234-5678）。");
             }
 
             try
@@ -289,6 +289,59 @@ namespace SalesManagement_SysDev
                 return (false, $"非表示フラグ更新中にエラーが発生しました: {ex.Message}");
             }
         }
+
+
+        /// <summary>
+        /// 顧客完全削除機能
+        /// 関連データが存在しない場合のみ顧客を削除する。
+        /// </summary>
+        public (bool Success, string Message) DeleteClient(int clId)
+        {
+            if (clId <= 0)
+            {
+                return (false, "削除対象の顧客IDが正しくありません。");
+            }
+
+            try
+            {
+                using var context = new SalesManagementContext();
+
+                var client = context.MClients
+                    .FirstOrDefault(x => x.ClId == clId);
+
+                if (client == null)
+                {
+                    return (false, $"顧客ID: {clId} のデータが見つかりません。");
+                }
+
+                // 関連データが存在するか確認
+                bool hasRelatedData =
+                    context.TArrivals.Any(x => x.ClId == clId) ||
+                    context.TChumons.Any(x => x.ClId == clId) ||
+                    context.TOrders.Any(x => x.ClId == clId) ||
+                    context.TSales.Any(x => x.ClId == clId) ||
+                    context.TShipments.Any(x => x.ClId == clId) ||
+                    context.TSyukkos.Any(x => x.ClId == clId);
+
+                if (hasRelatedData)
+                {
+                    return (false,
+                        "この顧客には関連する取引データがあるため、完全削除できません。\n非表示機能を使用してください。");
+                }
+
+                // 顧客情報を完全削除
+                context.MClients.Remove(client);
+                context.SaveChanges();
+
+                return (true,
+                    $"顧客「{client.ClName}」を完全に削除しました。");
+            }
+            catch (Exception ex)
+            {
+                return (false, $"顧客削除中にエラーが発生しました: {ex.Message}");
+            }
+        }
+
 
         /// <summary>
         /// 営業所一覧を取得 (コンボボックス用)

@@ -118,6 +118,7 @@ namespace SalesManagement_SysDev
             bool hasSelection = dg_Shipments.SelectedItem is ShipmentDisplayModel;
             btn_OpenDetail.IsEnabled = hasSelection;
             btn_OpenHide.IsEnabled = hasSelection;
+            btn_OpenDelete.IsEnabled = hasSelection;
         }
 
         private void btn_Search_Click(object sender, RoutedEventArgs e) => ExecuteSearch();
@@ -174,11 +175,27 @@ namespace SalesManagement_SysDev
             try
             {
                 _cachedOrders = _shipmentService.GetOrders();
-                var orderOptions = _cachedOrders.Select(o => new
+                var orderOptions = _cachedOrders.Select(o =>
                 {
-                    OrId = o.OrId,
-                    DisplayText = $"受注ID: {o.OrId} / {o.OrDate:yyyy/MM/dd} / {o.Cl?.ClName}（品目: {o.TOrderDetails?.Count ?? 0}件）"
-                }).ToList();
+                    bool isSyukkoDone = o.TSyukkos.Any(s => s.SyFlag == 0 && s.SyStateFlag == 1);
+                    bool hasSyukko = o.TSyukkos.Any(s => s.SyFlag == 0);
+                    bool isArrivalDone = o.TArrivals.Any(a => a.ArFlag == 0 && a.ArStateFlag == 1);
+                    bool hasShipment = o.TShipments.Any(s => s.ShFlag == 0);
+
+                    string statusBadge = hasShipment ? "[出荷登録済]" :
+                                         (isSyukkoDone || isArrivalDone) ? "[出庫/検品完了・出荷可]" :
+                                         hasSyukko ? "[出庫準備中]" : "[出庫未手配]";
+
+                    return new
+                    {
+                        OrId = o.OrId,
+                        DisplayText = $"受注ID: {o.OrId} / {o.Cl?.ClName} / {statusBadge}（品目: {o.TOrderDetails?.Count ?? 0}件）",
+                        Priority = hasShipment ? 2 : (isSyukkoDone || isArrivalDone ? 0 : 1)
+                    };
+                })
+                .OrderBy(x => x.Priority)
+                .ThenByDescending(x => x.OrId)
+                .ToList();
 
                 reg_cmb_Order.ItemsSource = orderOptions;
                 reg_cmb_Order.DisplayMemberPath = "DisplayText";
@@ -371,6 +388,42 @@ namespace SalesManagement_SysDev
             modal_Hide.Tag = selected.ShId;
 
             modal_Hide.Visibility = Visibility.Visible;
+        }
+
+        private void btn_OpenDelete_Click(object sender, RoutedEventArgs e)
+        {
+            if (dg_Shipments.SelectedItem is not ShipmentDisplayModel selected)
+            {
+                MessageBox.Show("削除する出荷を選択してください。");
+                return;
+            }
+
+            var result = MessageBox.Show(
+                $"次の出荷データを完全に削除しますか？\n\n" +
+                $"出荷ID：{selected.ShId}\n" +
+                $"受注ID：{selected.OrId}\n" +
+                $"顧客名：{selected.ClName}\n\n" +
+                "この操作は取り消せません。",
+                "出荷の完全削除確認",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Warning);
+
+            if (result != MessageBoxResult.Yes)
+                return;
+
+            var (success, message) = _shipmentService.DeleteShipment(selected.ShId);
+
+            if (!success)
+            {
+                MessageBox.Show(message, "削除できません",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            MessageBox.Show(message, "削除完了",
+                MessageBoxButton.OK, MessageBoxImage.Information);
+
+            ExecuteSearch();
         }
 
         private void btn_CancelHide_Click(object sender, RoutedEventArgs e) => modal_Hide.Visibility = Visibility.Collapsed;

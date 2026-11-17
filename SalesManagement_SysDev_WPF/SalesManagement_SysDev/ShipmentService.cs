@@ -196,13 +196,18 @@ namespace SalesManagement_SysDev
                 // 確定状態になった場合の在庫減算処理
                 if (becomingConfirmed)
                 {
-                    var detailsToDeduct = details ?? target.TShipmentDetails.ToList();
-                    foreach (var item in detailsToDeduct)
+                    // 出庫管理（TSyukko）で既に在庫が引き落とされているか判定（二重減算防止）
+                    bool hasSyukko = context.TSyukkos.Any(s => s.OrId == target.OrId && s.SyFlag == 0);
+                    if (!hasSyukko)
                     {
-                        var stock = context.TStocks.FirstOrDefault(s => s.PrId == item.PrId && s.StFlag == 0);
-                        if (stock != null)
+                        var detailsToDeduct = details ?? target.TShipmentDetails.ToList();
+                        foreach (var item in detailsToDeduct)
                         {
-                            stock.StQuantity = Math.Max(0, stock.StQuantity - item.ShQuantity);
+                            var stock = context.TStocks.FirstOrDefault(s => s.PrId == item.PrId && s.StFlag == 0);
+                            if (stock != null)
+                            {
+                                stock.StQuantity = Math.Max(0, stock.StQuantity - item.ShQuantity);
+                            }
                         }
                     }
                 }
@@ -477,6 +482,9 @@ namespace SalesManagement_SysDev
                     .Include(o => o.So)
                     .Include(o => o.TOrderDetails)
                         .ThenInclude(d => d.Pr)
+                    .Include(o => o.TSyukkos)
+                    .Include(o => o.TArrivals)
+                    .Include(o => o.TShipments)
                     .Where(o => o.OrFlag != 2)
                     .OrderByDescending(o => o.OrId)
                     .ToList();
@@ -484,6 +492,50 @@ namespace SalesManagement_SysDev
             catch
             {
                 return new List<TOrder>();
+            }
+        }
+
+        /// <summary>
+        /// 出荷完全削除機能
+        /// </summary>
+        public (bool Success, string Message) DeleteShipment(int shId)
+        {
+            if (shId <= 0)
+            {
+                return (false, "削除対象の出荷IDが正しくありません。");
+            }
+
+            try
+            {
+                using var context = new SalesManagementContext();
+                var shipment = context.TShipments
+                    .Include(s => s.TShipmentDetails)
+                    .FirstOrDefault(s => s.ShId == shId);
+
+                if (shipment == null)
+                {
+                    return (false, $"出荷ID: {shId} のデータが見つかりません。");
+                }
+
+                if (shipment.ShStateFlag == 1)
+                {
+                    return (false,
+                        "確定済みの出荷データは在庫処理に反映されているため、完全削除できません。\n非表示機能を使用してください。");
+                }
+
+                if (shipment.TShipmentDetails != null && shipment.TShipmentDetails.Any())
+                {
+                    context.TShipmentDetails.RemoveRange(shipment.TShipmentDetails);
+                }
+
+                context.TShipments.Remove(shipment);
+                context.SaveChanges();
+
+                return (true, $"出荷ID: {shId} の出荷データを完全に削除しました。");
+            }
+            catch (Exception ex)
+            {
+                return (false, $"出荷削除中にエラーが発生しました: {ex.Message}");
             }
         }
 

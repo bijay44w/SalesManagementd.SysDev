@@ -1,4 +1,4 @@
-﻿
+
 
 using System;
 using System.Linq;
@@ -9,10 +9,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace SalesManagement_SysDev
 {
-    /// <summary>
-    /// 機能12 出庫管理。
-    /// 出庫登録・更新時に在庫数を減算し、更新時は旧出庫分を戻してから再計算する。
-    /// </summary>
+    // <summary>
+    // 機能12 出庫管理。
+    // 出庫登録・更新時に在庫数を減算し、更新時は旧出庫分を戻してから再計算する。
+    // </summary>
     public partial class Shipping : UserControl
     {
         private const int ActiveFlag = 0;
@@ -186,6 +186,50 @@ namespace SalesManagement_SysDev
             txt_SearchProductName.Clear();
             chk_IncludeHidden.IsChecked = false;
             LoadShippings();
+        }
+
+        private void btn_ConfirmShipping_Click(object sender, RoutedEventArgs e)
+        {
+            if (dg_Syukkos.SelectedItem is not ShippingRow selected)
+            {
+                ShowWarning("出庫確定する項目を一覧から選択してください。");
+                return;
+            }
+
+            if (selected.SyStateFlag == 1)
+            {
+                ShowInfo("選択された出庫情報は既に出庫確定済みです。");
+                return;
+            }
+
+            var result = MessageBox.Show(
+                $"出庫ID: {selected.SyId}（受注ID: {selected.OrId} / 商品: {selected.ProductName}）を出庫確定しますか？\n確定するとピッキング完了となり、出荷手配へ連携されます。",
+                "出庫確定確認",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Question);
+
+            if (result != MessageBoxResult.Yes) return;
+
+            try
+            {
+                using var context = new SalesManagementContext();
+                var syukko = context.TSyukkos.FirstOrDefault(s => s.SyId == selected.SyId);
+                if (syukko == null)
+                {
+                    ShowWarning("対象の出庫情報が見つかりません。");
+                    return;
+                }
+
+                syukko.SyStateFlag = 1; // 出庫確定
+                context.SaveChanges();
+
+                ShowInfo($"出庫ID: {selected.SyId} を出庫確定しました。");
+                LoadShippings();
+            }
+            catch (Exception ex)
+            {
+                ShowError("出庫確定に失敗しました。\n" + ex.Message);
+            }
         }
 
         private void btn_NewRegister_Click(object sender, RoutedEventArgs e)
@@ -490,6 +534,65 @@ namespace SalesManagement_SysDev
             modal_Hide.Visibility = Visibility.Visible;
         }
 
+        private void btn_DeleteSelected_Click(object sender, RoutedEventArgs e)
+        {
+            if (dg_Syukkos.SelectedItem is not ShippingRow selected)
+            {
+                ShowWarning("削除する出庫情報を一覧から選択してください。");
+                return;
+            }
+
+            var result = MessageBox.Show(
+                $"次の出庫データを完全に削除しますか？\n\n" +
+                $"出庫ID：{selected.SyId}\n" +
+                $"受注ID：{selected.OrId}\n" +
+                $"商品名：{selected.ProductName}\n" +
+                $"出庫数：{selected.SyQuantity} 個\n\n" +
+                "この操作は取り消せません。",
+                "出庫の完全削除確認",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Warning);
+
+            if (result != MessageBoxResult.Yes)
+                return;
+
+            try
+            {
+                using var context = new SalesManagementContext();
+                var syukko = context.TSyukkos
+                    .Include(s => s.TSyukkoDetails)
+                    .FirstOrDefault(s => s.SyId == selected.SyId);
+
+                if (syukko == null)
+                {
+                    ShowWarning("対象の出庫情報が見つかりません。");
+                    LoadShippings();
+                    return;
+                }
+
+                if (syukko.SyStateFlag == 1)
+                {
+                    ShowWarning("出庫確定済みのデータは在庫処理に反映されているため、完全削除できません。\n非表示機能を使用してください。");
+                    return;
+                }
+
+                if (syukko.TSyukkoDetails != null && syukko.TSyukkoDetails.Any())
+                {
+                    context.TSyukkoDetails.RemoveRange(syukko.TSyukkoDetails);
+                }
+
+                context.TSyukkos.Remove(syukko);
+                context.SaveChanges();
+
+                ShowInfo($"出庫ID「{selected.SyId}」を完全に削除しました。");
+                LoadShippings();
+            }
+            catch (Exception ex)
+            {
+                ShowError("出庫情報の削除に失敗しました。\n" + ex.Message);
+            }
+        }
+
         private void btn_ExecuteHide_Click(object sender, RoutedEventArgs e)
         {
             if (modal_Hide.Tag is not int syId)
@@ -577,6 +680,7 @@ namespace SalesManagement_SysDev
             public int SyFlag { get; set; }
             public string SyHidden { get; set; } = string.Empty;
             public int? SyStateFlag { get; set; }
+            public string StateDisplay => SyStateFlag == 1 ? "出庫確定" : "準備中";
             public int SyDetailId { get; set; }
             public int PrId { get; set; }
             public string ProductName { get; set; } = string.Empty;
@@ -602,6 +706,11 @@ namespace SalesManagement_SysDev
             public string PrName { get; set; } = string.Empty;
             public int OrderedQuantity { get; set; }
             public string DisplayText => $"{PrId} / {PrName}（受注数量: {OrderedQuantity}）";
+        }
+
+        private void chk_IncludeHidden_Checked_1(object sender, RoutedEventArgs e)
+        {
+
         }
     }
 }

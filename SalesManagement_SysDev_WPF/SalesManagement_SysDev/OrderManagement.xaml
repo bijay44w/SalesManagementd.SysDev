@@ -416,6 +416,20 @@
                         <TextBlock Text="非表示設定" FontWeight="Bold"/>
                     </StackPanel>
                 </Button>
+
+                <Button x:Name="btn_Delete"
+                        Style="{StaticResource ActionButtonStyle}"
+                        Background="#991B1B"
+                        Foreground="#FFFFFF"
+                        Margin="0,0,7,0"
+                        IsEnabled="False"
+                        Width="109"
+                        Click="btn_Delete_Click">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="🗑" Margin="0,0,4,0"/>
+                        <TextBlock Text="削除" FontWeight="Bold"/>
+                    </StackPanel>
+                </Button>
             </StackPanel>
 
             <TextBlock x:Name="txt_OrderCount"

@@ -58,6 +58,10 @@ namespace SalesManagement_SysDev
             {
                 return (false, "社員名は50文字以内で入力してください。", null);
             }
+            if (!DataInputFormCheck.CheckFullWidth(employee.EmName))
+            {
+                return (false, "社員名は全角文字で入力してください。", null);
+            }
 
             if (employee.SoId <= 0)
             {
@@ -73,9 +77,9 @@ namespace SalesManagement_SysDev
             {
                 return (false, "電話番号を入力してください。", null);
             }
-            if (employee.EmPhone.Length > 15)
+            if (employee.EmPhone.Length > 15 || !DataInputFormCheck.CheckPhone(employee.EmPhone))
             {
-                return (false, "電話番号は15文字以内で入力してください。", null);
+                return (false, "電話番号は半角数字とハイフンのみで入力してください（例: 06-1234-5678）。", null);
             }
 
             if (string.IsNullOrWhiteSpace(employee.EmPassword))
@@ -142,6 +146,10 @@ namespace SalesManagement_SysDev
             {
                 return (false, "社員名は50文字以内で入力してください。");
             }
+            if (!DataInputFormCheck.CheckFullWidth(employee.EmName))
+            {
+                return (false, "社員名は全角文字で入力してください。");
+            }
 
             if (employee.SoId <= 0)
             {
@@ -156,6 +164,10 @@ namespace SalesManagement_SysDev
             if (string.IsNullOrWhiteSpace(employee.EmPhone))
             {
                 return (false, "電話番号を入力してください。");
+            }
+            if (employee.EmPhone.Length > 15 || !DataInputFormCheck.CheckPhone(employee.EmPhone))
+            {
+                return (false, "電話番号は半角数字とハイフンのみで入力してください（例: 06-1234-5678）。");
             }
 
             if (updatePassword && !string.IsNullOrWhiteSpace(employee.EmPassword))
@@ -358,6 +370,54 @@ namespace SalesManagement_SysDev
             catch
             {
                 return new List<MPosition>();
+            }
+        }
+
+        /// <summary>
+        /// 社員完全削除機能
+        /// 関連データが存在しない場合のみ社員を削除する。
+        /// </summary>
+        public (bool Success, string Message) DeleteEmployee(int emId)
+        {
+            if (emId <= 0)
+            {
+                return (false, "削除対象の社員IDが正しくありません。");
+            }
+
+            try
+            {
+                using var context = new SalesManagementContext();
+                var emp = context.MEmployees.FirstOrDefault(x => x.EmId == emId);
+                if (emp == null)
+                {
+                    return (false, $"社員ID: {emId} のデータが見つかりません。");
+                }
+
+                // 関連データが存在するか確認
+                bool hasRelatedData =
+                    context.TOrders.Any(x => x.EmId == emId) ||
+                    context.TChumons.Any(x => x.EmId == emId) ||
+                    context.THattyus.Any(x => x.EmId == emId) ||
+                    context.TSales.Any(x => x.EmId == emId) ||
+                    context.TSyukkos.Any(x => x.EmId == emId) ||
+                    context.TArrivals.Any(x => x.EmId == emId) ||
+                    context.TShipments.Any(x => x.EmId == emId) ||
+                    context.TWarehousings.Any(x => x.EmId == emId);
+
+                if (hasRelatedData)
+                {
+                    return (false,
+                        "この社員には関連する業務データ（受注・売上・出庫など）が存在するため、完全削除できません。\n非表示機能を使用してください。");
+                }
+
+                context.MEmployees.Remove(emp);
+                context.SaveChanges();
+
+                return (true, $"社員「{emp.EmName}」を完全に削除しました。");
+            }
+            catch (Exception ex)
+            {
+                return (false, $"社員削除中にエラーが発生しました: {ex.Message}");
             }
         }
 

@@ -34,7 +34,7 @@ namespace SalesManagement_SysDev
                 }
 
                 // 1. 社員登録機能
-                string testName = $"テスト社員_{DateTime.Now:MMddHHmmss}";
+                string testName = "テスト社員" + string.Concat(DateTime.Now.ToString("MMddHHmmss").Select(c => (char)(c - '0' + '０')));
                 var newEmployee = new MEmployee
                 {
                     EmName = testName,
@@ -53,6 +53,37 @@ namespace SalesManagement_SysDev
                 }
                 createdEmId = createdEmp.EmId;
                 Console.WriteLine($"[PASS] 6.1 社員登録機能 (EmId: {createdEmId}, Name: {testName})");
+                passedTests++;
+
+                // 1b. バリデーションチェック (ローマ字名・不正な電話番号の拒絶確認)
+                var invalidNameEmp = new MEmployee
+                {
+                    EmName = "dd", // 半角英字・ローマ字は不可
+                    SoId = offices.First().SoId,
+                    PoId = positions.First().PoId,
+                    EmPhone = "090-1111-2222"
+                };
+                var (invNameSuccess, _, _) = service.RegisterEmployee(invalidNameEmp);
+                if (invNameSuccess)
+                {
+                    Console.WriteLine("[FAIL] ローマ字名(dd)の登録が不正に成功しました。");
+                    return 1;
+                }
+
+                var invalidPhoneEmp = new MEmployee
+                {
+                    EmName = "テスト社員",
+                    SoId = offices.First().SoId,
+                    PoId = positions.First().PoId,
+                    EmPhone = "dgg" // 英字混在の不正電話番号
+                };
+                var (invPhoneSuccess, _, _) = service.RegisterEmployee(invalidPhoneEmp);
+                if (invPhoneSuccess)
+                {
+                    Console.WriteLine("[FAIL] 不正電話番号(dgg)の登録が不正に成功しました。");
+                    return 1;
+                }
+                Console.WriteLine("[PASS] 6.1b 社員バリデーション機能 (全角氏名・半角数字電話番号の検証)");
                 passedTests++;
 
                 // 2. 社員一覧表示機能
@@ -77,7 +108,7 @@ namespace SalesManagement_SysDev
                 passedTests++;
 
                 // 4. 社員更新機能
-                string updatedName = testName + "_更新後";
+                string updatedName = testName + "更新後";
                 createdEmp.EmName = updatedName;
                 createdEmp.EmPhone = "090-9999-8888";
                 var (updSuccess, updMsg) = service.UpdateEmployee(createdEmp);
@@ -94,6 +125,27 @@ namespace SalesManagement_SysDev
                     return 1;
                 }
                 Console.WriteLine("[PASS] 6.2 社員更新機能");
+                passedTests++;
+
+                // 4b. 更新バリデーション (ローマ字・不正電話番号)
+                createdEmp.EmName = "dd";
+                var (invUpdName, _) = service.UpdateEmployee(createdEmp);
+                if (invUpdName)
+                {
+                    Console.WriteLine("[FAIL] ローマ字名での更新が不正に成功しました。");
+                    return 1;
+                }
+
+                createdEmp.EmName = updatedName;
+                createdEmp.EmPhone = "dgg";
+                var (invUpdPhone, _) = service.UpdateEmployee(createdEmp);
+                if (invUpdPhone)
+                {
+                    Console.WriteLine("[FAIL] 不正電話番号での更新が不正に成功しました。");
+                    return 1;
+                }
+                createdEmp.EmPhone = "090-9999-8888";
+                Console.WriteLine("[PASS] 6.2b 社員更新バリデーション機能");
                 passedTests++;
 
                 // 5. 社員非表示機能 (フラグ 2)
