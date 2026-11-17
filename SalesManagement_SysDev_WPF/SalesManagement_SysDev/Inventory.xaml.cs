@@ -272,6 +272,19 @@ namespace SalesManagement_SysDev
             ExecuteMainSearch();
         }
 
+        private void btn_GoToPurchaseOrder_Click(object sender, RoutedEventArgs e)
+        {
+            var home = Window.GetWindow(this) as F_Home;
+            if (home != null)
+            {
+                home.NavigateToTag("10"); // 発注管理へ遷移
+            }
+            else
+            {
+                MessageBox.Show("発注管理画面を表示できませんでした。", "画面遷移", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+        }
+
         // =========================================================
         // 在庫登録
         // =========================================================

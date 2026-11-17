@@ -447,11 +447,13 @@
                     <Button x:Name="btn_MainShowReceiving"
                             Content="入庫一覧"
                             Style="{StaticResource ListButtonStyle}"
+                            ToolTip="入庫管理画面（機能11）へ遷移します"
                             Click="btn_MainShowReceiving_Click"/>
 
                     <Button x:Name="btn_MainShowStock"
                             Content="在庫一覧"
                             Style="{StaticResource ListButtonStyle}"
+                            ToolTip="在庫管理画面（機能05）へ遷移します"
                             Click="btn_MainShowStock_Click"
                             Margin="0"/>
                 </StackPanel>

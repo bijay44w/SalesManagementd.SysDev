@@ -188,6 +188,50 @@ namespace SalesManagement_SysDev
             LoadShippings();
         }
 
+        private void btn_ConfirmShipping_Click(object sender, RoutedEventArgs e)
+        {
+            if (dg_Syukkos.SelectedItem is not ShippingRow selected)
+            {
+                ShowWarning("出庫確定する項目を一覧から選択してください。");
+                return;
+            }
+
+            if (selected.SyStateFlag == 1)
+            {
+                ShowInfo("選択された出庫情報は既に出庫確定済みです。");
+                return;
+            }
+
+            var result = MessageBox.Show(
+                $"出庫ID: {selected.SyId}（受注ID: {selected.OrId} / 商品: {selected.ProductName}）を出庫確定しますか？\n確定するとピッキング完了となり、出荷手配へ連携されます。",
+                "出庫確定確認",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Question);
+
+            if (result != MessageBoxResult.Yes) return;
+
+            try
+            {
+                using var context = new SalesManagementContext();
+                var syukko = context.TSyukkos.FirstOrDefault(s => s.SyId == selected.SyId);
+                if (syukko == null)
+                {
+                    ShowWarning("対象の出庫情報が見つかりません。");
+                    return;
+                }
+
+                syukko.SyStateFlag = 1; // 出庫確定
+                context.SaveChanges();
+
+                ShowInfo($"出庫ID: {selected.SyId} を出庫確定しました。");
+                LoadShippings();
+            }
+            catch (Exception ex)
+            {
+                ShowError("出庫確定に失敗しました。\n" + ex.Message);
+            }
+        }
+
         private void btn_NewRegister_Click(object sender, RoutedEventArgs e)
         {
             _isEditing = false;
@@ -636,6 +680,7 @@ namespace SalesManagement_SysDev
             public int SyFlag { get; set; }
             public string SyHidden { get; set; } = string.Empty;
             public int? SyStateFlag { get; set; }
+            public string StateDisplay => SyStateFlag == 1 ? "出庫確定" : "準備中";
             public int SyDetailId { get; set; }
             public int PrId { get; set; }
             public string ProductName { get; set; } = string.Empty;

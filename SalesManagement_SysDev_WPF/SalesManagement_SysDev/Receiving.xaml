@@ -202,6 +202,15 @@
                         <TextBlock Text="削除" FontWeight="Bold"/>
                     </StackPanel>
                 </Button>
+                <Button x:Name="btn_BackToPurchaseOrder"
+                        Style="{StaticResource ActionButtonStyle}"
+                        Background="#D97706" Foreground="White"
+                        Margin="0,0,8,0" Click="btn_BackToPurchaseOrder_Click"
+                        ToolTip="発注管理画面（機能10）へ戻ります">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="発注管理" FontWeight="Bold"/>
+                    </StackPanel>
+                </Button>
             </StackPanel>
             <TextBlock x:Name="txt_RecordCount" Grid.Column="1"
                        Text="表示件数: 0 件" FontSize="13"

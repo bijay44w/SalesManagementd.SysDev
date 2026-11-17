@@ -196,13 +196,18 @@ namespace SalesManagement_SysDev
                 // 確定状態になった場合の在庫減算処理
                 if (becomingConfirmed)
                 {
-                    var detailsToDeduct = details ?? target.TShipmentDetails.ToList();
-                    foreach (var item in detailsToDeduct)
+                    // 出庫管理（TSyukko）で既に在庫が引き落とされているか判定（二重減算防止）
+                    bool hasSyukko = context.TSyukkos.Any(s => s.OrId == target.OrId && s.SyFlag == 0);
+                    if (!hasSyukko)
                     {
-                        var stock = context.TStocks.FirstOrDefault(s => s.PrId == item.PrId && s.StFlag == 0);
-                        if (stock != null)
+                        var detailsToDeduct = details ?? target.TShipmentDetails.ToList();
+                        foreach (var item in detailsToDeduct)
                         {
-                            stock.StQuantity = Math.Max(0, stock.StQuantity - item.ShQuantity);
+                            var stock = context.TStocks.FirstOrDefault(s => s.PrId == item.PrId && s.StFlag == 0);
+                            if (stock != null)
+                            {
+                                stock.StQuantity = Math.Max(0, stock.StQuantity - item.ShQuantity);
+                            }
                         }
                     }
                 }
@@ -477,6 +482,9 @@ namespace SalesManagement_SysDev
                     .Include(o => o.So)
                     .Include(o => o.TOrderDetails)
                         .ThenInclude(d => d.Pr)
+                    .Include(o => o.TSyukkos)
+                    .Include(o => o.TArrivals)
+                    .Include(o => o.TShipments)
                     .Where(o => o.OrFlag != 2)
                     .OrderByDescending(o => o.OrId)
                     .ToList();

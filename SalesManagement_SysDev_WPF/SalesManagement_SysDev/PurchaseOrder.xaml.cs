@@ -466,6 +466,13 @@ namespace SalesManagement_SysDev
             object sender,
             RoutedEventArgs e)
         {
+            var home = Window.GetWindow(this) as F_Home;
+            if (home != null)
+            {
+                home.NavigateToTag("11"); // 入庫管理画面へ遷移
+                return;
+            }
+
             currentView = "Receiving";
 
             dg_MainOrders.Visibility = Visibility.Collapsed;
@@ -478,13 +485,20 @@ namespace SalesManagement_SysDev
         }
 
         // =========================================
-        // 在庫一覧に切り替え
+        // 在庫一覧（在庫管理へ遷移）
         // =========================================
 
         private void btn_MainShowStock_Click(
             object sender,
             RoutedEventArgs e)
         {
+            var home = Window.GetWindow(this) as F_Home;
+            if (home != null)
+            {
+                home.NavigateToTag("05"); // 在庫管理画面へ遷移
+                return;
+            }
+
             currentView = "Stock";
 
             dg_MainOrders.Visibility = Visibility.Collapsed;

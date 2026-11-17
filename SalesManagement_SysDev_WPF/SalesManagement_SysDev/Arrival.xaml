@@ -187,6 +187,13 @@
                     </StackPanel>
                 </Button>
 
+                <Button x:Name="btn_ConfirmArrival" Style="{StaticResource ActionButtonStyle}" Background="#16A34A" Foreground="#FFFFFF" Margin="0,0,8,0" IsEnabled="False" Click="btn_ConfirmArrival_Click">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="✔" Margin="0,0,4,0" FontWeight="Bold" />
+                        <TextBlock Text="検品確定" FontWeight="Bold" />
+                    </StackPanel>
+                </Button>
+
                 <Button x:Name="btn_EditSelected" Style="{StaticResource ActionButtonStyle}" Background="#0284C7" Foreground="#FFFFFF" Margin="0,0,8,0" IsEnabled="False" Click="btn_EditSelected_Click">
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="✎" Margin="0,0,4,0" />
@@ -243,13 +250,16 @@
 
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="入荷ID" Binding="{Binding ArId}" Width="70" />
+                    <DataGridTextColumn Header="受注ID" Binding="{Binding OrId}" Width="70" />
+                    <DataGridTextColumn Header="顧客名" Binding="{Binding ClientName}" Width="130" />
                     <DataGridTextColumn Header="商品ID" Binding="{Binding PrId}" Width="70" />
-                    <DataGridTextColumn Header="商品名" Binding="{Binding PrName}" Width="180" />
-                    <DataGridTextColumn Header="メーカー/仕入先" Binding="{Binding MaName}" Width="140" />
-                    <DataGridTextColumn Header="入荷数量" Binding="{Binding ArQuantityFormatted}" Width="90" />
-                    <DataGridTextColumn Header="単価" Binding="{Binding PriceFormatted}" Width="100" />
-                    <DataGridTextColumn Header="入荷日" Binding="{Binding ArDateFormatted}" Width="110" />
-                    <DataGridTextColumn Header="状態" Binding="{Binding ArFlagFormatted}" Width="90" />
+                    <DataGridTextColumn Header="商品名" Binding="{Binding PrName}" Width="170" />
+                    <DataGridTextColumn Header="メーカー" Binding="{Binding MaName}" Width="120" />
+                    <DataGridTextColumn Header="入荷数量" Binding="{Binding ArQuantityFormatted}" Width="85" />
+                    <DataGridTextColumn Header="単価" Binding="{Binding PriceFormatted}" Width="90" />
+                    <DataGridTextColumn Header="入荷日" Binding="{Binding ArDateFormatted}" Width="100" />
+                    <DataGridTextColumn Header="検品状態" Binding="{Binding StateFormatted}" Width="85" />
+                    <DataGridTextColumn Header="フラグ" Binding="{Binding ArFlagFormatted}" Width="75" />
                     <DataGridTextColumn Header="備考 / 非表示理由" Binding="{Binding ArHidden}" Width="*" />
                 </DataGrid.Columns>
             </DataGrid>
@@ -289,6 +299,12 @@
                         <Border x:Name="border_RegSuccessAlert" Background="#F0FDF4" BorderBrush="#BBF7D0" BorderThickness="1" CornerRadius="6" Padding="10,8" Margin="0,0,0,10" Visibility="Collapsed">
                             <TextBlock x:Name="txt_RegSuccessMessage" Foreground="#15803D" FontSize="12" FontWeight="SemiBold" TextWrapping="Wrap" />
                         </Border>
+
+                        <!-- フォーム: 受注選択 -->
+                        <StackPanel Margin="0,0,0,10">
+                            <TextBlock Text="対象受注 (顧客・注文連携) *" FontSize="12" FontWeight="SemiBold" Foreground="#334155" Margin="0,0,0,4" />
+                            <ComboBox x:Name="reg_cmb_Order" Height="36" VerticalContentAlignment="Center" DisplayMemberPath="DisplayText" SelectedValuePath="OrId" SelectionChanged="reg_cmb_Order_SelectionChanged" />
+                        </StackPanel>
 
                         <!-- フォーム: 商品選択 -->
                         <Grid Margin="0,0,0,10">

@@ -14,6 +14,9 @@ namespace SalesManagement_SysDev
     public class ArrivalDisplayModel
     {
         public int ArId { get; set; }
+        public int OrId { get; set; }
+        public string ClientName { get; set; } = string.Empty;
+        public string SalesOfficeName { get; set; } = string.Empty;
         public int? PrId { get; set; }
         public string PrName { get; set; } = string.Empty;
         public string MaName { get; set; } = string.Empty;
@@ -23,6 +26,12 @@ namespace SalesManagement_SysDev
         public string PriceFormatted => $"{Price:N0} 円";
         public DateTime? ArDate { get; set; }
         public string ArDateFormatted => ArDate.HasValue ? ArDate.Value.ToString("yyyy/MM/dd") : "-";
+        public int? ArStateFlag { get; set; }
+        public string StateFormatted => ArStateFlag switch
+        {
+            1 => "検品済",
+            _ => "未検品"
+        };
         public int ArFlag { get; set; }
         public string ArFlagFormatted => ArFlag switch
         {
@@ -33,6 +42,21 @@ namespace SalesManagement_SysDev
         public string? ArHidden { get; set; }
         // For detail lookup
         public int ArDetailId { get; set; }
+    }
+
+    /// <summary>
+    /// 入荷登録用 受注選択ComboBoxモデル
+    /// </summary>
+    public class ArrivalOrderSelectModel
+    {
+        public int OrId { get; set; }
+        public int ClId { get; set; }
+        public string ClientName { get; set; } = string.Empty;
+        public int SoId { get; set; }
+        public string SalesOfficeName { get; set; } = string.Empty;
+        public DateTime OrDate { get; set; }
+        public List<int> ProductIds { get; set; } = new List<int>();
+        public string DisplayText => $"受注ID: {OrId} / {ClientName} ({SalesOfficeName}) / {OrDate:yyyy/MM/dd}";
     }
 
     // =========================================================================
@@ -65,6 +89,39 @@ namespace SalesManagement_SysDev
             catch
             {
                 return new List<MMaker>();
+            }
+        }
+
+        /// <summary>
+        /// 受注選択リスト取得（登録モーダル用）
+        /// </summary>
+        public List<ArrivalOrderSelectModel> GetOrderSelectList()
+        {
+            try
+            {
+                using var ctx = new SalesManagementContext();
+                return ctx.TOrders
+                    .AsNoTracking()
+                    .Include(o => o.Cl)
+                    .Include(o => o.So)
+                    .Include(o => o.TOrderDetails)
+                    .Where(o => o.OrFlag != 2)
+                    .OrderByDescending(o => o.OrId)
+                    .Select(o => new ArrivalOrderSelectModel
+                    {
+                        OrId = o.OrId,
+                        ClId = o.ClId,
+                        ClientName = o.Cl.ClName,
+                        SoId = o.SoId,
+                        SalesOfficeName = o.So.SoName,
+                        OrDate = o.OrDate,
+                        ProductIds = o.TOrderDetails.Select(d => d.PrId).ToList()
+                    })
+                    .ToList();
+            }
+            catch
+            {
+                return new List<ArrivalOrderSelectModel>();
             }
         }
 
@@ -108,7 +165,10 @@ namespace SalesManagement_SysDev
                 using var ctx = new SalesManagementContext();
 
                 var query = ctx.TArrivalDetails
-                    .Include(d => d.Ar)
+                    .Include(d => d.Ar).ThenInclude(a => a!.Or).ThenInclude(o => o.Cl)
+                    .Include(d => d.Ar).ThenInclude(a => a!.Or).ThenInclude(o => o.So)
+                    .Include(d => d.Ar).ThenInclude(a => a!.Cl)
+                    .Include(d => d.Ar).ThenInclude(a => a!.So)
                     .Include(d => d.Pr).ThenInclude(p => p!.Ma)
                     .AsQueryable();
 
@@ -147,12 +207,16 @@ namespace SalesManagement_SysDev
                 {
                     ArId = d.ArId ?? 0,
                     ArDetailId = d.ArDetailId,
+                    OrId = d.Ar?.OrId ?? 0,
+                    ClientName = d.Ar?.Cl?.ClName ?? d.Ar?.Or?.Cl?.ClName ?? "-",
+                    SalesOfficeName = d.Ar?.So?.SoName ?? d.Ar?.Or?.So?.SoName ?? "-",
                     PrId = d.PrId,
                     PrName = d.Pr?.PrName ?? "-",
                     MaName = d.Pr?.Ma?.MaName ?? "-",
                     ArQuantity = d.ArQuantity,
                     Price = d.Pr?.Price ?? 0,
                     ArDate = d.Ar?.ArDate,
+                    ArStateFlag = d.Ar?.ArStateFlag,
                     ArFlag = d.Ar?.ArFlag ?? 0,
                     ArHidden = d.Ar?.ArHidden
                 }).ToList();
@@ -173,7 +237,8 @@ namespace SalesManagement_SysDev
             {
                 using var ctx = new SalesManagementContext();
                 var d = ctx.TArrivalDetails
-                    .Include(x => x.Ar)
+                    .Include(x => x.Ar).ThenInclude(a => a!.Cl)
+                    .Include(x => x.Ar).ThenInclude(a => a!.So)
                     .Include(x => x.Pr).ThenInclude(p => p!.Ma)
                     .FirstOrDefault(x => x.ArDetailId == arDetailId);
 
@@ -183,12 +248,16 @@ namespace SalesManagement_SysDev
                 {
                     ArId = d.ArId ?? 0,
                     ArDetailId = d.ArDetailId,
+                    OrId = d.Ar?.OrId ?? 0,
+                    ClientName = d.Ar?.Cl?.ClName ?? "-",
+                    SalesOfficeName = d.Ar?.So?.SoName ?? "-",
                     PrId = d.PrId,
                     PrName = d.Pr?.PrName ?? "-",
                     MaName = d.Pr?.Ma?.MaName ?? "-",
                     ArQuantity = d.ArQuantity,
                     Price = d.Pr?.Price ?? 0,
                     ArDate = d.Ar?.ArDate,
+                    ArStateFlag = d.Ar?.ArStateFlag,
                     ArFlag = d.Ar?.ArFlag ?? 0,
                     ArHidden = d.Ar?.ArHidden
                 };
@@ -201,9 +270,10 @@ namespace SalesManagement_SysDev
 
         /// <summary>
         /// 新規入荷登録（T_Arrival + T_ArrivalDetail を同時作成）
+        /// 受注IDが指定されている場合は、その受注の顧客・営業所情報を引き継ぐ
         /// </summary>
         public (bool Success, string Message) RegisterArrival(
-            int prId, int quantity, DateTime arDate, int arFlag, string? arHidden)
+            int? orId, int prId, int quantity, DateTime arDate, int arFlag, string? arHidden)
         {
             if (prId <= 0)
                 return (false, "商品を選択してください。");
@@ -214,21 +284,24 @@ namespace SalesManagement_SysDev
             {
                 using var ctx = new SalesManagementContext();
 
-                // T_Arrival には SoId, ClId, OrId が必須(NOT NULL)のため、
-                // ダミー値として存在する最初のレコードを使用する。
-                // 実際の運用では受注IDや顧客IDを正しく設定すること。
-                int soId = ctx.MSalesOffices.Select(s => s.SoId).FirstOrDefault();
-                int clId = ctx.MClients.Select(c => c.ClId).FirstOrDefault();
-                int orId = ctx.TOrders.Select(o => o.OrId).FirstOrDefault();
+                TOrder? order = null;
+                if (orId.HasValue && orId.Value > 0)
+                {
+                    order = ctx.TOrders.FirstOrDefault(o => o.OrId == orId.Value);
+                }
 
-                if (soId == 0 || clId == 0 || orId == 0)
-                    return (false, "関連マスタ（営業所・顧客・注文）が存在しません。先にデータを登録してください。");
+                int soId = order?.SoId ?? ctx.MSalesOffices.Select(s => s.SoId).FirstOrDefault();
+                int clId = order?.ClId ?? ctx.MClients.Select(c => c.ClId).FirstOrDefault();
+                int finalOrId = order?.OrId ?? ctx.TOrders.Select(o => o.OrId).FirstOrDefault();
+
+                if (soId == 0 || clId == 0 || finalOrId == 0)
+                    return (false, "関連マスタ（営業所・顧客・受注）が存在しません。先にデータを登録してください。");
 
                 var arrival = new TArrival
                 {
                     SoId = soId,
                     ClId = clId,
-                    OrId = orId,
+                    OrId = finalOrId,
                     ArDate = arDate,
                     ArStateFlag = 0,
                     ArFlag = arFlag,
@@ -246,11 +319,47 @@ namespace SalesManagement_SysDev
                 ctx.TArrivalDetails.Add(detail);
                 ctx.SaveChanges();
 
-                return (true, $"入荷ID: {arrival.ArId} を登録しました。");
+                return (true, $"入荷ID: {arrival.ArId} を登録しました。(受注ID: {finalOrId})");
             }
             catch (Exception ex)
             {
                 return (false, $"登録エラー: {ex.InnerException?.Message ?? ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// 既存互換用
+        /// </summary>
+        public (bool Success, string Message) RegisterArrival(
+            int prId, int quantity, DateTime arDate, int arFlag, string? arHidden)
+            => RegisterArrival(null, prId, quantity, arDate, arFlag, arHidden);
+
+        /// <summary>
+        /// 入荷検品確定（ArStateFlag を 0 → 1 に更新）
+        /// </summary>
+        public (bool Success, string Message) ConfirmArrival(int arId)
+        {
+            if (arId <= 0)
+                return (false, "確定対象の入荷IDが正しくありません。");
+
+            try
+            {
+                using var ctx = new SalesManagementContext();
+                var arrival = ctx.TArrivals.FirstOrDefault(a => a.ArId == arId);
+                if (arrival == null)
+                    return (false, $"入荷ID: {arId} のデータが見つかりません。");
+
+                if (arrival.ArStateFlag == 1)
+                    return (false, $"入荷ID: {arId} は既に検品確定済みです。");
+
+                arrival.ArStateFlag = 1; // 検品確定
+                ctx.SaveChanges();
+
+                return (true, $"入荷ID: {arId} の検品を確定しました。");
+            }
+            catch (Exception ex)
+            {
+                return (false, $"確定エラー: {ex.InnerException?.Message ?? ex.Message}");
             }
         }
 
@@ -442,10 +551,46 @@ namespace SalesManagement_SysDev
         // =====================================================================
         private void UpdateActionButtonState()
         {
-            bool has = dg_Arrivals.SelectedItem is ArrivalDisplayModel;
+            var selected = dg_Arrivals.SelectedItem as ArrivalDisplayModel;
+            bool has = selected != null;
             btn_EditSelected.IsEnabled = has;
             btn_HideSelected.IsEnabled = has;
             btn_DeleteSelected.IsEnabled = has;
+            btn_ConfirmArrival.IsEnabled = has && (selected?.ArStateFlag != 1);
+        }
+
+        private void btn_ConfirmArrival_Click(object sender, RoutedEventArgs e)
+        {
+            if (dg_Arrivals.SelectedItem is not ArrivalDisplayModel selected)
+            {
+                MessageBox.Show("検品確定する入荷データを選択してください。", "検品確定", MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+
+            if (selected.ArStateFlag == 1)
+            {
+                MessageBox.Show("選択された入荷は既に検品確定済みです。", "案内", MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+
+            var confirm = MessageBox.Show(
+                $"入荷ID: {selected.ArId} (商品: {selected.PrName}, 数量: {selected.ArQuantity}個) の検品を確定しますか？\n確定すると次の出荷工程へ進められます。",
+                "検品確定確認",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Question);
+
+            if (confirm != MessageBoxResult.Yes) return;
+
+            var result = _service.ConfirmArrival(selected.ArId);
+            if (result.Success)
+            {
+                MessageBox.Show(result.Message, "検品確定完了", MessageBoxButton.OK, MessageBoxImage.Information);
+                ExecuteSearch();
+            }
+            else
+            {
+                MessageBox.Show(result.Message, "確定エラー", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         private void dg_Arrivals_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -487,6 +632,11 @@ namespace SalesManagement_SysDev
             border_RegErrorAlert.Visibility = Visibility.Collapsed;
             border_RegSuccessAlert.Visibility = Visibility.Collapsed;
 
+            var orders = _service.GetOrderSelectList();
+            reg_cmb_Order.ItemsSource = orders;
+            if (orders.Count > 0)
+                reg_cmb_Order.SelectedIndex = 0;
+
             var products = _service.GetProductSelectList();
             reg_cmb_Product.ItemsSource = products;
             if (products.Count > 0) reg_cmb_Product.SelectedIndex = 0;
@@ -500,6 +650,20 @@ namespace SalesManagement_SysDev
             reg_txt_Quantity.Focus();
         }
 
+        private void reg_cmb_Order_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (reg_cmb_Order.SelectedItem is ArrivalOrderSelectModel order && order.ProductIds.Count > 0)
+            {
+                var products = _service.GetProductSelectList();
+                // 受注に含まれる商品があれば優先選択
+                var matched = products.FirstOrDefault(p => order.ProductIds.Contains(p.PrId));
+                if (matched != null)
+                {
+                    reg_cmb_Product.SelectedValue = matched.PrId;
+                }
+            }
+        }
+
         private void btn_CloseArrivalRegister_Click(object sender, RoutedEventArgs e)
             => modal_ArrivalRegister.Visibility = Visibility.Collapsed;
 
@@ -510,6 +674,8 @@ namespace SalesManagement_SysDev
         {
             border_RegErrorAlert.Visibility = Visibility.Collapsed;
             border_RegSuccessAlert.Visibility = Visibility.Collapsed;
+
+            int? orId = reg_cmb_Order.SelectedValue as int?;
 
             if (reg_cmb_Product.SelectedValue is not int prId || prId <= 0)
             {
@@ -532,7 +698,7 @@ namespace SalesManagement_SysDev
             int flag = GetSelectedTag(reg_cmb_Flag);
             string? hidden = string.IsNullOrWhiteSpace(reg_txt_Hidden.Text) ? null : reg_txt_Hidden.Text.Trim();
 
-            var result = _service.RegisterArrival(prId, qty, reg_dp_ArDate.SelectedDate.Value, flag, hidden);
+            var result = _service.RegisterArrival(orId, prId, qty, reg_dp_ArDate.SelectedDate.Value, flag, hidden);
             if (result.Success)
             {
                 ShowRegSuccess(result.Message);
