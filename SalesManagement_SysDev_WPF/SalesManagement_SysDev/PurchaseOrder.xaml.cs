@@ -283,6 +283,68 @@ namespace SalesManagement_SysDev
             return int.TryParse(value, out id) && id > 0;
         }
 
+
+        // =========================================
+        // 商品コード入力時の商品情報自動取得
+        // =========================================
+
+        private void txt_EditProductCode_TextChanged(object sender,TextChangedEventArgs e)
+        {
+            string productCode = txt_EditProductCode.Text.Trim();
+
+            // 商品コードが空の場合
+            if (string.IsNullOrWhiteSpace(productCode))
+            {
+                txt_EditProductName.Clear();
+                txt_EditUnitPrice.Clear();
+                return;
+            }
+
+            // 商品IDに変換できない場合
+            if (!TryGetDatabaseId(productCode, out int productId))
+            {
+                txt_EditProductName.Clear();
+                txt_EditUnitPrice.Clear();
+                return;
+            }
+
+            try
+            {
+                using (var context = new SalesManagementContext())
+                {
+                    // 商品マスタから商品情報を取得
+                    var product = context.MProducts
+                        .AsNoTracking()
+                        .FirstOrDefault(x =>
+                            x.PrId == productId
+                            && x.PrFlag == VisibleFlag);
+
+                    // 商品が存在しない、または非表示の場合
+                    if (product == null)
+                    {
+                        txt_EditProductName.Clear();
+                        txt_EditUnitPrice.Clear();
+                        return;
+                    }
+
+                    // 商品名を自動表示
+                    txt_EditProductName.Text = product.PrName;
+
+                    // 単価を自動表示
+                    txt_EditUnitPrice.Text = product.Price.ToString("N0");
+                }
+            }
+            catch (Exception ex)
+            {
+                txt_EditProductName.Clear();
+                txt_EditUnitPrice.Clear();
+
+                ShowEditError(
+                    "商品情報の取得に失敗しました。\n"
+                    + ex.Message);
+            }
+        }
+
         // =========================================
         // ログイン社員の存在確認
         // =========================================

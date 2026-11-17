@@ -631,7 +631,7 @@
 
                         <StackPanel Grid.Column="0">
 
-                            <TextBlock Text="仕入先名（メーカー）"
+                            <TextBlock Text="仕入先名（メーカ）"
                                        FontWeight="SemiBold"
                                        Foreground="#243B5A"
                                        Margin="0,0,0,5"/>
@@ -672,7 +672,6 @@
                                        Margin="0,0,0,10"/>
 
                             <Grid>
-
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="1.2*"/>
                                     <ColumnDefinition Width="1.5*"/>
@@ -680,19 +679,22 @@
                                     <ColumnDefinition Width="1*"/>
                                 </Grid.ColumnDefinitions>
 
+                                <!-- 商品コード -->
                                 <StackPanel Grid.Column="0"
                                             Margin="0,0,7,0">
 
                                     <TextBlock Text="商品コード"
                                                FontSize="11"
                                                Margin="0,0,0,4"/>
-
+                                    
                                     <TextBox x:Name="txt_EditProductCode"
                                              Height="30"
                                              Padding="6,0"
-                                             VerticalContentAlignment="Center"/>
+                                             VerticalContentAlignment="Center"
+                                             TextChanged="txt_EditProductCode_TextChanged"/>
                                 </StackPanel>
 
+                                <!-- 商品名 -->
                                 <StackPanel Grid.Column="1"
                                             Margin="0,0,7,0">
 
@@ -703,9 +705,12 @@
                                     <TextBox x:Name="txt_EditProductName"
                                              Height="30"
                                              Padding="6,0"
-                                             VerticalContentAlignment="Center"/>
+                                             VerticalContentAlignment="Center"
+                                             IsReadOnly="True"
+                                             Background="#E2E8F0"/>
                                 </StackPanel>
 
+                                <!-- 発注数量 -->
                                 <StackPanel Grid.Column="2"
                                             Margin="0,0,7,0">
 
@@ -720,6 +725,7 @@
                                              Text="1"/>
                                 </StackPanel>
 
+                                <!-- 単価 -->
                                 <StackPanel Grid.Column="3">
 
                                     <TextBlock Text="単価（円）"
@@ -729,7 +735,9 @@
                                     <TextBox x:Name="txt_EditUnitPrice"
                                              Height="30"
                                              Padding="6,0"
-                                             VerticalContentAlignment="Center"/>
+                                             VerticalContentAlignment="Center"
+                                             IsReadOnly="True"
+                                             Background="#E2E8F0"/>
                                 </StackPanel>
                             </Grid>
 
