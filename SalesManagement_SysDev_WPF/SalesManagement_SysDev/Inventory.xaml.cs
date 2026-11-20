@@ -279,10 +279,6 @@ namespace SalesManagement_SysDev
             {
                 home.NavigateToTag("10"); // 発注管理へ遷移
             }
-            else
-            {
-                MessageBox.Show("発注管理画面を表示できませんでした。", "画面遷移", MessageBoxButton.OK, MessageBoxImage.Warning);
-            }
         }
 
         // =========================================================

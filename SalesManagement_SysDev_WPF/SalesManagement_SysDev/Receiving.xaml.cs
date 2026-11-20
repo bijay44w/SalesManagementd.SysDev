@@ -288,11 +288,7 @@ namespace SalesManagement_SysDev
             if (home != null)
             {
                 home.NavigateToTag("10"); // 発注管理へ戻る
-            }
-            else
-            {
-                ShowWarning("発注管理画面を表示できませんでした。");
-            }
+            }           
         }
 
         /// <summary>

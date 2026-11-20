@@ -449,7 +449,7 @@
                             Content="在庫一覧"
                             Style="{StaticResource ListButtonStyle}"
                             Click="btn_MainShowStock_Click"
-                            Margin="0"/>
+                            Margin="0" Cursor="Hand"/>
                 </StackPanel>
 
                 <TextBlock x:Name="txt_MainOrderCount"

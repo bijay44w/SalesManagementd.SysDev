@@ -620,38 +620,26 @@ namespace SalesManagement_SysDev
         // 入庫一覧に切り替え
         // =========================================
 
-        private void btn_MainShowReceiving_Click(
-            object sender,
-            RoutedEventArgs e)
+        private void btn_MainShowReceiving_Click(object sender,RoutedEventArgs e)
         {
-            currentView = "Receiving";
-
-            dg_MainOrders.Visibility = Visibility.Collapsed;
-            dg_MainReceivings.Visibility = Visibility.Visible;
-            dg_MainStocks.Visibility = Visibility.Collapsed;
-
-            DisableOrderActionButtons();
-
-            DisplayReceivings();
+            var home = Window.GetWindow(this) as F_Home;
+            if (home != null)
+            {
+                home.NavigateToTag("11"); // 入庫管理へ遷移
+            }
         }
 
         // =========================================
         // 在庫一覧に切り替え
         // =========================================
 
-        private void btn_MainShowStock_Click(
-            object sender,
-            RoutedEventArgs e)
+        private void btn_MainShowStock_Click(object sender, RoutedEventArgs e)
         {
-            currentView = "Stock";
-
-            dg_MainOrders.Visibility = Visibility.Collapsed;
-            dg_MainReceivings.Visibility = Visibility.Collapsed;
-            dg_MainStocks.Visibility = Visibility.Visible;
-
-            DisableOrderActionButtons();
-
-            DisplayStocks();
+            var home = Window.GetWindow(this) as F_Home;
+            if (home != null)
+            {
+                home.NavigateToTag("05"); // 在庫管理へ
+            }
         }
 
         private void DisableOrderActionButtons()
