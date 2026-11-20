@@ -1,4 +1,3 @@
-
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -24,23 +23,15 @@ namespace SalesManagement_SysDev
         // フラグ
         // =========================================
 
-        // 発注管理フラグ
-        // 0 = 表示、2 = 非表示
         private const int VisibleFlag = 0;
         private const int HiddenFlag = 2;
 
-        // 入庫済みフラグ
-        // 0 = 未入庫、1 = 入庫済み
         private const int NotReceivedFlag = 0;
         private const int ReceivedFlag = 1;
 
-        // 在庫フラグ
-        // 0 = 有効、2 = 非表示
         private const int StockVisibleFlag = 0;
         private const int StockHiddenFlag = 2;
 
-        // 入庫フラグ
-        // 0 = 有効、2 = 非表示
         private const int WarehousingVisibleFlag = 0;
         private const int WarehousingHiddenFlag = 2;
 
@@ -53,6 +44,15 @@ namespace SalesManagement_SysDev
         private readonly List<PurchaseStockItem> stocks = new();
 
         private List<PurchaseOrderDetailItem> editingDetails = new();
+
+        // 商品選択用リスト
+        private readonly List<PurchaseProductChoice> productChoices = new();
+
+        // 仕入先選択用リスト
+        private readonly List<PurchaseSupplierChoice> supplierChoices = new();
+
+        // 商品コードと商品名の連動中フラグ
+        private bool isSyncingProductSelection = false;
 
         private PurchaseOrderItem editingOrder;
 
@@ -71,9 +71,6 @@ namespace SalesManagement_SysDev
             _loggedInEmployee = employee
                 ?? throw new ArgumentNullException(nameof(employee));
 
-            // DBに保存できるステータスは
-            // WaWarehouseFlagから判断するため、
-            // 編集画面のステータス選択は無効にする。
             cmb_EditOrderStatus.IsEnabled = false;
 
             LoadDatabaseData();
@@ -98,6 +95,8 @@ namespace SalesManagement_SysDev
                     LoadOrders(context);
                     LoadReceivings(context);
                     LoadStocks(context);
+                    LoadProductChoices(context);
+                    LoadSupplierChoices(context);
                 }
             }
             catch (Exception ex)
@@ -180,7 +179,6 @@ namespace SalesManagement_SysDev
         {
             receivings.Clear();
 
-            // WaFlag = 0 の有効な入庫だけを取得
             var data = context.TWarehousings
                 .AsNoTracking()
                 .Where(x => x.WaFlag == WarehousingVisibleFlag)
@@ -227,7 +225,6 @@ namespace SalesManagement_SysDev
         {
             stocks.Clear();
 
-            // StFlag = 0 の有効な在庫だけを取得
             var data = context.TStocks
                 .AsNoTracking()
                 .Where(x => x.StFlag == StockVisibleFlag)
@@ -244,11 +241,65 @@ namespace SalesManagement_SysDev
                         ProductId = first.PrId,
                         ProductCode = first.PrId.ToString(),
                         ProductName = first.Pr?.PrName ?? "",
-
-                        // 有効な在庫だけを合計
                         StockQuantity = group.Sum(x => x.StQuantity)
                     });
             }
+        }
+
+        // =========================================
+        // 商品選択リスト読み込み
+        // =========================================
+
+        private void LoadProductChoices(SalesManagementContext context)
+        {
+            productChoices.Clear();
+
+            var products = context.MProducts
+                .AsNoTracking()
+                .Where(x => x.PrFlag == VisibleFlag)
+                .OrderBy(x => x.PrId)
+                .ToList();
+
+            foreach (var product in products)
+            {
+                productChoices.Add(new PurchaseProductChoice
+                {
+                    ProductId = product.PrId,
+                    ProductCode = product.PrId.ToString(),
+                    ProductName = product.PrName,
+                    UnitPrice = product.Price
+                });
+            }
+
+            cmb_EditProductCode.ItemsSource = productChoices;
+            cmb_EditProductName.ItemsSource = productChoices;
+        }
+
+        // =========================================
+        // 仕入先選択リスト読み込み
+        // =========================================
+
+        private void LoadSupplierChoices(SalesManagementContext context)
+        {
+            supplierChoices.Clear();
+
+            var makers = context.MMakers
+                .AsNoTracking()
+                .Where(x => x.MaFlag == VisibleFlag)
+                .OrderBy(x => x.MaId)
+                .ToList();
+
+            foreach (var maker in makers)
+            {
+                supplierChoices.Add(new PurchaseSupplierChoice
+                {
+                    MakerId = maker.MaId,
+                    MaName = maker.MaName
+                });
+            }
+
+            cmb_EditSupplierName.ItemsSource = null;
+            cmb_EditSupplierName.ItemsSource = supplierChoices;
         }
 
         // =========================================
@@ -283,66 +334,117 @@ namespace SalesManagement_SysDev
             return int.TryParse(value, out id) && id > 0;
         }
 
-
         // =========================================
-        // 商品コード入力時の商品情報自動取得
+        // 商品コード・商品名の相互連動
         // =========================================
 
-        private void txt_EditProductCode_TextChanged(object sender,TextChangedEventArgs e)
+        private PurchaseProductChoice FindProductByCode(string code)
         {
-            string productCode = txt_EditProductCode.Text.Trim();
+            string value = (code ?? "").Trim();
 
-            // 商品コードが空の場合
-            if (string.IsNullOrWhiteSpace(productCode))
-            {
-                txt_EditProductName.Clear();
-                txt_EditUnitPrice.Clear();
-                return;
-            }
+            if (!TryGetDatabaseId(value, out int productId))
+                return null;
 
-            // 商品IDに変換できない場合
-            if (!TryGetDatabaseId(productCode, out int productId))
-            {
-                txt_EditProductName.Clear();
-                txt_EditUnitPrice.Clear();
-                return;
-            }
+            return productChoices.FirstOrDefault(
+                x => x.ProductId == productId);
+        }
+
+        private PurchaseProductChoice FindProductByName(string name)
+        {
+            string value = (name ?? "").Trim();
+
+            if (string.IsNullOrWhiteSpace(value))
+                return null;
+
+            var matches = productChoices
+                .Where(x => string.Equals(
+                    x.ProductName,
+                    value,
+                    StringComparison.OrdinalIgnoreCase))
+                .ToList();
+
+            return matches.Count == 1 ? matches[0] : null;
+        }
+
+        private void SetSelectedProduct(PurchaseProductChoice product)
+        {
+            isSyncingProductSelection = true;
 
             try
             {
-                using (var context = new SalesManagementContext())
+                if (product == null)
                 {
-                    // 商品マスタから商品情報を取得
-                    var product = context.MProducts
-                        .AsNoTracking()
-                        .FirstOrDefault(x =>
-                            x.PrId == productId
-                            && x.PrFlag == VisibleFlag);
-
-                    // 商品が存在しない、または非表示の場合
-                    if (product == null)
-                    {
-                        txt_EditProductName.Clear();
-                        txt_EditUnitPrice.Clear();
-                        return;
-                    }
-
-                    // 商品名を自動表示
-                    txt_EditProductName.Text = product.PrName;
-
-                    // 単価を自動表示
-                    txt_EditUnitPrice.Text = product.Price.ToString("N0");
+                    cmb_EditProductCode.SelectedItem = null;
+                    cmb_EditProductName.SelectedItem = null;
+                    cmb_EditProductCode.Text = "";
+                    cmb_EditProductName.Text = "";
+                    txt_EditUnitPrice.Clear();
+                    return;
                 }
-            }
-            catch (Exception ex)
-            {
-                txt_EditProductName.Clear();
-                txt_EditUnitPrice.Clear();
 
-                ShowEditError(
-                    "商品情報の取得に失敗しました。\n"
-                    + ex.Message);
+                cmb_EditProductCode.SelectedItem = product;
+                cmb_EditProductName.SelectedItem = product;
+
+                cmb_EditProductCode.Text = product.ProductCode;
+                cmb_EditProductName.Text = product.ProductName;
+
+                txt_EditUnitPrice.Text =
+                    product.UnitPrice.ToString("N0");
             }
+            finally
+            {
+                isSyncingProductSelection = false;
+            }
+        }
+
+        private void cmb_EditProductCode_SelectionChanged(
+            object sender,
+            SelectionChangedEventArgs e)
+        {
+            if (isSyncingProductSelection)
+                return;
+
+            var product = cmb_EditProductCode.SelectedItem
+                as PurchaseProductChoice;
+
+            if (product != null)
+                SetSelectedProduct(product);
+        }
+
+        private void cmb_EditProductName_SelectionChanged(
+            object sender,
+            SelectionChangedEventArgs e)
+        {
+            if (isSyncingProductSelection)
+                return;
+
+            var product = cmb_EditProductName.SelectedItem
+                as PurchaseProductChoice;
+
+            if (product != null)
+                SetSelectedProduct(product);
+        }
+
+        private bool TryGetSelectedProductId(out int productId)
+        {
+            productId = 0;
+
+            var product = cmb_EditProductCode.SelectedItem
+                as PurchaseProductChoice;
+
+            if (product == null)
+            {
+                product = cmb_EditProductName.SelectedItem
+                    as PurchaseProductChoice;
+            }
+
+            if (product == null)
+                return false;
+
+            productId = product.ProductId;
+            SetSelectedProduct(product);
+
+            return true;
         }
 
         // =========================================
@@ -389,21 +491,18 @@ namespace SalesManagement_SysDev
 
             IEnumerable<PurchaseOrderItem> result = purchaseOrders;
 
-            // 非表示を除外
             if (!includeHidden)
             {
                 result = result.Where(
                     x => x.ManagementFlag == VisibleFlag);
             }
 
-            // 入庫済みを除外
             if (!includeReceived)
             {
                 result = result.Where(
                     x => x.WarehouseReceivedFlag == NotReceivedFlag);
             }
 
-            // 発注番号検索
             if (!string.IsNullOrWhiteSpace(orderId))
             {
                 result = result.Where(
@@ -412,7 +511,6 @@ namespace SalesManagement_SysDev
                         StringComparison.OrdinalIgnoreCase) >= 0);
             }
 
-            // 仕入先名検索
             if (!string.IsNullOrWhiteSpace(supplierName))
             {
                 result = result.Where(
@@ -421,7 +519,6 @@ namespace SalesManagement_SysDev
                         StringComparison.OrdinalIgnoreCase) >= 0);
             }
 
-            // ステータス検索
             if (!string.IsNullOrWhiteSpace(orderStatus)
                 && orderStatus != "すべて")
             {
@@ -429,7 +526,6 @@ namespace SalesManagement_SysDev
                     x => x.OrderStatus == orderStatus);
             }
 
-            // 発注日検索
             if (orderDate.HasValue)
             {
                 result = result.Where(
@@ -528,13 +624,6 @@ namespace SalesManagement_SysDev
             object sender,
             RoutedEventArgs e)
         {
-            var home = Window.GetWindow(this) as F_Home;
-            if (home != null)
-            {
-                home.NavigateToTag("11"); // 入庫管理画面へ遷移
-                return;
-            }
-
             currentView = "Receiving";
 
             dg_MainOrders.Visibility = Visibility.Collapsed;
@@ -547,20 +636,13 @@ namespace SalesManagement_SysDev
         }
 
         // =========================================
-        // 在庫一覧（在庫管理へ遷移）
+        // 在庫一覧に切り替え
         // =========================================
 
         private void btn_MainShowStock_Click(
             object sender,
             RoutedEventArgs e)
         {
-            var home = Window.GetWindow(this) as F_Home;
-            if (home != null)
-            {
-                home.NavigateToTag("05"); // 在庫管理画面へ遷移
-                return;
-            }
-
             currentView = "Stock";
 
             dg_MainOrders.Visibility = Visibility.Collapsed;
@@ -577,8 +659,6 @@ namespace SalesManagement_SysDev
             btn_MainNewRegister.IsEnabled = false;
             btn_MainEditSelected.IsEnabled = false;
             btn_MainHideSelected.IsEnabled = false;
-            if (btn_MainDeleteSelected != null)
-                btn_MainDeleteSelected.IsEnabled = false;
             btn_MainReceiveSelected.IsEnabled = false;
         }
 
@@ -656,17 +736,15 @@ namespace SalesManagement_SysDev
 
             txt_EditTitle.Text = "発注登録";
 
-            txt_EditSupplierName.Clear();
+            // 仕入先選択を解除
+            cmb_EditSupplierName.SelectedItem = null;
 
             dp_EditOrderDate.SelectedDate = DateTime.Today;
 
-            txt_EditProductCode.Clear();
-            txt_EditProductName.Clear();
-            txt_EditQuantity.Text = "1";
-            txt_EditUnitPrice.Clear();
+            SetSelectedProduct(null);
 
-            // 0=未入庫、1=入庫済みではなく、
-            // 表示上の「入荷待ち」を選択
+            txt_EditQuantity.Text = "1";
+
             cmb_EditOrderStatus.SelectedIndex = 2;
 
             dg_EditDetails.ItemsSource = null;
@@ -754,8 +832,10 @@ namespace SalesManagement_SysDev
 
             txt_EditTitle.Text = "発注情報編集";
 
-            txt_EditSupplierName.Text =
-                selectedOrder.SupplierName;
+            // 登録済みのメーカーを選択状態にする
+            cmb_EditSupplierName.SelectedItem =
+                supplierChoices.FirstOrDefault(
+                    x => x.MakerId == selectedOrder.MaId);
 
             dp_EditOrderDate.SelectedDate =
                 selectedOrder.OrderDate;
@@ -765,10 +845,9 @@ namespace SalesManagement_SysDev
                     ? 3
                     : 2;
 
-            txt_EditProductCode.Clear();
-            txt_EditProductName.Clear();
+            SetSelectedProduct(null);
+
             txt_EditQuantity.Text = "1";
-            txt_EditUnitPrice.Clear();
 
             dg_EditDetails.ItemsSource = null;
             dg_EditDetails.ItemsSource = editingDetails;
@@ -791,12 +870,10 @@ namespace SalesManagement_SysDev
             object sender,
             RoutedEventArgs e)
         {
-            if (!TryGetDatabaseId(
-                txt_EditProductCode.Text,
-                out int productId))
+            if (!TryGetSelectedProductId(out int productId))
             {
                 ShowEditError(
-                    "商品コードには商品IDを入力してください。");
+                    "商品コードまたは商品名をプルダウンから選択してください。");
 
                 return;
             }
@@ -852,10 +929,9 @@ namespace SalesManagement_SysDev
 
                 RefreshDetailGrid();
 
-                txt_EditProductCode.Clear();
-                txt_EditProductName.Clear();
+                SetSelectedProduct(null);
+
                 txt_EditQuantity.Text = "1";
-                txt_EditUnitPrice.Clear();
 
                 txt_EditError.Visibility = Visibility.Collapsed;
                 txt_EditError.Text = "";
@@ -931,32 +1007,6 @@ namespace SalesManagement_SysDev
         }
 
         // =========================================
-        // 仕入先取得
-        // =========================================
-
-        private bool TryGetMakerId(
-            SalesManagementContext context,
-            string makerName,
-            out int makerId)
-        {
-            makerId = 0;
-
-            string name = (makerName ?? "").Trim();
-
-            var maker = context.MMakers
-                .FirstOrDefault(x =>
-                    x.MaName == name
-                    && x.MaFlag == VisibleFlag);
-
-            if (maker == null)
-                return false;
-
-            makerId = maker.MaId;
-
-            return true;
-        }
-
-        // =========================================
         // 発注登録・更新
         // =========================================
 
@@ -964,17 +1014,21 @@ namespace SalesManagement_SysDev
             object sender,
             RoutedEventArgs e)
         {
-            string supplierName =
-                txt_EditSupplierName.Text.Trim();
+            // 選択された仕入先メーカーを取得
+            var selectedSupplier =
+                cmb_EditSupplierName.SelectedItem
+                as PurchaseSupplierChoice;
+
+            if (selectedSupplier == null)
+            {
+                ShowEditError("仕入先メーカーを選択してください。");
+                return;
+            }
+
+            int makerId = selectedSupplier.MakerId;
 
             DateTime? orderDate =
                 dp_EditOrderDate.SelectedDate;
-
-            if (string.IsNullOrWhiteSpace(supplierName))
-            {
-                ShowEditError("仕入先名を入力してください。");
-                return;
-            }
 
             if (!orderDate.HasValue)
             {
@@ -1014,14 +1068,15 @@ namespace SalesManagement_SysDev
                         return;
                     }
 
-                    // 仕入先確認
-                    if (!TryGetMakerId(
-                        context,
-                        supplierName,
-                        out int makerId))
+                    // 選択された仕入先メーカーをDBで再確認
+                    bool makerExists = context.MMakers.Any(
+                        x => x.MaId == makerId
+                             && x.MaFlag == VisibleFlag);
+
+                    if (!makerExists)
                     {
                         ShowEditError(
-                            "仕入先マスタに存在する仕入先名を入力してください。");
+                            "選択された仕入先メーカーが存在しないか、非表示です。");
 
                         return;
                     }
@@ -1044,7 +1099,6 @@ namespace SalesManagement_SysDev
                             return;
                         }
 
-                        // 商品マスタの最新情報を反映
                         detail.ProductName = product.PrName;
                         detail.UnitPrice = product.Price;
                     }
@@ -1092,13 +1146,11 @@ namespace SalesManagement_SysDev
                         entity.MaId = makerId;
                         entity.HaDate = orderDate.Value;
 
-                        // 既存明細を削除
                         context.THattyuDetails.RemoveRange(
                             entity.THattyuDetails.ToList());
 
                         entity.THattyuDetails.Clear();
 
-                        // 新しい明細を登録
                         foreach (var detail in editingDetails)
                         {
                             entity.THattyuDetails.Add(
@@ -1114,14 +1166,9 @@ namespace SalesManagement_SysDev
                         var entity = new THattyu
                         {
                             MaId = makerId,
-
-                            // ログイン中の社員ID
                             EmId = LoggedInEmployeeId,
-
                             HaDate = orderDate.Value,
-
                             WaWarehouseFlag = NotReceivedFlag,
-
                             HaFlag = VisibleFlag,
                             HaHidden = null
                         };
@@ -1316,92 +1363,6 @@ namespace SalesManagement_SysDev
             }
         }
 
-        private void btn_MainDeleteSelected_Click(
-            object sender,
-            RoutedEventArgs e)
-        {
-            if (currentView != "Order")
-                return;
-
-            var selectedOrder =
-                dg_MainOrders.SelectedItem as PurchaseOrderItem;
-
-            if (selectedOrder == null)
-            {
-                MessageBox.Show(
-                    "削除する発注情報を選択してください。",
-                    "確認",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Warning);
-                return;
-            }
-
-            var result = MessageBox.Show(
-                $"次の発注データを完全に削除しますか？\n\n" +
-                $"発注番号：{selectedOrder.OrderId}\n" +
-                $"仕入先名：{selectedOrder.SupplierName}\n" +
-                $"発注金額：{selectedOrder.TotalAmount:N0} 円\n\n" +
-                "この操作は取り消せません。",
-                "発注の完全削除確認",
-                MessageBoxButton.YesNo,
-                MessageBoxImage.Warning);
-
-            if (result != MessageBoxResult.Yes)
-                return;
-
-            try
-            {
-                using var context = new SalesManagementContext();
-                var entity = context.THattyus
-                    .Include(h => h.THattyuDetails)
-                    .FirstOrDefault(x => x.HaId == selectedOrder.DatabaseId);
-
-                if (entity == null)
-                {
-                    MessageBox.Show("発注情報が見つかりません。");
-                    ReloadAndDisplay();
-                    return;
-                }
-
-                // 関連入庫データがあるか確認
-                bool hasReceiving = context.TWarehousings.Any(w => w.HaId == entity.HaId) ||
-                                    entity.WaWarehouseFlag == 1;
-                if (hasReceiving)
-                {
-                    MessageBox.Show(
-                        "この発注には入庫データが存在するため、完全削除できません。\n非表示機能を使用してください。",
-                        "削除できません",
-                        MessageBoxButton.OK,
-                        MessageBoxImage.Warning);
-                    return;
-                }
-
-                if (entity.THattyuDetails != null && entity.THattyuDetails.Any())
-                {
-                    context.THattyuDetails.RemoveRange(entity.THattyuDetails);
-                }
-
-                context.THattyus.Remove(entity);
-                context.SaveChanges();
-
-                MessageBox.Show(
-                    $"発注番号「{selectedOrder.OrderId}」を完全に削除しました。",
-                    "完了",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Information);
-
-                ReloadAndDisplay();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(
-                    "発注情報の削除中にエラーが発生しました。\n" + ex.Message,
-                    "DBエラー",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Error);
-            }
-        }
-
         // =========================================
         // 入庫確定
         // =========================================
@@ -1486,7 +1447,6 @@ namespace SalesManagement_SysDev
                     context.Database.BeginTransaction(
                         IsolationLevel.Serializable))
                 {
-                    // ログイン社員確認
                     if (!IsLoggedInEmployeeValid(context))
                     {
                         MessageBox.Show(
@@ -1498,7 +1458,6 @@ namespace SalesManagement_SysDev
                         return;
                     }
 
-                    // 発注情報を再取得
                     var order = context.THattyus
                         .Include(x => x.THattyuDetails)
                         .FirstOrDefault(x =>
@@ -1512,7 +1471,6 @@ namespace SalesManagement_SysDev
                         return;
                     }
 
-                    // 非表示の発注は入庫不可
                     if (order.HaFlag != VisibleFlag)
                     {
                         MessageBox.Show(
@@ -1521,7 +1479,6 @@ namespace SalesManagement_SysDev
                         return;
                     }
 
-                    // 入庫済み確認
                     if ((order.WaWarehouseFlag
                         ?? NotReceivedFlag) == ReceivedFlag)
                     {
@@ -1549,8 +1506,6 @@ namespace SalesManagement_SysDev
                         return;
                     }
 
-                    // 有効・非表示を問わず、
-                    // 入庫履歴が存在する場合は二重入庫を防止する。
                     bool alreadyReceived =
                         context.TWarehousings.Any(
                             x => x.HaId == order.HaId);
@@ -1567,26 +1522,16 @@ namespace SalesManagement_SysDev
                         return;
                     }
 
-                    // 入庫ヘッダー
                     var warehousing = new TWarehousing
                     {
                         HaId = order.HaId,
-
-                        // 入庫担当社員ID
                         EmId = LoggedInEmployeeId,
-
                         WaDate = DateTime.Today,
-
                         WaShelfFlag = 0,
-
                         WaHidden = null,
-
-                        // 0 = 有効
                         WaFlag = WarehousingVisibleFlag
                     };
 
-                    // 同一商品の明細が複数存在しても
-                    // 商品ごとに数量をまとめて在庫へ加算する。
                     var groupedDetails = order.THattyuDetails
                         .GroupBy(x => x.PrId)
                         .Select(g => new
@@ -1598,8 +1543,7 @@ namespace SalesManagement_SysDev
 
                     foreach (var detail in groupedDetails)
                     {
-                        // 商品がDBに存在するか確認
-                        var productExists =
+                        bool productExists =
                             context.MProducts.Any(
                                 x => x.PrId == detail.ProductId);
 
@@ -1613,7 +1557,6 @@ namespace SalesManagement_SysDev
                             return;
                         }
 
-                        // 有効な在庫レコードだけを取得
                         var stock = context.TStocks
                             .FirstOrDefault(x =>
                                 x.PrId == detail.ProductId
@@ -1621,24 +1564,19 @@ namespace SalesManagement_SysDev
 
                         if (stock == null)
                         {
-                            // 有効な在庫が存在しない場合は新規作成
                             stock = new TStock
                             {
                                 PrId = detail.ProductId,
                                 StQuantity = 0,
-
-                                // 0 = 有効
                                 StFlag = StockVisibleFlag
                             };
 
                             context.TStocks.Add(stock);
                         }
 
-                        // 在庫数量を加算
                         stock.StQuantity = checked(
                             stock.StQuantity + detail.Quantity);
 
-                        // 入庫明細
                         warehousing.TWarehousingDetails.Add(
                             new TWarehousingDetail
                             {
@@ -1647,16 +1585,12 @@ namespace SalesManagement_SysDev
                             });
                     }
 
-                    // 発注を入庫済みに変更
                     order.WaWarehouseFlag = ReceivedFlag;
 
-                    // 入庫データを追加
                     context.TWarehousings.Add(warehousing);
 
-                    // DB保存
                     context.SaveChanges();
 
-                    // トランザクション確定
                     transaction.Commit();
                 }
 
@@ -1694,6 +1628,25 @@ namespace SalesManagement_SysDev
         }
 
         // =========================================
+        // 仕入先メーカー選択変更
+        // =========================================
+
+        private void cmb_EditSupplierName_SelectionChanged(
+            object sender,
+            SelectionChangedEventArgs e)
+        {
+            var selectedSupplier =
+                cmb_EditSupplierName.SelectedItem
+                as PurchaseSupplierChoice;
+
+            if (selectedSupplier == null)
+                return;
+
+            // 選択されたメーカーIDを取得
+            int makerId = selectedSupplier.MakerId;
+        }
+
+        // =========================================
         // 発注一覧の選択変更
         // =========================================
 
@@ -1701,6 +1654,24 @@ namespace SalesManagement_SysDev
             object sender,
             SelectionChangedEventArgs e)
         {
+            var selectedOrder =
+                dg_MainOrders.SelectedItem as PurchaseOrderItem;
+
+            if (selectedOrder == null)
+            {
+                UpdateSelectionButtons();
+                return;
+            }
+
+            // 発注番号
+            txt_MainOrderId.Text = selectedOrder.OrderId;
+
+            // 仕入先名
+            txt_MainSupplierName.Text = selectedOrder.SupplierName;
+
+            // 発注日
+            dp_MainOrderDate.SelectedDate = selectedOrder.OrderDate;
+
             UpdateSelectionButtons();
         }
 
@@ -1741,18 +1712,38 @@ namespace SalesManagement_SysDev
                     isVisible;
             }
 
-            if (btn_MainDeleteSelected != null)
-            {
-                btn_MainDeleteSelected.IsEnabled =
-                    isVisible;
-            }
-
             if (btn_MainReceiveSelected != null)
             {
                 btn_MainReceiveSelected.IsEnabled =
                     isVisible && isNotReceived;
             }
         }
+    }
+
+    // =============================================
+    // 商品選択用データ
+    // =============================================
+
+    public class PurchaseProductChoice
+    {
+        public int ProductId { get; set; }
+
+        public string ProductCode { get; set; }
+
+        public string ProductName { get; set; }
+
+        public decimal UnitPrice { get; set; }
+    }
+
+    // =============================================
+    // 仕入先選択用データ
+    // =============================================
+
+    public class PurchaseSupplierChoice
+    {
+        public int MakerId { get; set; }
+
+        public string MaName { get; set; }
     }
 
     // =============================================

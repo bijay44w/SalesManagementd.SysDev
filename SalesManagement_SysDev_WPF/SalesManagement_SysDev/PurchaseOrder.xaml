@@ -3,7 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              Background="#F1F5F9"
              FontFamily="Yu Gothic UI"
-             FontSize="13">
+             FontSize="13" Width="1036">
 
     <UserControl.Resources>
 
@@ -78,13 +78,6 @@
                TargetType="Button"
                BasedOn="{StaticResource ActionButtonStyle}">
             <Setter Property="Background" Value="#DC2626"/>
-            <Setter Property="IsEnabled" Value="False"/>
-        </Style>
-
-        <Style x:Key="DeleteButtonStyle"
-               TargetType="Button"
-               BasedOn="{StaticResource ActionButtonStyle}">
-            <Setter Property="Background" Value="#991B1B"/>
             <Setter Property="IsEnabled" Value="False"/>
         </Style>
 
@@ -429,11 +422,6 @@
                             Style="{StaticResource HideButtonStyle}"
                             Click="btn_MainHideSelected_Click"/>
 
-                    <Button x:Name="btn_MainDeleteSelected"
-                            Content="🗑 削除"
-                            Style="{StaticResource DeleteButtonStyle}"
-                            Click="btn_MainDeleteSelected_Click"/>
-
                     <Button x:Name="btn_MainReceiveSelected"
                             Content="✓ 入庫確定"
                             Style="{StaticResource ReceiveButtonStyle}"
@@ -447,13 +435,11 @@
                     <Button x:Name="btn_MainShowReceiving"
                             Content="入庫一覧"
                             Style="{StaticResource ListButtonStyle}"
-                            ToolTip="入庫管理画面（機能11）へ遷移します"
                             Click="btn_MainShowReceiving_Click"/>
 
                     <Button x:Name="btn_MainShowStock"
                             Content="在庫一覧"
                             Style="{StaticResource ListButtonStyle}"
-                            ToolTip="在庫管理画面（機能05）へ遷移します"
                             Click="btn_MainShowStock_Click"
                             Margin="0"/>
                 </StackPanel>
@@ -645,15 +631,18 @@
 
                         <StackPanel Grid.Column="0">
 
-                            <TextBlock Text="仕入先名（メーカ）"
+                            <TextBlock Text="仕入先名（メーカー）"
                                        FontWeight="SemiBold"
                                        Foreground="#243B5A"
                                        Margin="0,0,0,5"/>
 
-                            <TextBox x:Name="txt_EditSupplierName"
-                                     Height="32"
-                                     Padding="7,0"
-                                     VerticalContentAlignment="Center"/>
+                            <ComboBox x:Name="cmb_EditSupplierName"
+                                      Height="35"
+                                      FontSize="14"
+                                      IsEditable="False"
+                                      DisplayMemberPath="MaName"
+                                      SelectedValuePath="MaName"
+                                      SelectionChanged="cmb_EditSupplierName_SelectionChanged"/>
                         </StackPanel>
 
                         <StackPanel Grid.Column="2">
@@ -686,6 +675,7 @@
                                        Margin="0,0,0,10"/>
 
                             <Grid>
+
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="1.2*"/>
                                     <ColumnDefinition Width="1.5*"/>
@@ -693,22 +683,23 @@
                                     <ColumnDefinition Width="1*"/>
                                 </Grid.ColumnDefinitions>
 
-                                <!-- 商品コード -->
                                 <StackPanel Grid.Column="0"
                                             Margin="0,0,7,0">
 
                                     <TextBlock Text="商品コード"
                                                FontSize="11"
                                                Margin="0,0,0,4"/>
-                                    
-                                    <TextBox x:Name="txt_EditProductCode"
-                                             Height="30"
-                                             Padding="6,0"
-                                             VerticalContentAlignment="Center"
-                                             TextChanged="txt_EditProductCode_TextChanged"/>
+
+                                    <ComboBox x:Name="cmb_EditProductCode"
+                                              Height="30"
+                                              Padding="6,0"
+                                              IsEditable="False"
+                                              IsTextSearchEnabled="True"
+                                              DisplayMemberPath="ProductCode"
+                                              SelectedValuePath="ProductId"
+                                              SelectionChanged="cmb_EditProductCode_SelectionChanged"/>
                                 </StackPanel>
 
-                                <!-- 商品名 -->
                                 <StackPanel Grid.Column="1"
                                             Margin="0,0,7,0">
 
@@ -716,15 +707,16 @@
                                                FontSize="11"
                                                Margin="0,0,0,4"/>
 
-                                    <TextBox x:Name="txt_EditProductName"
-                                             Height="30"
-                                             Padding="6,0"
-                                             VerticalContentAlignment="Center"
-                                             IsReadOnly="True"
-                                             Background="#E2E8F0"/>
+                                    <ComboBox x:Name="cmb_EditProductName"
+                                              Height="30"
+                                              Padding="6,0"
+                                              IsEditable="False"
+                                              IsTextSearchEnabled="True"
+                                              DisplayMemberPath="ProductName"
+                                              SelectedValuePath="ProductId"
+                                              SelectionChanged="cmb_EditProductName_SelectionChanged"/>
                                 </StackPanel>
 
-                                <!-- 発注数量 -->
                                 <StackPanel Grid.Column="2"
                                             Margin="0,0,7,0">
 
@@ -739,7 +731,6 @@
                                              Text="1"/>
                                 </StackPanel>
 
-                                <!-- 単価 -->
                                 <StackPanel Grid.Column="3">
 
                                     <TextBlock Text="単価（円）"
