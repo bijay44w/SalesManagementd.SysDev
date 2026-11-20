@@ -77,11 +77,98 @@ namespace SalesManagement_SysDev
 
                 dg_Syukkos.ItemsSource = rows;
                 txt_RecordCount.Text = $"表示件数: {rows.Count} 件";
+                UpdateActionButtonsState();
             }
             catch (Exception ex)
             {
                 ShowError("出庫一覧の取得に失敗しました。\n" + ex.Message);
             }
+        }
+
+        private void UpdateActionButtonsState()
+        {
+            bool hasSelection = dg_Syukkos.SelectedItem is ShippingRow;
+            btn_DetailSelected.IsEnabled = hasSelection;
+            btn_ConfirmShipping.IsEnabled = hasSelection;
+            btn_EditSelected.IsEnabled = hasSelection;
+            btn_HideSelected.IsEnabled = hasSelection;
+            btn_DeleteSelected.IsEnabled = hasSelection;
+        }
+
+        private void dg_Syukkos_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            UpdateActionButtonsState();
+        }
+
+        private void dg_Syukkos_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            if (dg_Syukkos.SelectedItem is ShippingRow selected)
+            {
+                OpenDetailModal(selected.SyId);
+            }
+        }
+
+        private void btn_DetailSelected_Click(object sender, RoutedEventArgs e)
+        {
+            if (dg_Syukkos.SelectedItem is ShippingRow selected)
+            {
+                OpenDetailModal(selected.SyId);
+            }
+        }
+
+        private void OpenDetailModal(int syId)
+        {
+            try
+            {
+                using var context = new SalesManagementContext();
+                var syukko = context.TSyukkos
+                    .AsNoTracking()
+                    .Include(s => s.Em)
+                    .Include(s => s.Cl)
+                    .FirstOrDefault(s => s.SyId == syId);
+
+                if (syukko == null)
+                {
+                    ShowWarning("対象の出庫データが見つかりません。");
+                    return;
+                }
+
+                detail_txt_SyId.Text = $"出庫ID: {syukko.SyId}";
+                detail_txt_OrId.Text = $"受注ID: {syukko.OrId}";
+                detail_txt_Date.Text = $"出庫日: {syukko.SyDate:yyyy/MM/dd}";
+                detail_txt_Employee.Text = $"担当社員: {syukko.Em?.EmName ?? $"社員ID: {syukko.EmId}"}";
+
+                var details = context.TSyukkoDetails
+                    .AsNoTracking()
+                    .Include(d => d.Pr)
+                    .Where(d => d.SyId == syId)
+                    .Select(d => new SyukkoDetailDisplayModel
+                    {
+                        SyDetailId = d.SyDetailId,
+                        SyId = d.SyId,
+                        PrId = d.PrId,
+                        PrName = d.Pr != null ? d.Pr.PrName : $"商品ID: {d.PrId}",
+                        SyQuantity = d.SyQuantity
+                    })
+                    .ToList();
+
+                dg_SyukkoDetailItems.ItemsSource = details;
+                modal_Detail.Visibility = Visibility.Visible;
+            }
+            catch (Exception ex)
+            {
+                ShowError("出庫詳細の取得に失敗しました。\n" + ex.Message);
+            }
+        }
+
+        private void btn_CloseDetail_Click(object sender, RoutedEventArgs e)
+        {
+            modal_Detail.Visibility = Visibility.Collapsed;
+        }
+
+        private void modal_Detail_Backdrop_Click(object sender, MouseButtonEventArgs e)
+        {
+            modal_Detail.Visibility = Visibility.Collapsed;
         }
 
         /// <summary>
@@ -712,5 +799,14 @@ namespace SalesManagement_SysDev
         {
 
         }
+    }
+
+    public class SyukkoDetailDisplayModel
+    {
+        public int SyDetailId { get; set; }
+        public int SyId { get; set; }
+        public int PrId { get; set; }
+        public string PrName { get; set; } = string.Empty;
+        public int SyQuantity { get; set; }
     }
 }

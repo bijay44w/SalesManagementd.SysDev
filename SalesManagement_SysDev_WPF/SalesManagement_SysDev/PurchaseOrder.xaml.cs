@@ -779,9 +779,9 @@ namespace SalesManagement_SysDev
             MouseButtonEventArgs e)
         {
             if (currentView == "Order"
-                && dg_MainOrders.SelectedItem != null)
+                && dg_MainOrders.SelectedItem is PurchaseOrderItem selectedOrder)
             {
-                OpenEditDialog();
+                OpenDetailModal(selectedOrder);
             }
         }
 
@@ -1700,6 +1700,11 @@ namespace SalesManagement_SysDev
                 && selectedOrder.WarehouseReceivedFlag
                     == NotReceivedFlag;
 
+            if (btn_MainDetailSelected != null)
+            {
+                btn_MainDetailSelected.IsEnabled = hasSelection;
+            }
+
             if (btn_MainEditSelected != null)
             {
                 btn_MainEditSelected.IsEnabled =
@@ -1718,6 +1723,77 @@ namespace SalesManagement_SysDev
                     isVisible && isNotReceived;
             }
         }
+
+        // =============================================
+        // 発注詳細モーダル表示 (T_HattyuDetail)
+        // =============================================
+
+        private void btn_MainDetailSelected_Click(object sender, RoutedEventArgs e)
+        {
+            var selectedOrder = dg_MainOrders.SelectedItem as PurchaseOrderItem;
+            if (selectedOrder != null)
+            {
+                OpenDetailModal(selectedOrder);
+            }
+        }
+
+        private void OpenDetailModal(PurchaseOrderItem order)
+        {
+            if (order == null) return;
+
+            detail_txt_OrderId.Text = $"発注番号: {order.OrderId} (ID: {order.DatabaseId})";
+            detail_txt_Supplier.Text = $"仕入先: {order.SupplierName}";
+            detail_txt_Date.Text = $"発注日: {order.OrderDate:yyyy/MM/dd}";
+            detail_txt_Status.Text = $"状態: {order.OrderStatus} (合計: {order.TotalAmount:N0} 円)";
+
+            try
+            {
+                using var context = new SalesManagementContext();
+                var details = context.THattyuDetails
+                    .AsNoTracking()
+                    .Include(d => d.Pr)
+                    .Where(d => d.HaId == order.DatabaseId)
+                    .Select(d => new HattyuDetailDisplayModel
+                    {
+                        HaDetailId = d.HaDetailId,
+                        HaId = d.HaId,
+                        PrId = d.PrId,
+                        PrName = d.Pr != null ? d.Pr.PrName : $"商品ID: {d.PrId}",
+                        HaQuantity = d.HaQuantity
+                    })
+                    .ToList();
+
+                dg_HattyuDetailItems.ItemsSource = details;
+                modal_Detail.Visibility = Visibility.Visible;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"発注詳細の取得に失敗しました。\n{ex.Message}", "エラー", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void btn_CloseDetail_Click(object sender, RoutedEventArgs e)
+        {
+            modal_Detail.Visibility = Visibility.Collapsed;
+        }
+
+        private void modal_Detail_Backdrop_Click(object sender, MouseButtonEventArgs e)
+        {
+            modal_Detail.Visibility = Visibility.Collapsed;
+        }
+    }
+
+    // =============================================
+    // 発注詳細表示モデル (T_HattyuDetail)
+    // =============================================
+
+    public class HattyuDetailDisplayModel
+    {
+        public int HaDetailId { get; set; }
+        public int HaId { get; set; }
+        public int PrId { get; set; }
+        public string PrName { get; set; } = string.Empty;
+        public int HaQuantity { get; set; }
     }
 
     // =============================================
