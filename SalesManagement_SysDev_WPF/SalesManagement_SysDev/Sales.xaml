@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="SalesManagement_SysDev.Sales"
+<UserControl x:Class="SalesManagement_SysDev.Sales"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              Background="#F1F5F9"
@@ -171,10 +171,10 @@
                     </StackPanel>
                 </Button>
 
-                <Button x:Name="btn_DetailSelected" Style="{StaticResource ActionButtonStyle}" Background="#0284C7" Foreground="#FFFFFF" Margin="0,0,8,0" Click="btn_DetailSelected_Click">
+                <Button x:Name="btn_DetailSelected" Style="{StaticResource ActionButtonStyle}" Background="#0284C7" Foreground="#FFFFFF" Margin="0,0,8,0" Click="btn_DetailSelected_Click" IsEnabled="False">
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="🔍" Margin="0,0,4,0" />
-                        <TextBlock Text="売上詳細・確認" FontWeight="Bold" />
+                        <TextBlock Text="売上詳細" FontWeight="Bold" />
                     </StackPanel>
                 </Button>
 
@@ -402,10 +402,12 @@
                                 </Style>
                             </DataGrid.ColumnHeaderStyle>
                             <DataGrid.Columns>
-                                <DataGridTextColumn Header="明細ID" Binding="{Binding SaDetailId}" Width="65" />
+                                <DataGridTextColumn Header="売上明細ID" Binding="{Binding SaDetailId}" Width="85" />
+                                <DataGridTextColumn Header="売上ID" Binding="{Binding SaId}" Width="70" />
+                                <DataGridTextColumn Header="商品ID" Binding="{Binding PrId}" Width="70" />
                                 <DataGridTextColumn Header="商品名" Binding="{Binding PrName}" Width="*" />
                                 <DataGridTextColumn Header="数量" Binding="{Binding SaQuantity}" Width="70" />
-                                <DataGridTextColumn Header="小計金額" Binding="{Binding SaPrTotalPriceFormatted}" Width="110" />
+                                <DataGridTextColumn Header="合計金額" Binding="{Binding SaPrTotalPriceFormatted}" Width="110" />
                             </DataGrid.Columns>
                         </DataGrid>
                     </Border>

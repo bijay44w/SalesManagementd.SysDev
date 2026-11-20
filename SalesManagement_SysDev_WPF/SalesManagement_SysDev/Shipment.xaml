@@ -183,7 +183,7 @@
                 <Button x:Name="btn_OpenDetail" Style="{StaticResource ActionButtonStyle}" Background="#0284C7" Foreground="#FFFFFF" Margin="0,0,8,0" Click="btn_OpenDetail_Click" IsEnabled="False">
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="🔍" Margin="0,0,4,0" />
-                        <TextBlock Text="出荷詳細・確定" FontWeight="Bold" />
+                        <TextBlock Text="出荷詳細" FontWeight="Bold" />
                     </StackPanel>
                 </Button>
 
@@ -407,9 +407,11 @@
                                 </Style>
                             </DataGrid.ColumnHeaderStyle>
                             <DataGrid.Columns>
-                                <DataGridTextColumn Header="明細ID" Binding="{Binding ShDetailId}" Width="65" />
+                                <DataGridTextColumn Header="出荷明細ID" Binding="{Binding ShDetailId}" Width="85" />
+                                <DataGridTextColumn Header="出荷ID" Binding="{Binding ShId}" Width="70" />
+                                <DataGridTextColumn Header="商品ID" Binding="{Binding PrId}" Width="70" />
                                 <DataGridTextColumn Header="商品名" Binding="{Binding PrName}" Width="*" />
-                                <DataGridTextColumn Header="出荷数量" Binding="{Binding ShQuantity}" Width="90" />
+                                <DataGridTextColumn Header="数量" Binding="{Binding ShQuantity}" Width="80" />
                             </DataGrid.Columns>
                         </DataGrid>
                     </Border>

@@ -175,10 +175,20 @@
                         <TextBlock Text="新規入庫登録" FontWeight="Bold"/>
                     </StackPanel>
                 </Button>
+                <Button x:Name="btn_DetailSelected"
+                        Style="{StaticResource ActionButtonStyle}"
+                        Background="#0284C7" Foreground="White"
+                        Margin="0,0,8,0" IsEnabled="False"
+                        Click="btn_DetailSelected_Click">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="🔍" Margin="0,0,4,0"/>
+                        <TextBlock Text="入庫詳細" FontWeight="Bold"/>
+                    </StackPanel>
+                </Button>
                 <Button x:Name="btn_EditSelected"
                         Style="{StaticResource ActionButtonStyle}"
                         Background="#0284C7" Foreground="White"
-                        Margin="0,0,8,0" Click="btn_EditSelected_Click">
+                        Margin="0,0,8,0" IsEnabled="False" Click="btn_EditSelected_Click">
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="✎" Margin="0,0,4,0"/>
                         <TextBlock Text="選択項目を編集" FontWeight="Bold"/>
@@ -187,7 +197,7 @@
                 <Button x:Name="btn_HideSelected"
                         Style="{StaticResource ActionButtonStyle}"
                         Background="#DC2626" Foreground="White"
-                        Margin="0,0,8,0" Click="btn_HideSelected_Click">
+                        Margin="0,0,8,0" IsEnabled="False" Click="btn_HideSelected_Click">
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="⊘" Margin="0,0,4,0"/>
                         <TextBlock Text="非表示設定" FontWeight="Bold"/>
@@ -196,7 +206,7 @@
                 <Button x:Name="btn_DeleteSelected"
                         Style="{StaticResource ActionButtonStyle}"
                         Background="#991B1B" Foreground="White"
-                        Margin="0,0,8,0" Click="btn_DeleteSelected_Click" Width="109">
+                        Margin="0,0,8,0" IsEnabled="False" Click="btn_DeleteSelected_Click" Width="109">
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="🗑" Margin="0,0,4,0"/>
                         <TextBlock Text="削除" FontWeight="Bold"/>
@@ -226,7 +236,9 @@
                       CanUserDeleteRows="False" SelectionMode="Single"
                       GridLinesVisibility="Horizontal"
                       HorizontalGridLinesBrush="#E2E8F0" RowHeight="34"
-                      AlternatingRowBackground="#F8FAFC" BorderThickness="0">
+                      AlternatingRowBackground="#F8FAFC" BorderThickness="0"
+                      SelectionChanged="dg_Warehousings_SelectionChanged"
+                      MouseDoubleClick="dg_Warehousings_MouseDoubleClick">
                 <DataGrid.ColumnHeaderStyle>
                     <Style TargetType="DataGridColumnHeader">
                         <Setter Property="Background" Value="#E2E8F0"/>
@@ -362,6 +374,89 @@
                                 Content="非表示に設定" Background="#DC2626"
                                 Foreground="White"
                                 Click="btn_ExecuteHide_Click"/>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <!-- モーダル: 入庫詳細表示 (T_WarehousingDetail) -->
+        <Grid x:Name="modal_Detail" Grid.RowSpan="4" Visibility="Collapsed" Panel.ZIndex="1000">
+            <Border Background="#66000000" MouseLeftButtonDown="modal_Detail_Backdrop_Click"/>
+            <Border Width="620" MaxHeight="650" Background="#FFFFFF" CornerRadius="12" BorderBrush="#E2E8F0" BorderThickness="1" Padding="28,24" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <Border.Effect>
+                    <DropShadowEffect Color="#000000" Opacity="0.18" BlurRadius="25" ShadowDepth="6" Direction="270"/>
+                </Border.Effect>
+                <StackPanel>
+                    <!-- ヘッダー -->
+                    <Grid Margin="0,0,0,14">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <Border Background="#E0F2FE" CornerRadius="8" Width="36" Height="36" Margin="0,0,10,0">
+                                <TextBlock Text="🔍" FontSize="16" Foreground="#0284C7" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <StackPanel VerticalAlignment="Center">
+                                <TextBlock Text="入庫詳細情報" FontSize="17" FontWeight="Bold" Foreground="#0F172A"/>
+                                <TextBlock x:Name="detail_txt_Header" Text="入庫情報および入庫詳細テーブル（T_WarehousingDetail）の確認" FontSize="11" Foreground="#64748B"/>
+                            </StackPanel>
+                        </StackPanel>
+                        <Button HorizontalAlignment="Right" VerticalAlignment="Top" Width="28" Height="28" Background="#F1F5F9" BorderThickness="0" Cursor="Hand" Click="btn_CloseDetail_Click">
+                            <TextBlock Text="✕" FontSize="13" Foreground="#64748B" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Button>
+                    </Grid>
+
+                    <Separator Background="#E2E8F0" Margin="0,0,0,14"/>
+
+                    <!-- ヘッダーサマリー -->
+                    <Border Background="#F8FAFC" BorderBrush="#CBD5E1" BorderThickness="1" CornerRadius="6" Padding="14,10" Margin="0,0,0,14">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="6"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <TextBlock Grid.Row="0" Grid.Column="0" x:Name="detail_txt_WaId" Text="入庫ID: -" FontWeight="Bold" Foreground="#1E3A5F"/>
+                            <TextBlock Grid.Row="0" Grid.Column="1" x:Name="detail_txt_HaId" Text="発注ID: -" FontWeight="Bold" Foreground="#1E3A5F"/>
+
+                            <TextBlock Grid.Row="2" Grid.Column="0" x:Name="detail_txt_Date" Text="入庫日: -" Foreground="#475569"/>
+                            <TextBlock Grid.Row="2" Grid.Column="1" x:Name="detail_txt_Employee" Text="担当社員: -" Foreground="#475569"/>
+                        </Grid>
+                    </Border>
+
+                    <!-- 詳細テーブル DataGrid -->
+                    <TextBlock Text="入庫詳細テーブル（T_WarehousingDetail）" FontWeight="SemiBold" Foreground="#334155" Margin="0,0,0,4"/>
+                    <Border Background="#FFFFFF" BorderBrush="#CBD5E1" BorderThickness="1" CornerRadius="4" Margin="0,0,0,16" MaxHeight="220">
+                        <DataGrid x:Name="dg_WarehousingDetailItems"
+                                  AutoGenerateColumns="False"
+                                  IsReadOnly="True"
+                                  HeadersVisibility="Column"
+                                  RowHeight="28"
+                                  AlternatingRowBackground="#F8FAFC"
+                                  GridLinesVisibility="Horizontal">
+                            <DataGrid.ColumnHeaderStyle>
+                                <Style TargetType="DataGridColumnHeader">
+                                    <Setter Property="Background" Value="#E2E8F0"/>
+                                    <Setter Property="FontWeight" Value="SemiBold"/>
+                                    <Setter Property="Height" Value="28"/>
+                                    <Setter Property="Padding" Value="8,0"/>
+                                </Style>
+                            </DataGrid.ColumnHeaderStyle>
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="入庫詳細ID" Binding="{Binding WaDetailId}" Width="95"/>
+                                <DataGridTextColumn Header="入庫ID" Binding="{Binding WaId}" Width="75"/>
+                                <DataGridTextColumn Header="商品ID" Binding="{Binding PrId}" Width="75"/>
+                                <DataGridTextColumn Header="商品名" Binding="{Binding PrName}" Width="*"/>
+                                <DataGridTextColumn Header="数量" Binding="{Binding WaQuantity}" Width="85"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </Border>
+
+                    <!-- ボタン -->
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                        <Button Style="{StaticResource ActionButtonStyle}" Background="#0284C7" Foreground="#FFFFFF" Click="btn_CloseDetail_Click" Content="閉じる" MinWidth="80"/>
                     </StackPanel>
                 </StackPanel>
             </Border>

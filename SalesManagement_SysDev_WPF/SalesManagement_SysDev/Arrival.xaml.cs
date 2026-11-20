@@ -553,10 +553,74 @@ namespace SalesManagement_SysDev
         {
             var selected = dg_Arrivals.SelectedItem as ArrivalDisplayModel;
             bool has = selected != null;
+            btn_DetailSelected.IsEnabled = has;
             btn_EditSelected.IsEnabled = has;
             btn_HideSelected.IsEnabled = has;
             btn_DeleteSelected.IsEnabled = has;
             btn_ConfirmArrival.IsEnabled = has && (selected?.ArStateFlag != 1);
+        }
+
+        private void btn_DetailSelected_Click(object sender, RoutedEventArgs e)
+        {
+            if (dg_Arrivals.SelectedItem is ArrivalDisplayModel selected)
+            {
+                OpenDetailModal(selected.ArId);
+            }
+        }
+
+        private void OpenDetailModal(int arId)
+        {
+            try
+            {
+                using var context = new SalesManagementContext();
+                var arrival = context.TArrivals
+                    .AsNoTracking()
+                    .Include(a => a.Cl)
+                    .Include(a => a.So)
+                    .FirstOrDefault(a => a.ArId == arId);
+
+                if (arrival == null)
+                {
+                    MessageBox.Show("対象の入荷データが見つかりません。", "案内", MessageBoxButton.OK, MessageBoxImage.Information);
+                    return;
+                }
+
+                detail_txt_ArId.Text = $"入荷ID: {arrival.ArId} (受注ID: {arrival.OrId})";
+                detail_txt_Client.Text = $"顧客名: {arrival.Cl?.ClName ?? $"顧客ID: {arrival.ClId}"}";
+                detail_txt_Date.Text = $"入荷日: {arrival.ArDate:yyyy/MM/dd}";
+                detail_txt_Office.Text = $"営業所: {arrival.So?.SoName ?? $"営業所ID: {arrival.SoId}"}";
+
+                var details = context.TArrivalDetails
+                    .AsNoTracking()
+                    .Include(d => d.Pr)
+                    .Where(d => d.ArId == arId)
+                    .Select(d => new ArrivalDetailDisplayModel
+                    {
+                        ArDetailId = d.ArDetailId,
+                        ArId = d.ArId,
+                        PrId = d.PrId,
+                        PrName = d.Pr != null ? d.Pr.PrName : $"商品ID: {d.PrId}",
+                        ArQuantity = d.ArQuantity
+                    })
+                    .ToList();
+
+                dg_ArrivalDetailItems.ItemsSource = details;
+                modal_Detail.Visibility = Visibility.Visible;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("入荷詳細の取得に失敗しました。\n" + ex.Message, "エラー", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void btn_CloseDetail_Click(object sender, RoutedEventArgs e)
+        {
+            modal_Detail.Visibility = Visibility.Collapsed;
+        }
+
+        private void modal_Detail_Backdrop_Click(object sender, MouseButtonEventArgs e)
+        {
+            modal_Detail.Visibility = Visibility.Collapsed;
         }
 
         private void btn_ConfirmArrival_Click(object sender, RoutedEventArgs e)
@@ -599,7 +663,7 @@ namespace SalesManagement_SysDev
         private void dg_Arrivals_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
             if (dg_Arrivals.SelectedItem is ArrivalDisplayModel selected)
-                OpenUpdateModal(selected.ArDetailId);
+                OpenDetailModal(selected.ArId);
         }
 
         // =====================================================================
@@ -955,5 +1019,14 @@ namespace SalesManagement_SysDev
             MessageBox.Show(message, "削除完了", MessageBoxButton.OK, MessageBoxImage.Information);
             ExecuteSearch();
         }
+    }
+
+    public class ArrivalDetailDisplayModel
+    {
+        public int ArDetailId { get; set; }
+        public int? ArId { get; set; }
+        public int? PrId { get; set; }
+        public string PrName { get; set; } = string.Empty;
+        public int? ArQuantity { get; set; }
     }
 }

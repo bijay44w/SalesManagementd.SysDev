@@ -187,6 +187,13 @@
                     </StackPanel>
                 </Button>
 
+                <Button x:Name="btn_DetailSelected" Style="{StaticResource ActionButtonStyle}" Background="#0284C7" Foreground="#FFFFFF" Margin="0,0,8,0" IsEnabled="False" Click="btn_DetailSelected_Click">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="🔍" Margin="0,0,4,0" />
+                        <TextBlock Text="入荷詳細" FontWeight="Bold" />
+                    </StackPanel>
+                </Button>
+
                 <Button x:Name="btn_ConfirmArrival" Style="{StaticResource ActionButtonStyle}" Background="#16A34A" Foreground="#FFFFFF" Margin="0,0,8,0" IsEnabled="False" Click="btn_ConfirmArrival_Click">
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="✔" Margin="0,0,4,0" FontWeight="Bold" />
@@ -547,6 +554,89 @@
                         <Button Grid.Column="0" Content="キャンセル" Style="{StaticResource SecondaryButtonStyle}" Margin="0,0,8,0" Click="btn_CloseArrivalHide_Click" />
                         <Button Grid.Column="1" Content="管理フラグを 2 (非表示) に更新" Style="{StaticResource DangerButtonStyle}" Click="btn_ExecuteArrivalHide_Click" />
                     </Grid>
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <!-- モーダル: 入荷詳細表示 (T_ArrivalDetail) -->
+        <Grid x:Name="modal_Detail" Grid.RowSpan="4" Visibility="Collapsed" Panel.ZIndex="1000">
+            <Border Background="#66000000" MouseLeftButtonDown="modal_Detail_Backdrop_Click"/>
+            <Border Width="620" MaxHeight="650" Background="#FFFFFF" CornerRadius="12" BorderBrush="#E2E8F0" BorderThickness="1" Padding="28,24" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <Border.Effect>
+                    <DropShadowEffect Color="#000000" Opacity="0.18" BlurRadius="25" ShadowDepth="6" Direction="270"/>
+                </Border.Effect>
+                <StackPanel>
+                    <!-- ヘッダー -->
+                    <Grid Margin="0,0,0,14">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <Border Background="#E0F2FE" CornerRadius="8" Width="36" Height="36" Margin="0,0,10,0">
+                                <TextBlock Text="🔍" FontSize="16" Foreground="#0284C7" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <StackPanel VerticalAlignment="Center">
+                                <TextBlock Text="入荷詳細情報" FontSize="17" FontWeight="Bold" Foreground="#0F172A"/>
+                                <TextBlock x:Name="detail_txt_Header" Text="入荷情報および入荷詳細テーブル（T_ArrivalDetail）の確認" FontSize="11" Foreground="#64748B"/>
+                            </StackPanel>
+                        </StackPanel>
+                        <Button HorizontalAlignment="Right" VerticalAlignment="Top" Width="28" Height="28" Background="#F1F5F9" BorderThickness="0" Cursor="Hand" Click="btn_CloseDetail_Click">
+                            <TextBlock Text="✕" FontSize="13" Foreground="#64748B" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Button>
+                    </Grid>
+
+                    <Separator Background="#E2E8F0" Margin="0,0,0,14"/>
+
+                    <!-- ヘッダーサマリー -->
+                    <Border Background="#F8FAFC" BorderBrush="#CBD5E1" BorderThickness="1" CornerRadius="6" Padding="14,10" Margin="0,0,0,14">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="6"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <TextBlock Grid.Row="0" Grid.Column="0" x:Name="detail_txt_ArId" Text="入荷ID: -" FontWeight="Bold" Foreground="#1E3A5F"/>
+                            <TextBlock Grid.Row="0" Grid.Column="1" x:Name="detail_txt_Client" Text="顧客名: -" FontWeight="Bold" Foreground="#1E3A5F"/>
+
+                            <TextBlock Grid.Row="2" Grid.Column="0" x:Name="detail_txt_Date" Text="入荷日: -" Foreground="#475569"/>
+                            <TextBlock Grid.Row="2" Grid.Column="1" x:Name="detail_txt_Office" Text="営業所: -" Foreground="#475569"/>
+                        </Grid>
+                    </Border>
+
+                    <!-- 詳細テーブル DataGrid -->
+                    <TextBlock Text="入荷詳細テーブル（T_ArrivalDetail）" FontWeight="SemiBold" Foreground="#334155" Margin="0,0,0,4"/>
+                    <Border Background="#FFFFFF" BorderBrush="#CBD5E1" BorderThickness="1" CornerRadius="4" Margin="0,0,0,16" MaxHeight="220">
+                        <DataGrid x:Name="dg_ArrivalDetailItems"
+                                  AutoGenerateColumns="False"
+                                  IsReadOnly="True"
+                                  HeadersVisibility="Column"
+                                  RowHeight="28"
+                                  AlternatingRowBackground="#F8FAFC"
+                                  GridLinesVisibility="Horizontal">
+                            <DataGrid.ColumnHeaderStyle>
+                                <Style TargetType="DataGridColumnHeader">
+                                    <Setter Property="Background" Value="#E2E8F0"/>
+                                    <Setter Property="FontWeight" Value="SemiBold"/>
+                                    <Setter Property="Height" Value="28"/>
+                                    <Setter Property="Padding" Value="8,0"/>
+                                </Style>
+                            </DataGrid.ColumnHeaderStyle>
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="入荷詳細ID" Binding="{Binding ArDetailId}" Width="95"/>
+                                <DataGridTextColumn Header="入荷ID" Binding="{Binding ArId}" Width="75"/>
+                                <DataGridTextColumn Header="商品ID" Binding="{Binding PrId}" Width="75"/>
+                                <DataGridTextColumn Header="商品名" Binding="{Binding PrName}" Width="*"/>
+                                <DataGridTextColumn Header="数量" Binding="{Binding ArQuantity}" Width="85"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </Border>
+
+                    <!-- ボタン -->
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                        <Button Style="{StaticResource ActionButtonStyle}" Background="#0284C7" Foreground="#FFFFFF" Click="btn_CloseDetail_Click" Content="閉じる" MinWidth="80"/>
+                    </StackPanel>
                 </StackPanel>
             </Border>
         </Grid>

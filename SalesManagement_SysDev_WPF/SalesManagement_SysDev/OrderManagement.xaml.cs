@@ -389,6 +389,8 @@ namespace SalesManagement_SysDev
             btn_Register.IsEnabled =
                 _loggedInEmployee != null;
 
+            btn_Detail.IsEnabled = hasSelection;
+
             btn_Update.IsEnabled =
                 isVisible &&
                 isUnconfirmed &&
@@ -399,6 +401,106 @@ namespace SalesManagement_SysDev
 
             btn_Hide.IsEnabled = isVisible;
             btn_Delete.IsEnabled = isVisible;
+        }
+
+        // =====================================================
+        // 注文詳細モーダル表示 (T_ChumonDetail)
+        // =====================================================
+
+        private void btn_Detail_Click(object sender, RoutedEventArgs e)
+        {
+            if (_selectedOrder != null)
+            {
+                OpenDetailModal(_selectedOrder);
+            }
+        }
+
+        private void OpenDetailModal(OrderManagementRowModel row)
+        {
+            if (row == null) return;
+
+            detail_txt_OrderId.Text = $"注文番号 / 受注ID: {row.OrderId}";
+            detail_txt_Customer.Text = $"顧客名: {row.CustomerName}";
+            detail_txt_Date.Text = $"注文日: {row.OrderDate:yyyy/MM/dd}";
+            detail_txt_Status.Text = $"状態: {row.OrderStatus} ({row.FlagFormatted})";
+
+            try
+            {
+                using var context = new SalesManagementContext();
+
+                // T_Chumon テーブルの該当データを検索
+                var chumon = context.TChumons
+                    .Include(c => c.TChumonDetails)
+                        .ThenInclude(d => d.Pr)
+                    .FirstOrDefault(c => c.OrId == row.Id);
+
+                if (chumon == null && int.TryParse(row.OrderId, out int parsedChId))
+                {
+                    chumon = context.TChumons
+                        .Include(c => c.TChumonDetails)
+                            .ThenInclude(d => d.Pr)
+                        .FirstOrDefault(c => c.ChId == parsedChId);
+                }
+
+                var detailList = new List<ChumonDetailDisplayModel>();
+
+                if (chumon != null && chumon.TChumonDetails.Count > 0)
+                {
+                    detail_txt_OrderId.Text = $"注文ID: {chumon.ChId} (受注ID: {chumon.OrId})";
+                    foreach (var d in chumon.TChumonDetails)
+                    {
+                        detailList.Add(new ChumonDetailDisplayModel
+                        {
+                            ChDetailId = d.ChDetailId,
+                            ChId = d.ChId,
+                            PrId = d.PrId,
+                            PrName = d.Pr != null ? d.Pr.PrName : $"商品ID: {d.PrId}",
+                            ChQuantity = d.ChQuantity
+                        });
+                    }
+                }
+                else
+                {
+                    var order = context.TOrders
+                        .Include(o => o.TOrderDetails)
+                            .ThenInclude(od => od.Pr)
+                        .FirstOrDefault(o => o.OrId == row.Id);
+
+                    if (order != null)
+                    {
+                        int dummyChId = chumon?.ChId ?? row.Id;
+                        int seq = 1;
+                        foreach (var od in order.TOrderDetails)
+                        {
+                            detailList.Add(new ChumonDetailDisplayModel
+                            {
+                                ChDetailId = seq++,
+                                ChId = dummyChId,
+                                PrId = od.PrId,
+                                PrName = od.Pr != null ? od.Pr.PrName : $"商品ID: {od.PrId}",
+                                ChQuantity = od.OrQuantity
+                            });
+                        }
+                    }
+                }
+
+                dg_ChumonDetailItems.ItemsSource = detailList;
+                modal_Detail.Visibility = Visibility.Visible;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"注文詳細の取得に失敗しました。\n{ex.Message}", "エラー", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void btn_CloseDetail_Click(object sender, RoutedEventArgs e)
+        {
+            modal_Detail.Visibility = Visibility.Collapsed;
+        }
+
+        private void modal_Detail_Backdrop_Click(object sender, MouseButtonEventArgs e)
+        {
+            modal_Detail.Visibility = Visibility.Collapsed;
         }
 
         // =====================================================
