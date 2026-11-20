@@ -203,7 +203,7 @@
 
     </UserControl.Resources>
 
-    <Grid Background="{StaticResource BackgroundColor}">
+    <Grid Background="{StaticResource BackgroundColor}" Margin="0,0,-65,0">
 
         <Grid.RowDefinitions>
             <RowDefinition Height="67"/>

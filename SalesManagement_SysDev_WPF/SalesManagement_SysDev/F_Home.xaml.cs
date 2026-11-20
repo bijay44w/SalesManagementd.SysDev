@@ -1037,6 +1037,11 @@ namespace SalesManagement_SysDev
             }
         }
 
+        public void NavigateFromPurchaseOrder(string tag)
+        {
+            NavigateToTag(tag);
+        }
+
         private void MenuButton_Click(object sender, RoutedEventArgs e)
         {
             if (sender is not Button button)
