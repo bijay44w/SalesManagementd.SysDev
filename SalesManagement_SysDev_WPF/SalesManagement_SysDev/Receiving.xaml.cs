@@ -9,7 +9,7 @@ namespace SalesManagement_SysDev
 {
     /// <summary>
     /// 機能11 入庫管理。
-    /// 入庫登録時に棚入れ済みとして確定し、在庫数へ反映する。
+    /// 入庫一覧・検索・更新・非表示を行い、棚入れ完了時に在庫数へ反映する。
     /// </summary>
     public partial class Receiving : UserControl
     {
@@ -78,6 +78,7 @@ namespace SalesManagement_SysDev
 
                 dg_Warehousings.ItemsSource = rows;
                 txt_RecordCount.Text = $"表示件数: {rows.Count} 件";
+                UpdateActionButtonsState();
             }
             catch (Exception ex)
             {
@@ -189,7 +190,11 @@ namespace SalesManagement_SysDev
             btn_DetailSelected.IsEnabled = hasSelection;
             btn_EditSelected.IsEnabled = hasSelection;
             btn_HideSelected.IsEnabled = hasSelection;
-            btn_DeleteSelected.IsEnabled = hasSelection;
+
+            btn_ShelveSelected.IsEnabled =
+                dg_Warehousings.SelectedItem is ReceivingRow selected &&
+                selected.WaShelfFlag != ShelvedFlag &&
+                selected.WaFlag == ActiveFlag;
         }
 
         private void dg_Warehousings_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -231,7 +236,7 @@ namespace SalesManagement_SysDev
 
                 detail_txt_WaId.Text = $"入庫ID: {warehousing.WaId}";
                 detail_txt_HaId.Text = $"発注ID: {warehousing.HaId}";
-                detail_txt_Date.Text = $"入庫日: {warehousing.WaDate:yyyy/MM/dd}";
+                detail_txt_Date.Text = $"入庫日: {warehousing.WaDate?.ToString("yyyy/MM/dd") ?? "未確定"}";
                 detail_txt_Employee.Text = $"担当社員: {warehousing.Em?.EmName ?? $"社員ID: {warehousing.EmId}"}";
 
                 var details = context.TWarehousingDetails
@@ -290,31 +295,6 @@ namespace SalesManagement_SysDev
                 home.NavigateToTag("10"); // 発注管理へ戻る
             }           
         }
-
-        /// <summary>
-        /// 新規入庫登録画面を開く
-        /// </summary>
-        private void btn_NewRegister_Click(object sender, RoutedEventArgs e)
-        {
-            _isEditing = false;
-            _editingWaId = null;
-            _editingWaDetailId = null;
-
-            txt_EditorTitle.Text = "新規入庫登録";
-            btn_ExecuteEditor.Content = "登録実行";
-            btn_ExecuteEditor.Background = System.Windows.Media.Brushes.Teal;
-
-            LoadEditorChoices();
-
-            dp_WaDate.SelectedDate = DateTime.Today;
-            txt_WaQuantity.Text = "1";
-            cmb_HaId.SelectedIndex = -1;
-            cmb_Product.ItemsSource = null;
-            cmb_Employee.SelectedIndex = -1;
-
-            modal_Editor.Visibility = Visibility.Visible;
-        }
-
         /// <summary>
         /// 選択した入庫情報を編集する
         /// </summary>
@@ -336,10 +316,11 @@ namespace SalesManagement_SysDev
 
             LoadEditorChoices();
             cmb_HaId.SelectedValue = selected.HaId;
+            cmb_HaId.IsEnabled = false;
             LoadProductsForOrder(selected.HaId);
             cmb_Product.SelectedValue = selected.PrId;
             cmb_Employee.SelectedValue = selected.EmId;
-            dp_WaDate.SelectedDate = selected.WaDate.Date;
+            dp_WaDate.SelectedDate = selected.WaDate?.Date;
             txt_WaQuantity.Text = selected.WaQuantity.ToString();
 
             modal_Editor.Visibility = Visibility.Visible;
@@ -428,21 +409,21 @@ namespace SalesManagement_SysDev
         }
 
         /// <summary>
-        /// 入庫登録・更新を実行する。
-        /// 登録実行を棚入れ確定として扱い、在庫数へ反映する。
+        /// 既存の入庫情報を更新する。
+        /// 棚入れ済みの場合は旧在庫数を差し引き、未棚入れ状態に戻す。
         /// </summary>
         private void btn_ExecuteEditor_Click(object sender, RoutedEventArgs e)
         {
+            if (!_isEditing)
+            {
+                ShowWarning("更新対象の入庫情報を選択してください。");
+                return;
+            }
+        
             if (cmb_HaId.SelectedValue == null ||
                 !int.TryParse(cmb_HaId.SelectedValue.ToString(), out int haId))
             {
                 ShowWarning("発注を選択してください。");
-                return;
-            }
-
-            if (dp_WaDate.SelectedDate == null)
-            {
-                ShowWarning("入庫日を指定してください。");
                 return;
             }
 
@@ -484,88 +465,72 @@ namespace SalesManagement_SysDev
                     return;
                 }
 
-                int? oldWaId = _isEditing ? _editingWaId : null;
+                int? oldWaDetailId = _isEditing ? _editingWaDetailId : null;
+
                 int alreadyReceived = context.TWarehousingDetails
                     .Include(d => d.Wa)
-                    .Where(d => d.Wa.HaId == haId && d.PrId == prId &&
-                                (!oldWaId.HasValue || d.WaId != oldWaId.Value))
+                    .Where(d => d.Wa.HaId == haId &&
+                                d.PrId == prId &&
+                                (!oldWaDetailId.HasValue ||
+                                 d.WaDetailId != oldWaDetailId.Value))
                     .Sum(d => (int?)d.WaQuantity) ?? 0;
 
                 if (quantity > purchaseDetail.HaQuantity - alreadyReceived)
                 {
-                    ShowWarning($"発注数量を超えています。今回登録できる残り数量は {Math.Max(0, purchaseDetail.HaQuantity - alreadyReceived)} 個です。");
+                    ShowWarning($"発注数量を超えています。今回更新できる残り数量は {Math.Max(0, purchaseDetail.HaQuantity - alreadyReceived)} 個です。");
                     return;
                 }
 
                 if (_isEditing)
                 {
+                    // ① 更新対象を確認
                     if (!_editingWaId.HasValue || !_editingWaDetailId.HasValue)
                     {
                         ShowWarning("更新対象を特定できません。もう一度選択してください。");
                         return;
                     }
 
+                    // ② 更新対象を取得
                     var warehousing = context.TWarehousings
                         .FirstOrDefault(w => w.WaId == _editingWaId.Value);
+
                     var detail = context.TWarehousingDetails
                         .FirstOrDefault(d => d.WaDetailId == _editingWaDetailId.Value);
 
+                    // ③ データが存在するか確認
                     if (warehousing == null || detail == null)
                     {
                         ShowWarning("更新対象の入庫情報が見つかりません。");
                         return;
                     }
 
-                    // 既に棚入れ済みの旧数量を在庫から差し引き、新しい入庫数量を加算する。
+                    // ④ 変更前に棚入れ済みだった場合、旧数量を在庫から差し引く
                     if (warehousing.WaShelfFlag == ShelvedFlag)
+                    {
                         ChangeStock(context, detail.PrId, -detail.WaQuantity);
+                    }
 
+                    // ⑤ 入庫情報を更新
                     warehousing.HaId = haId;
                     warehousing.EmId = emId;
-                    warehousing.WaDate = dp_WaDate.SelectedDate.Value.Date;
-                    warehousing.WaShelfFlag = ShelvedFlag;
+                    warehousing.WaDate = dp_WaDate.SelectedDate;
+                    warehousing.WaShelfFlag = 0;
                     warehousing.WaFlag = ActiveFlag;
+
                     detail.PrId = prId;
                     detail.WaQuantity = quantity;
 
-                    ChangeStock(context, prId, quantity);
-                    purchaseOrder.WaWarehouseFlag = 1;
                     context.SaveChanges();
                     transaction.Commit();
-                    ShowInfo("入庫情報を更新し、在庫数に反映しました。");
+
+                    ShowInfo("入庫情報を更新しました。");
+                    modal_Editor.Visibility = Visibility.Collapsed;
+                    LoadWarehousings();
                 }
-                else
-                {
-                    var warehousing = new TWarehousing
-                    {
-                        HaId = haId,
-                        EmId = emId,
-                        WaDate = dp_WaDate.SelectedDate.Value.Date,
-                        WaShelfFlag = ShelvedFlag,
-                        WaHidden = null,
-                        WaFlag = ActiveFlag
-                    };
-
-                    warehousing.TWarehousingDetails.Add(new TWarehousingDetail
-                    {
-                        PrId = prId,
-                        WaQuantity = quantity
-                    });
-
-                    context.TWarehousings.Add(warehousing);
-                    ChangeStock(context, prId, quantity);
-                    purchaseOrder.WaWarehouseFlag = 1;
-                    context.SaveChanges();
-                    transaction.Commit();
-                    ShowInfo("入庫情報を登録し、棚入れ済みとして在庫数に反映しました。");
-                }
-
-                modal_Editor.Visibility = Visibility.Collapsed;
-                LoadWarehousings();
             }
             catch (Exception ex)
             {
-                ShowError("入庫情報の保存に失敗しました。\n" + ex.Message);
+                ShowError("入庫情報の更新に失敗しました。\n" + ex.Message);
             }
         }
 
@@ -573,7 +538,7 @@ namespace SalesManagement_SysDev
         /// 在庫数量を増減する。正数で加算、負数で減算する。
         /// </summary>
         private static void ChangeStock(
-            SalesManagementContext context, int prId, int delta)
+    SalesManagementContext context, int prId, int delta)
         {
             var stock = context.TStocks
                 .FirstOrDefault(s => s.PrId == prId && s.StFlag == ActiveFlag);
@@ -596,7 +561,8 @@ namespace SalesManagement_SysDev
             }
 
             if (stock.StQuantity + delta < 0)
-                throw new InvalidOperationException("在庫数がマイナスになるため処理できません。");
+                throw new InvalidOperationException(
+                    "在庫数がマイナスになるため処理できません。");
 
             stock.StQuantity += delta;
         }
@@ -614,92 +580,6 @@ namespace SalesManagement_SysDev
             hide_txt_Reason.Text = selected.WaHidden;
             modal_Hide.Tag = selected.WaId;
             modal_Hide.Visibility = Visibility.Visible;
-
-            /*if (dg_Warehousings.SelectedItem is ReceivingRow selected)
-            {
-                hide_txt_TargetInfo.Text =
-                    $"入庫: [{selected.WaId}] 発注ID: {selected.HaId} ／ 商品: {selected.ProductName}";
-
-                hide_txt_Reason.Text = string.Empty;
-
-                modal_Hide.Tag = selected.WaId;
-                modal_Hide.Visibility = Visibility.Visible;
-
-                hide_txt_Reason.Focus();
-            }*/
-        }
-
-        private void btn_DeleteSelected_Click(object sender, RoutedEventArgs e)
-        {
-            if (dg_Warehousings.SelectedItem is not ReceivingRow selected)
-            {
-                ShowWarning("削除する入庫情報を一覧から選択してください。");
-                return;
-            }
-
-            var result = MessageBox.Show(
-                $"次の入庫データを完全に削除しますか？\n\n" +
-                $"入庫ID：{selected.WaId}\n" +
-                $"発注ID：{selected.HaId}\n" +
-                $"商品名：{selected.ProductName}\n" +
-                $"入庫数：{selected.WaQuantity} 個\n\n" +
-                "この操作は取り消せません。",
-                "入庫の完全削除確認",
-                MessageBoxButton.YesNo,
-                MessageBoxImage.Warning);
-
-            if (result != MessageBoxResult.Yes)
-                return;
-
-            try
-            {
-                using var context = new SalesManagementContext();
-                var warehousing = context.TWarehousings
-                    .Include(w => w.TWarehousingDetails)
-                    .FirstOrDefault(w => w.WaId == selected.WaId);
-
-                if (warehousing == null)
-                {
-                    ShowWarning("対象の入庫情報が見つかりません。");
-                    LoadWarehousings();
-                    return;
-                }
-
-                if (warehousing.WaShelfFlag == ShelvedFlag)
-                {
-                    ShowWarning("棚入れ済みの入庫データは在庫に反映されているため、完全削除できません。\n非表示機能を使用してください。");
-                    return;
-                }
-
-                if (warehousing.TWarehousingDetails != null && warehousing.TWarehousingDetails.Any())
-                {
-                    context.TWarehousingDetails.RemoveRange(warehousing.TWarehousingDetails);
-                }
-
-                int deletedHaId = warehousing.HaId;
-                context.TWarehousings.Remove(warehousing);
-                context.SaveChanges();
-
-                // 同じ発注に他に有効な入庫データが存在しない場合、未入庫に戻す
-                bool hasOtherReceiving = context.TWarehousings
-                    .Any(w => w.HaId == deletedHaId && w.WaFlag == ActiveFlag);
-                if (!hasOtherReceiving)
-                {
-                    var po = context.THattyus.FirstOrDefault(h => h.HaId == deletedHaId);
-                    if (po != null)
-                    {
-                        po.WaWarehouseFlag = 0;
-                        context.SaveChanges();
-                    }
-                }
-
-                ShowInfo($"入庫ID「{selected.WaId}」を完全に削除しました。");
-                LoadWarehousings();
-            }
-            catch (Exception ex)
-            {
-                ShowError("入庫情報の削除に失敗しました。\n" + ex.Message);
-            }
         }
 
         private void btn_ExecuteHide_Click(object sender, RoutedEventArgs e)
@@ -785,7 +665,7 @@ namespace SalesManagement_SysDev
             public int WaId { get; set; }
             public int HaId { get; set; }
             public int? EmId { get; set; }
-            public DateTime WaDate { get; set; }
+            public DateTime? WaDate { get; set; }
             public int? WaShelfFlag { get; set; }
             public int WaFlag { get; set; }
             public string WaHidden { get; set; } = string.Empty;
@@ -812,6 +692,85 @@ namespace SalesManagement_SysDev
             public string PrName { get; set; } = string.Empty;
             public int OrderedQuantity { get; set; }
             public string DisplayText => $"{PrId} / {PrName}（発注数量: {OrderedQuantity}）";
+        }
+
+        /// <summary>
+        /// 選択した入庫情報の棚入れを完了する
+        /// </summary>
+        private void btn_ShelveSelected_Click(object sender, RoutedEventArgs e)
+        {
+            if (dg_Warehousings.SelectedItem is not ReceivingRow selected)
+            {
+                ShowWarning("棚入れする入庫情報を一覧から選択してください。");
+                return;
+            }
+
+            if (selected.WaFlag != ActiveFlag)
+            {
+                ShowWarning("非表示の入庫情報は棚入れできません。");
+                return;
+            }
+
+            if (selected.WaShelfFlag == ShelvedFlag)
+            {
+                ShowWarning("この入庫情報はすでに棚入れ済みです。");
+                return;
+            }
+
+            var result = MessageBox.Show(
+                $"入庫ID「{selected.WaId}」の棚入れを完了しますか？",
+                "棚入れ確認",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Question);
+
+            if (result != MessageBoxResult.Yes)
+                return;
+
+            try
+            {
+                using var context = new SalesManagementContext();
+                using var transaction = context.Database.BeginTransaction();
+
+                var warehousing = context.TWarehousings
+                    .Include(w => w.TWarehousingDetails)
+                    .FirstOrDefault(w => w.WaId == selected.WaId);
+
+                if (warehousing == null)
+                {
+                    ShowWarning("対象の入庫情報が見つかりません。");
+                    return;
+                }
+
+                if (warehousing.WaFlag != ActiveFlag ||
+                    warehousing.WaShelfFlag == ShelvedFlag)
+                {
+                    ShowWarning("この入庫情報は棚入れできません。");
+                    return;
+                }
+
+                if (!warehousing.TWarehousingDetails.Any())
+                {
+                    ShowWarning("入庫明細が存在しないため、棚入れできません。");
+                    return;
+                }
+
+                foreach (var detail in warehousing.TWarehousingDetails)
+                {
+                    ChangeStock(context, detail.PrId, detail.WaQuantity);
+                }
+
+                warehousing.WaShelfFlag = ShelvedFlag;
+
+                context.SaveChanges();
+                transaction.Commit();
+
+                ShowInfo("棚入れが完了し、在庫数に反映しました。");
+                LoadWarehousings();
+            }
+            catch (Exception ex)
+            {
+                ShowError("棚入れに失敗しました。\n" + ex.Message);
+            }
         }
     }
 

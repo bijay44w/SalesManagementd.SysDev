@@ -209,6 +209,9 @@
         <!-- ======================================================== -->
         <Border Grid.Row="3" Background="#FFFFFF" BorderBrush="#CBD5E1" BorderThickness="1" CornerRadius="6" Margin="16,0,16,16">
             <DataGrid x:Name="dg_MainStocks"
+                      
+                      ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                      ScrollViewer.VerticalScrollBarVisibility="Auto"
                       AutoGenerateColumns="False"
                       IsReadOnly="True"
                       CanUserAddRows="False"
@@ -234,18 +237,18 @@
                 </DataGrid.ColumnHeaderStyle>
 
                 <DataGrid.Columns>
-                    <DataGridTextColumn Header="在庫ID" Binding="{Binding StId}" Width="70" />
-                    <DataGridTextColumn Header="商品ID" Binding="{Binding PrId}" Width="70" />
-                    <DataGridTextColumn Header="商品名" Binding="{Binding PrName}" Width="180" />
-                    <DataGridTextColumn Header="メーカー" Binding="{Binding MaName}" Width="120" />
-                    <DataGridTextColumn Header="小分類" Binding="{Binding ScName}" Width="110" />
-                    <DataGridTextColumn Header="型番" Binding="{Binding PrModelNumber}" Width="110" />
-                    <DataGridTextColumn Header="色" Binding="{Binding PrColor}" Width="80" />
-                    <DataGridTextColumn Header="定価" Binding="{Binding PriceFormatted}" Width="95" />
-                    <DataGridTextColumn Header="安全在庫" Binding="{Binding PrSafetyStock}" Width="80" />
-                    <DataGridTextColumn Header="現在在庫数" Binding="{Binding QuantityFormatted}" Width="95" />
-                    <DataGridTextColumn Header="判定" Binding="{Binding StockStatus}" Width="90" />
-                    <DataGridTextColumn Header="状態" Binding="{Binding FlagFormatted}" Width="80" />
+                    <DataGridTextColumn Header="在庫ID" Binding="{Binding StId}" Width="0.7*" />
+                    <DataGridTextColumn Header="商品ID" Binding="{Binding PrId}" Width="0.7*" />
+                    <DataGridTextColumn Header="商品名" Binding="{Binding PrName}" Width="1.8*" />
+                    <DataGridTextColumn Header="メーカー" Binding="{Binding MaName}" Width="1.2*" />
+                    <DataGridTextColumn Header="小分類" Binding="{Binding ScName}" Width="1.1*" />
+                    <DataGridTextColumn Header="型番" Binding="{Binding PrModelNumber}" Width="1.1*" />
+                    <DataGridTextColumn Header="色" Binding="{Binding PrColor}" Width="0.8*" />
+                    <DataGridTextColumn Header="定価" Binding="{Binding PriceFormatted}" Width="0.95*" />
+                    <DataGridTextColumn Header="安全在庫" Binding="{Binding PrSafetyStock}" Width="0.8*" />
+                    <DataGridTextColumn Header="現在在庫数" Binding="{Binding QuantityFormatted}" Width="0.95*" />
+                    <DataGridTextColumn Header="状態" Binding="{Binding FlagFormatted}" Width="1.0*" />
+                    <DataGridTextColumn Header="判定" Binding="{Binding StockStatus}" Width="1.3*" />
                 </DataGrid.Columns>
             </DataGrid>
         </Border>

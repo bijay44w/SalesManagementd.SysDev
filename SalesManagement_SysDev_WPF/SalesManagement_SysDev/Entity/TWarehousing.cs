@@ -10,8 +10,7 @@ public partial class TWarehousing
     public int HaId { get; set; }
 
     public int? EmId { get; set; }
-
-    public DateTime WaDate { get; set; }
+    public DateTime? WaDate { get; set; }
 
     public int? WaShelfFlag { get; set; }
 

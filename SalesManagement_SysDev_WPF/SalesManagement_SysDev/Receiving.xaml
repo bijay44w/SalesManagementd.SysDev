@@ -80,7 +80,7 @@
                     <StackPanel VerticalAlignment="Center">
                         <TextBlock Text="入庫管理" FontSize="18"
                                    FontWeight="Bold" Foreground="White" />
-                        <TextBlock Text="入庫情報の検索・一覧・登録・更新・非表示管理"
+                        <TextBlock Text="入庫情報の検索・一覧・更新・非表示管理"
                                    FontSize="11" Foreground="#80CBC4"
                                    Margin="0,2,0,0" />
                     </StackPanel>
@@ -166,15 +166,6 @@
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <StackPanel Grid.Column="0" Orientation="Horizontal">
-                <Button x:Name="btn_NewRegister"
-                        Style="{StaticResource ActionButtonStyle}"
-                        Background="#008080" Foreground="White"
-                        Margin="0,0,8,0" Click="btn_NewRegister_Click">
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="＋" Margin="0,0,4,0" FontWeight="Bold"/>
-                        <TextBlock Text="新規入庫登録" FontWeight="Bold"/>
-                    </StackPanel>
-                </Button>
                 <Button x:Name="btn_DetailSelected"
                         Style="{StaticResource ActionButtonStyle}"
                         Background="#0284C7" Foreground="White"
@@ -194,6 +185,17 @@
                         <TextBlock Text="選択項目を編集" FontWeight="Bold"/>
                     </StackPanel>
                 </Button>
+                <Button x:Name="btn_ShelveSelected"
+                    Style="{StaticResource ActionButtonStyle}"
+                    Background="#059669" Foreground="White"
+                    Margin="0,0,8,0" IsEnabled="False"
+                    Click="btn_ShelveSelected_Click">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="📦" Margin="0,0,4,0"/>
+                        <TextBlock Text="棚入れ完了" FontWeight="Bold"/>
+                    </StackPanel>
+                </Button>
+
                 <Button x:Name="btn_HideSelected"
                         Style="{StaticResource ActionButtonStyle}"
                         Background="#DC2626" Foreground="White"
@@ -201,15 +203,6 @@
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="⊘" Margin="0,0,4,0"/>
                         <TextBlock Text="非表示設定" FontWeight="Bold"/>
-                    </StackPanel>
-                </Button>
-                <Button x:Name="btn_DeleteSelected"
-                        Style="{StaticResource ActionButtonStyle}"
-                        Background="#991B1B" Foreground="White"
-                        Margin="0,0,8,0" IsEnabled="False" Click="btn_DeleteSelected_Click" Width="109">
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="🗑" Margin="0,0,4,0"/>
-                        <TextBlock Text="削除" FontWeight="Bold"/>
                     </StackPanel>
                 </Button>
                 <Button x:Name="btn_BackToPurchaseOrder"
@@ -288,7 +281,7 @@
                 </Border.Effect>
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                     <StackPanel>
-                        <TextBlock x:Name="txt_EditorTitle" Text="入庫登録"
+                        <TextBlock x:Name="txt_EditorTitle" Text="入庫情報編集"
                                    FontSize="18" FontWeight="Bold"
                                    Foreground="#004D40" Margin="0,0,0,16"/>
                         <TextBlock Text="発注ID *"
@@ -327,10 +320,10 @@
                                     BorderThickness="1" Margin="0,0,8,0"
                                     Click="btn_CancelEditor_Click"/>
                             <Button x:Name="btn_ExecuteEditor"
-                                    Style="{StaticResource ActionButtonStyle}"
-                                    Content="登録実行" Background="#006666"
-                                    Foreground="White"
-                                    Click="btn_ExecuteEditor_Click"/>
+                            Style="{StaticResource ActionButtonStyle}"
+                            Content="更新保存" Background="#0284C7"
+                            Foreground="White"
+                            Click="btn_ExecuteEditor_Click"/>
                         </StackPanel>
                     </StackPanel>
                 </ScrollViewer>

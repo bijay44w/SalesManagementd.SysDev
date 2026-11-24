@@ -183,9 +183,9 @@ namespace SalesManagement_SysDev
                 .AsNoTracking()
                 .Where(x => x.WaFlag == WarehousingVisibleFlag)
                 .Include(x => x.Ha)
-                    .ThenInclude(x => x.Ma)
+                .ThenInclude(x => x.Ma)
                 .Include(x => x.TWarehousingDetails)
-                    .ThenInclude(x => x.Pr)
+                .ThenInclude(x => x.Pr)
                 .OrderByDescending(x => x.WaDate)
                 .ToList();
 
@@ -211,7 +211,7 @@ namespace SalesManagement_SysDev
                             ProductName = detail.Pr?.PrName ?? "",
 
                             ReceivedQuantity = detail.WaQuantity,
-                            ReceivingDate = entity.WaDate
+                            ReceivingDate = entity.WaDate ?? DateTime.MinValue
                         });
                 }
             }
@@ -1406,12 +1406,10 @@ namespace SalesManagement_SysDev
                     "エラー",
                     MessageBoxButton.OK,
                     MessageBoxImage.Warning);
-
                 return;
             }
-
             var result = MessageBox.Show(
-                "次の発注を入庫確定しますか？\n\n"
+                 "次の発注を入庫確定しますか？\n\n"
                 + "発注番号："
                 + selectedOrder.OrderId + "\n"
                 + "仕入先名："
@@ -1420,14 +1418,13 @@ namespace SalesManagement_SysDev
                 + selectedOrder.OrderDate.ToString("yyyy/MM/dd") + "\n"
                 + "明細数："
                 + selectedOrder.Details.Count + " 件\n\n"
-                + "入庫データを登録し、在庫数量を加算します。",
+                + "入庫データを登録します。\n"
+                + "在庫数量は棚入れ完了後に加算されます。",
                 "入庫確定確認",
                 MessageBoxButton.YesNo,
                 MessageBoxImage.Question);
-
             if (result != MessageBoxResult.Yes)
                 return;
-
             try
             {
                 using (var context = new SalesManagementContext())
@@ -1513,8 +1510,8 @@ namespace SalesManagement_SysDev
                     var warehousing = new TWarehousing
                     {
                         HaId = order.HaId,
-                        EmId = LoggedInEmployeeId,
-                        WaDate = DateTime.Today,
+                        EmId = null,
+                        WaDate = null,
                         WaShelfFlag = 0,
                         WaHidden = null,
                         WaFlag = WarehousingVisibleFlag
@@ -1545,26 +1542,7 @@ namespace SalesManagement_SysDev
                             return;
                         }
 
-                        var stock = context.TStocks
-                            .FirstOrDefault(x =>
-                                x.PrId == detail.ProductId
-                                && x.StFlag == StockVisibleFlag);
-
-                        if (stock == null)
-                        {
-                            stock = new TStock
-                            {
-                                PrId = detail.ProductId,
-                                StQuantity = 0,
-                                StFlag = StockVisibleFlag
-                            };
-
-                            context.TStocks.Add(stock);
-                        }
-
-                        stock.StQuantity = checked(
-                            stock.StQuantity + detail.Quantity);
-
+                        // 入庫明細だけ登録する。在庫数量はまだ変更しない。
                         warehousing.TWarehousingDetails.Add(
                             new TWarehousingDetail
                             {
@@ -1589,7 +1567,7 @@ namespace SalesManagement_SysDev
                     + "入庫担当社員ID："
                     + LoggedInEmployeeId + "\n"
                     + "入庫データ登録済み\n"
-                    + "在庫数量加算済み",
+                    + "在庫数量は未加算（棚入れ待ち）",
                     "入庫確定完了",
                     MessageBoxButton.OK,
                     MessageBoxImage.Information);

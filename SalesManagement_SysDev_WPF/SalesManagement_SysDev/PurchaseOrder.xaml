@@ -3,7 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              Background="#F1F5F9"
              FontFamily="Yu Gothic UI"
-             FontSize="13" Width="1036">
+             FontSize="13">
 
     <UserControl.Resources>
 
@@ -203,7 +203,7 @@
 
     </UserControl.Resources>
 
-    <Grid Background="{StaticResource BackgroundColor}" Margin="0,0,-65,0">
+    <Grid Background="{StaticResource BackgroundColor}" Margin="0">
 
         <Grid.RowDefinitions>
             <RowDefinition Height="67"/>
