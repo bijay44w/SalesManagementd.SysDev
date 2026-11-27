@@ -212,10 +212,6 @@
                                    FontSize="17"
                                    FontWeight="Bold"
                                    Foreground="#FFFFFF"/>
-                        <TextBlock Text="注文情報の検索・一覧・登録・更新・非表示管理"
-                                   FontSize="10"
-                                   Foreground="#80CBC4"
-                                   Margin="0,1,0,0"/>
                     </StackPanel>
                 </StackPanel>
 

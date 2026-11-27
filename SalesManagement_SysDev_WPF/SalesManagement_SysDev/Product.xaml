@@ -88,7 +88,6 @@
                     </Border>
                     <StackPanel VerticalAlignment="Center">
                         <TextBlock Text="商品管理" FontSize="18" FontWeight="Bold" Foreground="#FFFFFF" />
-                        <TextBlock Text="商品情報の検索・一覧・登録（初期在庫0自動作成）・更新・非表示管理" FontSize="11" Foreground="#80CBC4" Margin="0,2,0,0" />
                     </StackPanel>
                 </StackPanel>
 

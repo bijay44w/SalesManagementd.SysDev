@@ -76,7 +76,7 @@
         <!-- Sidebar Navigation Button Style (Normal) -->
         <Style x:Key="SidebarButtonStyle" TargetType="Button">
             <Setter Property="Background" Value="Transparent" />
-            <Setter Property="Foreground" Value="#E2E8F0" />
+            <Setter Property="Foreground" Value="#334155" />
             <Setter Property="BorderThickness" Value="0" />
             <Setter Property="Height" Value="42" />
             <Setter Property="Margin" Value="0,2" />
@@ -90,8 +90,8 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="bd" Property="Background" Value="#2563EB" />
-                                <Setter Property="Foreground" Value="#FFFFFF" />
+                                <Setter TargetName="bd" Property="Background" Value="#F1F5F9" />
+                                <Setter Property="Foreground" Value="#2563EB" />
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -101,11 +101,11 @@
 
         <!-- Sidebar Navigation Button Style (Active / Selected) -->
         <Style x:Key="SidebarActiveButtonStyle" TargetType="Button" BasedOn="{StaticResource SidebarButtonStyle}">
-            <Setter Property="Foreground" Value="#FFFFFF" />
+            <Setter Property="Foreground" Value="#1D4ED8" />
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Border Background="#2563EB" CornerRadius="8" Padding="14,0">
+                        <Border Background="#DBEAFE" CornerRadius="8" Padding="14,0">
                             <ContentPresenter VerticalAlignment="Center" />
                         </Border>
                     </ControlTemplate>
@@ -260,14 +260,7 @@
             <!-- ==================================================== -->
             <!-- Left Navigation Sidebar                              -->
             <!-- ==================================================== -->
-            <Grid Grid.Column="0">
-                <!-- Rich Blue Gradient Background -->
-                <Grid.Background>
-                    <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-                        <GradientStop Color="#184DAA" Offset="0" />
-                        <GradientStop Color="#103B8D" Offset="1" />
-                    </LinearGradientBrush>
-                </Grid.Background>
+            <Border Grid.Column="0" Background="#FFFFFF" BorderBrush="#E2E8F0" BorderThickness="0,0,1,0">
 
                 <!-- Sidebar Content Container -->
                 <Grid Margin="12,16,12,20">
@@ -281,7 +274,7 @@
                                 Click="MenuButton_Click"
                                 Tag="00">
                             <StackPanel Orientation="Horizontal">
-                                <Path Fill="#FFFFFF"
+                                <Path Fill="{Binding RelativeSource={RelativeSource AncestorType=Button}, Path=Foreground}"
                                       Width="18"
                                       Height="18"
                                       Stretch="Uniform"
@@ -299,7 +292,7 @@
                              Click="MenuButton_Click"
                              Tag="03">
                             <StackPanel Orientation="Horizontal">
-                                <Path Fill="#FFFFFF"
+                                <Path Fill="{Binding RelativeSource={RelativeSource AncestorType=Button}, Path=Foreground}"
                                       Width="18"
                                       Height="18"
                                       Stretch="Uniform"
@@ -319,12 +312,12 @@
                                  Click="MenuButton_Click"
                                  Tag="04">
                             <StackPanel Orientation="Horizontal">
-                                <Path Fill="#FFFFFF"
+                                <Path Fill="{Binding RelativeSource={RelativeSource AncestorType=Button}, Path=Foreground}"
                                       Width="18"
                                       Height="18"
                                       Stretch="Uniform"
                                       Margin="0,0,12,0"
-                                      Data="M20 8l-8-4-8 4v8l8 4 8-4V8z M4 8l8 4 8-4 M12 12v8" />
+                                      Data="M21.41 11.58l-9-9C12.05 2.22 11.55 2 11 2H4c-1.1 0-2 .9-2 2v7c0 .55.22 1.05.59 1.42l9 9c.36.36.86.58 1.41.58.55 0 1.05-.22 1.41-.59l7-7c.37-.36.59-.86.59-1.41 0-.55-.23-1.06-.59-1.42zM5.5 7C4.67 7 4 6.33 4 5.5S4.67 4 5.5 4 7 4.67 7 5.5 6.33 7 5.5 7z" />
                                 <TextBlock Text="商品管理"
                                       FontSize="14"
                                       FontWeight="SemiBold"
@@ -332,18 +325,17 @@
                             </StackPanel>
                         </Button>
 
-
                         <!-- 在庫管理 -->
                         <Button Style="{StaticResource SidebarButtonStyle}"
                                 Click="MenuButton_Click"
                                 Tag="05">
                             <StackPanel Orientation="Horizontal">
-                                <Path Fill="#FFFFFF"
+                                <Path Fill="{Binding RelativeSource={RelativeSource AncestorType=Button}, Path=Foreground}"
                                       Width="18"
                                       Height="18"
                                       Stretch="Uniform"
                                       Margin="0,0,12,0"
-                                      Data="M3 3h18v18H3z M3 9h18 M9 3v18" />
+                                      Data="M20 2H4c-1.1 0-2 .9-2 2v3.01c0 .55.45 1 1 1V20c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V8.01c.55 0 1-.45 1-1V4c0-1.1-.9-2-2-2zm-1 18H5V9h14v11zm1-13H4V4h16v3z M9 12h6v2H9z" />
                                 <TextBlock Text="在庫管理"
                                       FontSize="14"
                                       FontWeight="SemiBold"
@@ -352,14 +344,12 @@
                             </StackPanel>
                         </Button>
 
-
-
                         <!-- 社員管理 -->
                         <Button Style="{StaticResource SidebarButtonStyle}"
                                 Click="MenuButton_Click"
                                 Tag="06">
                             <StackPanel Orientation="Horizontal">
-                                <Path Fill="#FFFFFF"
+                                <Path Fill="{Binding RelativeSource={RelativeSource AncestorType=Button}, Path=Foreground}"
                                       Width="18"
                                       Height="18"
                                       Stretch="Uniform"
@@ -377,7 +367,7 @@
                                 Click="MenuButton_Click"
                                 Tag="07">
                             <StackPanel Orientation="Horizontal">
-                                <Path Fill="#FFFFFF"
+                                <Path Fill="{Binding RelativeSource={RelativeSource AncestorType=Button}, Path=Foreground}"
                                       Width="18"
                                       Height="18"
                                       Stretch="Uniform"
@@ -395,7 +385,7 @@
                                 Click="MenuButton_Click"
                                 Tag="08">
                             <StackPanel Orientation="Horizontal">
-                                <Path Fill="#FFFFFF"
+                                <Path Fill="{Binding RelativeSource={RelativeSource AncestorType=Button}, Path=Foreground}"
                                       Width="18"
                                       Height="18"
                                       Stretch="Uniform"
@@ -413,7 +403,7 @@
                                 Click="MenuButton_Click"
                                 Tag="09">
                             <StackPanel Orientation="Horizontal">
-                                <Path Fill="#FFFFFF"
+                                <Path Fill="{Binding RelativeSource={RelativeSource AncestorType=Button}, Path=Foreground}"
                                       Width="18"
                                       Height="18"
                                       Stretch="Uniform"
@@ -431,7 +421,7 @@
                                 Click="MenuButton_Click"
                                 Tag="10">
                             <StackPanel Orientation="Horizontal">
-                                <Path Fill="#FFFFFF"
+                                <Path Fill="{Binding RelativeSource={RelativeSource AncestorType=Button}, Path=Foreground}"
                                       Width="18"
                                       Height="18"
                                       Stretch="Uniform"
@@ -449,7 +439,7 @@
                                 Click="MenuButton_Click"
                                 Tag="11">
                             <StackPanel Orientation="Horizontal">
-                                <Path Fill="#FFFFFF"
+                                <Path Fill="{Binding RelativeSource={RelativeSource AncestorType=Button}, Path=Foreground}"
                                       Width="18"
                                       Height="18"
                                       Stretch="Uniform"
@@ -467,7 +457,7 @@
                                 Click="MenuButton_Click"
                                 Tag="12">
                             <StackPanel Orientation="Horizontal">
-                                <Path Fill="#FFFFFF"
+                                <Path Fill="{Binding RelativeSource={RelativeSource AncestorType=Button}, Path=Foreground}"
                                       Width="18"
                                       Height="18"
                                       Stretch="Uniform"
@@ -485,7 +475,7 @@
                                 Click="MenuButton_Click"
                                 Tag="13">
                             <StackPanel Orientation="Horizontal">
-                                <Path Fill="#FFFFFF"
+                                <Path Fill="{Binding RelativeSource={RelativeSource AncestorType=Button}, Path=Foreground}"
                                       Width="18"
                                       Height="18"
                                       Stretch="Uniform"
@@ -503,12 +493,12 @@
                                 Click="MenuButton_Click"
                                 Tag="14">
                             <StackPanel Orientation="Horizontal">
-                                <Path Fill="#FFFFFF"
+                                <Path Fill="{Binding RelativeSource={RelativeSource AncestorType=Button}, Path=Foreground}"
                                       Width="18"
                                       Height="18"
                                       Stretch="Uniform"
                                       Margin="0,0,12,0"
-                                      Data="M19 19H5V5h7V3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z" />
+                                      Data="M1 18v-3h3v3H1zm5 0v-3h11.5c.83 0 1.5-.67 1.5-1.5V11H1v-2h18v4.5c0 1.93-1.57 3.5-3.5 3.5H6zm-5-5v-3h9v3H1zm0-5V5h13v3H1z" />
                                 <TextBlock Text="出荷管理"
                                            FontSize="14"
                                            FontWeight="SemiBold"
@@ -519,15 +509,15 @@
                         <!-- Bottom: ログアウト -->
                         <Button x:Name="btn_Logout" Style="{StaticResource SidebarButtonStyle}" Click="btn_Logout_Click" Height="70">
                             <StackPanel Orientation="Horizontal">
-                                <Path Fill="#E2E8F0" Width="18" Height="18" Stretch="Uniform" Margin="0,0,12,0"
+                                <Path Fill="{Binding RelativeSource={RelativeSource AncestorType=Button}, Path=Foreground}" Width="18" Height="18" Stretch="Uniform" Margin="0,0,12,0"
                                  Data="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z" />
-                                <TextBlock Text="ログアウト" FontSize="13.5" FontWeight="Normal" VerticalAlignment="Center" />
+                                <TextBlock Text="ログアウト" FontSize="13.5" FontWeight="SemiBold" VerticalAlignment="Center" />
                             </StackPanel>
                         </Button>
                     </StackPanel>
 
                 </Grid>
-            </Grid>
+            </Border>
 
             <!-- ==================================================== -->
             <!-- Main Content Area                                    -->

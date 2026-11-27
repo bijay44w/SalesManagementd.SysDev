@@ -73,7 +73,6 @@
                     </Border>
                     <StackPanel VerticalAlignment="Center">
                         <TextBlock Text="売上管理" FontSize="18" FontWeight="Bold" Foreground="#FFFFFF" />
-                        <TextBlock Text="売上情報の検索・一覧・登録・詳細確認・非表示管理" FontSize="11" Foreground="#80CBC4" Margin="0,2,0,0" />
                     </StackPanel>
                 </StackPanel>
 
