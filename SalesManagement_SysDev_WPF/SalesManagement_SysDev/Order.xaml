@@ -60,7 +60,7 @@
         <!-- ======================================================== -->
         <!-- 0. タイトルバー (Retro Dark Teal)                         -->
         <!-- ======================================================== -->
-        <Border Grid.Row="0" Background="#004D40" Padding="20,12" BorderBrush="#00332C" BorderThickness="0,0,0,2">
+        <Border Grid.Row="0" Background="#FFFFFF" Padding="20,12" BorderBrush="#E2E8F0" BorderThickness="0,0,0,1">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
@@ -68,15 +68,15 @@
                 </Grid.ColumnDefinitions>
 
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                    <Border Background="#26A69A" Width="34" Height="34" CornerRadius="4" Margin="0,0,12,0">
-                        <TextBlock Text="📥" FontSize="18" Foreground="#FFFFFF" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    <Border Background="#EFF6FF" Width="34" Height="34" CornerRadius="6" Margin="0,0,12,0">
+                        <TextBlock Text="📥" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center" />
                     </Border>
                     <StackPanel VerticalAlignment="Center">
-                        <TextBlock Text="受注管理" FontSize="18" FontWeight="Bold" Foreground="#FFFFFF" />
+                        <TextBlock Text="受注管理" FontSize="18" FontWeight="Bold" Foreground="#0F172A" />
                     </StackPanel>
                 </StackPanel>
 
-                <TextBlock Grid.Column="1" Text="【直接検索 / 即時反映】" FontSize="12" Foreground="#E0F2F1" VerticalAlignment="Center" Margin="0,0,10,0" />
+                <TextBlock Grid.Column="1" Text="【直接検索 / 即時反映】" FontSize="12" Foreground="#64748B" VerticalAlignment="Center" Margin="0,0,10,0" />
             </Grid>
         </Border>
 

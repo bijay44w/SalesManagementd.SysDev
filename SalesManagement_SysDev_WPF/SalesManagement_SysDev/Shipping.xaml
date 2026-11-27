@@ -66,10 +66,10 @@
 
         <!-- 0. ヘッダー -->
         <Border Grid.Row="0"
-                Background="#004D40"
+                Background="#FFFFFF"
                 Padding="20,12"
-                BorderBrush="#00332C"
-                BorderThickness="0,0,0,2">
+                BorderBrush="#E2E8F0"
+                BorderThickness="0,0,0,1">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
@@ -78,14 +78,13 @@
 
                 <StackPanel Orientation="Horizontal"
                             VerticalAlignment="Center">
-                    <Border Background="#26A69A"
+                    <Border Background="#EFF6FF"
                             Width="34"
                             Height="34"
-                            CornerRadius="4"
+                            CornerRadius="6"
                             Margin="0,0,12,0">
                         <TextBlock Text="📦"
                                    FontSize="18"
-                                   Foreground="White"
                                    HorizontalAlignment="Center"
                                    VerticalAlignment="Center" />
                     </Border>
@@ -94,14 +93,14 @@
                         <TextBlock Text="出庫管理"
                                    FontSize="18"
                                    FontWeight="Bold"
-                                   Foreground="White" />
+                                   Foreground="#0F172A" />
                     </StackPanel>
                 </StackPanel>
 
                 <TextBlock Grid.Column="1"
                            Text="【直接検索 / 即時反映】"
                            FontSize="12"
-                           Foreground="#E0F2F1"
+                           Foreground="#64748B"
                            VerticalAlignment="Center"
                            Margin="0,0,10,0" />
             </Grid>
@@ -426,7 +425,7 @@
                                    Text="出庫登録"
                                    FontSize="18"
                                    FontWeight="Bold"
-                                   Foreground="#004D40"
+                                   Foreground="#0F172A"
                                    Margin="0,0,0,16"/>
 
                         <TextBlock Text="受注ID *"

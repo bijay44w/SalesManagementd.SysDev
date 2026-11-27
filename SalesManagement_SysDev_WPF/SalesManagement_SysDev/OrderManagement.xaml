@@ -182,10 +182,10 @@
 
         <!-- タイトルバー -->
         <Border Grid.Row="0"
-                Background="#004D40"
-                Padding="18,10"
-                BorderBrush="#00332C"
-                BorderThickness="0,0,0,2">
+                Background="#FFFFFF"
+                Padding="18,12"
+                BorderBrush="#E2E8F0"
+                BorderThickness="0,0,0,1">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
@@ -194,15 +194,15 @@
 
                 <StackPanel Orientation="Horizontal"
                             VerticalAlignment="Center">
-                    <Border Background="#26A69A"
+                    <Border Background="#EFF6FF"
                             Width="32"
                             Height="32"
-                            CornerRadius="4"
+                            CornerRadius="6"
                             Margin="0,0,10,0">
                         <TextBlock Text="≡"
                                    FontSize="21"
                                    FontWeight="Bold"
-                                   Foreground="#FFFFFF"
+                                   Foreground="#2563EB"
                                    HorizontalAlignment="Center"
                                    VerticalAlignment="Center"/>
                     </Border>
@@ -211,14 +211,14 @@
                         <TextBlock Text="注文管理"
                                    FontSize="17"
                                    FontWeight="Bold"
-                                   Foreground="#FFFFFF"/>
+                                   Foreground="#0F172A"/>
                     </StackPanel>
                 </StackPanel>
 
                 <TextBlock Grid.Column="1"
                            Text="【注文検索 / 一覧管理】"
                            FontSize="11"
-                           Foreground="#E0F2F1"
+                           Foreground="#64748B"
                            VerticalAlignment="Center"
                            Margin="0,0,10,0"/>
             </Grid>

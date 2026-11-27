@@ -507,14 +507,14 @@
                     </Grid.RowDefinitions>
 
                     <!-- Title Bar -->
-                    <Border Grid.Row="0" Background="#004D40" Padding="16,0">
+                    <Border Grid.Row="0" Background="#FFFFFF" Padding="16,0" BorderBrush="#E2E8F0" BorderThickness="0,0,0,1">
                         <Grid>
                             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                 <TextBlock Text="📖" FontSize="18" Margin="0,0,10,0" VerticalAlignment="Center"/>
                                 <TextBlock Text="販売管理システム 操作ガイド・取扱説明書（閲覧用）"
                                            FontSize="15"
                                            FontWeight="Bold"
-                                           Foreground="#FFFFFF"
+                                           Foreground="#0F172A"
                                            VerticalAlignment="Center"/>
                             </StackPanel>
 
@@ -526,7 +526,7 @@
                                     BorderThickness="0"
                                     Cursor="Hand"
                                     Click="btn_CloseHelpGuide_Click">
-                                <TextBlock Text="✕" FontSize="15" FontWeight="Bold" Foreground="#FFFFFF" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                <TextBlock Text="✕" FontSize="15" FontWeight="Bold" Foreground="#64748B" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                             </Button>
                         </Grid>
                     </Border>
