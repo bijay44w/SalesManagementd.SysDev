@@ -7,8 +7,8 @@
 
     <UserControl.Resources>
 
-        <SolidColorBrush x:Key="HeaderColor" Color="#00574F"/>
-        <SolidColorBrush x:Key="AccentColor" Color="#00A99D"/>
+        <SolidColorBrush x:Key="HeaderColor" Color="#2563EB"/>
+        <SolidColorBrush x:Key="AccentColor" Color="#3B82F6"/>
         <SolidColorBrush x:Key="BackgroundColor" Color="#F1F5F9"/>
 
         <!-- 共通ボタン -->
@@ -214,9 +214,10 @@
 
         <!-- タイトルバー -->
         <Border Grid.Row="0"
-                Background="{StaticResource HeaderColor}"
-                BorderBrush="#003F39"
-                BorderThickness="0,0,0,2">
+                Background="#FFFFFF"
+                Padding="0,12"
+                BorderBrush="#E2E8F0"
+                BorderThickness="0,0,0,1">
 
             <Grid Margin="20,0">
 
@@ -229,14 +230,14 @@
                 <Border Grid.Column="0"
                         Width="35"
                         Height="35"
-                        CornerRadius="5"
-                        Background="{StaticResource AccentColor}"
+                        CornerRadius="6"
+                        Background="#EFF6FF"
                         VerticalAlignment="Center">
 
                     <TextBlock Text="▤"
-                               FontSize="22"
+                               FontSize="20"
                                FontWeight="Bold"
-                               Foreground="#003F39"
+                               Foreground="#2563EB"
                                HorizontalAlignment="Center"
                                VerticalAlignment="Center"/>
                 </Border>
@@ -248,17 +249,12 @@
                     <TextBlock Text="発注管理"
                                FontSize="18"
                                FontWeight="Bold"
-                               Foreground="White"/>
-
-                    <TextBlock Text="発注情報の検索・一覧・登録・更新・入庫確定・非表示管理"
-                               FontSize="11"
-                               Foreground="#B2DFDB"
-                               Margin="0,2,0,0"/>
+                               Foreground="#0F172A"/>
                 </StackPanel>
 
                 <TextBlock Grid.Column="2"
                            Text="[直接検索 / 即時反映]"
-                           Foreground="White"
+                           Foreground="#64748B"
                            FontSize="11"
                            FontWeight="SemiBold"
                            VerticalAlignment="Center"
@@ -615,7 +611,7 @@
 
                     <!-- ダイアログタイトル -->
                     <Border Grid.Row="0"
-                            Background="#00574F"
+                            Background="#2563EB"
                             CornerRadius="5"
                             Padding="14,11"
                             Margin="0,0,0,15">
@@ -679,7 +675,7 @@
                             <TextBlock Text="発注商品明細"
                                        FontSize="14"
                                        FontWeight="Bold"
-                                       Foreground="#00574F"
+                                       Foreground="#2563EB"
                                        Margin="0,0,0,10"/>
 
                             <Grid>
@@ -864,7 +860,7 @@
                                        Text="0 円"
                                        FontSize="20"
                                        FontWeight="Bold"
-                                       Foreground="#00574F"
+                                       Foreground="#2563EB"
                                        HorizontalAlignment="Right"/>
                         </StackPanel>
                     </Grid>
