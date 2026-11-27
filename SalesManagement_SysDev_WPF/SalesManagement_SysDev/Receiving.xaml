@@ -7,10 +7,10 @@
 
     <UserControl.Resources>
         <Style x:Key="ActionButtonStyle" TargetType="Button">
-            <Setter Property="Height" Value="32" />
-            <Setter Property="Padding" Value="14,0" />
+            <Setter Property="Height" Value="28" />
+            <Setter Property="Padding" Value="8,0" />
             <Setter Property="FontWeight" Value="SemiBold" />
-            <Setter Property="FontSize" Value="13" />
+            <Setter Property="FontSize" Value="12" />
             <Setter Property="Cursor" Value="Hand" />
             <Setter Property="Template">
                 <Setter.Value>
@@ -63,7 +63,7 @@
         </Grid.RowDefinitions>
 
         <!-- 0. ヘッダー：Customer.xamlと同じ構成 -->
-        <Border Grid.Row="0" Background="#004D40" Padding="20,12"
+        <Border Grid.Row="0" Background="#004D40" Padding="16,8"
                 BorderBrush="#00332C" BorderThickness="0,0,0,2">
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -94,7 +94,7 @@
         <!-- 1. 検索条件 -->
         <Border Grid.Row="1" Background="White" BorderBrush="#CBD5E1"
                 BorderThickness="1" CornerRadius="6"
-                Margin="16,12,16,8" Padding="14,10">
+                Margin="12,8,12,6" Padding="10,6">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />

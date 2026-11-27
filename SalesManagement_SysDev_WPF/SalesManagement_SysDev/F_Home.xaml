@@ -5,10 +5,11 @@
         Title="販売管理システム"
         Height="700" Width="1040"
         MinHeight="620" MinWidth="920"
+        WindowState="Maximized"
         WindowStartupLocation="CenterScreen"
         WindowStyle="None"
         FontFamily="Segoe UI, Meiryo, 'Yu Gothic UI', sans-serif"
-        Background="#FFFFFF">
+        Background="#FFFFFF">   
 
     <!-- Enable custom title bar & window resizing -->
     <WindowChrome.WindowChrome>

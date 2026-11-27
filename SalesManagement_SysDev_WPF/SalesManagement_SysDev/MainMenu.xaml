@@ -76,58 +76,96 @@
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
 
-                    <!-- Left: Title & Quick Guide Trigger -->
-                    <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
-                        <TextBlock Text="販売管理システム"
-                                   FontSize="26"
-                                   FontWeight="Bold"
-                                   Foreground="#FFFFFF"
-                                   VerticalAlignment="Center"
-                                   Margin="0,0,20,0"/>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
 
-                        <!-- 使い方 (システムの使い方) ボタン -->
+                    <!-- タイトルと操作ガイド -->
+                    <StackPanel Grid.Row="0"
+                Orientation="Horizontal"
+                VerticalAlignment="Center">
+                        <TextBlock Text="販売管理システム"
+                   FontSize="26"
+                   FontWeight="Bold"
+                   Foreground="#FFFFFF"
+                   VerticalAlignment="Center"
+                   Margin="0,0,20,0"/>
+
                         <Button x:Name="btn_OpenHelpGuide"
-                                Style="{StaticResource ClassicWinFormsButtonStyle}"
-                                Height="36"
-                                Background="#FFFEEA"
-                                BorderBrush="#D4A72C"
-                                BorderThickness="1.5"
-                                Padding="14,4"
-                                Click="btn_OpenHelpGuide_Click"
-                                ToolTip="システムの全体概要、操作方法、業務フローを閲覧します">
-                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                <TextBlock Text="📖" FontSize="16" Margin="0,0,8,0" VerticalAlignment="Center"/>
-                                <TextBlock Text="システムの使い方 (操作ガイド)" FontSize="13" FontWeight="Bold" Foreground="#8A5A00" VerticalAlignment="Center"/>
+                Style="{StaticResource ClassicWinFormsButtonStyle}"
+                Height="36"
+                Background="#FFFEEA"
+                BorderBrush="#D4A72C"
+                BorderThickness="1.5"
+                Padding="14,4"
+                Click="btn_OpenHelpGuide_Click"
+                ToolTip="システムの全体概要、操作方法、業務フローを閲覧します">
+                            <StackPanel Orientation="Horizontal"
+                        VerticalAlignment="Center">
+                                <TextBlock Text="📖"
+                           FontSize="16"
+                           Margin="0,0,8,0"/>
+                                <TextBlock Text="システムの使い方 (操作ガイド)"
+                           FontSize="13"
+                           FontWeight="Bold"
+                           Foreground="#8A5A00"/>
                             </StackPanel>
                         </Button>
                     </StackPanel>
 
-                    <!-- Right: User Status Info (White text on teal) -->
-                    <Grid Grid.Column="1" VerticalAlignment="Center">
+                    <!-- ログイン情報：タイトルの下に配置 -->
+                    <Grid Grid.Row="1" Margin="0,10,0,0">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="110"/>
                             <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="140"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="20"/>
                             <RowDefinition Height="20"/>
                         </Grid.RowDefinitions>
 
-                        <TextBlock Grid.Row="0" Grid.Column="0" Text="ログオンユーザー :" Foreground="#FFFFFF" Margin="0,0,6,0"/>
-                        <TextBlock x:Name="lbl_User" Grid.Row="0" Grid.Column="1" Text="管理者" FontWeight="Bold" Foreground="#FFFFFF"/>
+                        <TextBlock Grid.Row="0" Grid.Column="0"
+                   Text="ログオンユーザー :"
+                   Foreground="#FFFFFF"
+                   Margin="0,0,6,0"/>
+                        <TextBlock x:Name="lbl_User"
+                   Grid.Row="0" Grid.Column="1"
+                   Text="管理者"
+                   FontWeight="Bold"
+                   Foreground="#FFFFFF"/>
 
-                        <TextBlock Grid.Row="0" Grid.Column="2" Text="所属店舗 :" Foreground="#FFFFFF" Margin="14,0,6,0"/>
-                        <TextBlock x:Name="lbl_Store" Grid.Row="0" Grid.Column="3" Text="本社営業所" Foreground="#FFFFFF"/>
+                        <TextBlock Grid.Row="0" Grid.Column="2"
+                   Text="所属店舗 :"
+                   Foreground="#FFFFFF"
+                   Margin="20,0,6,0"/>
+                        <TextBlock x:Name="lbl_Store"
+                   Grid.Row="0" Grid.Column="3"
+                   Text="本社営業所"
+                   Foreground="#FFFFFF"/>
 
-                        <TextBlock Grid.Row="1" Grid.Column="0" Text="権限 :" Foreground="#FFFFFF" Margin="0,0,6,0"/>
-                        <TextBlock x:Name="lbl_Role" Grid.Row="1" Grid.Column="1" Text="管理者" Foreground="#FFFFFF"/>
+                        <TextBlock Grid.Row="1" Grid.Column="0"
+                   Text="権限 :"
+                   Foreground="#FFFFFF"
+                   Margin="0,0,6,0"/>
+                        <TextBlock x:Name="lbl_Role"
+                   Grid.Row="1" Grid.Column="1"
+                   Text="管理者"
+                   Foreground="#FFFFFF"/>
 
-                        <TextBlock Grid.Row="1" Grid.Column="2" Text="ログオン日時 :" Foreground="#FFFFFF" Margin="14,0,6,0"/>
-                        <TextBlock x:Name="lbl_LogonDate" Grid.Row="1" Grid.Column="3" Text="2026/10/27 15:55" Foreground="#FFFFFF"/>
+                        <TextBlock Grid.Row="1" Grid.Column="2"
+                   Text="ログオン日時 :"
+                   Foreground="#FFFFFF"
+                   Margin="20,0,6,0"/>
+                        <TextBlock x:Name="lbl_LogonDate"
+                   Grid.Row="1" Grid.Column="3"
+                   Text="2026/10/27 15:55"
+                   Foreground="#FFFFFF"/>
                     </Grid>
                 </Grid>
 
@@ -164,12 +202,9 @@
                                 Margin="4">
                             <Grid>
                                 <Grid.ColumnDefinitions>
-                                    <!-- Left: 全体メモ (52%) -->
-                                    <ColumnDefinition Width="1.1*"/>
-                                    <!-- Separator (14px) -->
+                                    <ColumnDefinition Width="1*"/>
                                     <ColumnDefinition Width="14"/>
-                                    <!-- Right: 個人メモ (48%) -->
-                                    <ColumnDefinition Width="0.9*"/>
+                                    <ColumnDefinition Width="1*"/>
                                 </Grid.ColumnDefinitions>
 
                                 <!-- ==================================================== -->
@@ -186,35 +221,51 @@
 
                                         <!-- Header of Shared Memos -->
                                         <Grid Grid.Row="0" Margin="0,0,0,8">
-                                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                                <TextBlock Text="📢" FontSize="16" Margin="0,0,6,0" VerticalAlignment="Center"/>
-                                                <TextBlock Text="全体メモ（社内連絡事項）" FontSize="14" FontWeight="Bold" Foreground="#1E3A8A" VerticalAlignment="Center"/>
-                                                <TextBlock x:Name="lbl_SharedMemoAdminBadge"
-                                                           Text=" [管理者のみ投稿可] "
-                                                           FontSize="11"
-                                                           Foreground="#64748B"
-                                                           VerticalAlignment="Center"/>
-                                            </StackPanel>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
 
-                                            <!-- 管理者用 新規連絡登録ボタン -->
+                                            <TextBlock Grid.Column="0"
+                                                Text="📢 全体メモ（社内連絡事項）"
+                                                FontSize="14"
+                                                FontWeight="Bold"
+                                                Foreground="#1E3A8A"
+                                                VerticalAlignment="Center"
+                                                TextTrimming="CharacterEllipsis"
+                                                Margin="0,0,6,0"/>
+
+                                            <TextBlock x:Name="lbl_SharedMemoAdminBadge"
+                                               Grid.Column="1"
+                                               FontSize="11"
+                                               Foreground="Gray"
+                                               VerticalAlignment="Center"
+                                               Margin="4,0,8,0"/>       
+
                                             <Button x:Name="btn_NewSharedMemo"
-                                                    Grid.Column="1"
-                                                    HorizontalAlignment="Right"
-                                                    Style="{StaticResource ClassicWinFormsButtonStyle}"
-                                                    Height="30"
-                                                    Margin="0"
-                                                    Padding="10,2"
-                                                    Background="#E8F5E9"
-                                                    BorderBrush="#4CAF50"
-                                                    Click="btn_NewSharedMemo_Click"
-                                                    ToolTip="新しい社内連絡事項を登録します（管理者権限）">
+                                                Grid.Column="2"
+                                                Style="{StaticResource ClassicWinFormsButtonStyle}"
+                                                Height="30"
+                                                Margin="0"
+                                                Padding="10,2"
+                                                Background="#E8F5E9"
+                                                BorderBrush="#4CAF50"
+                                                Click="btn_NewSharedMemo_Click"
+                                                ToolTip="新しい社内連絡事項を登録します（管理者権限）">       
                                                 <StackPanel Orientation="Horizontal">
-                                                    <TextBlock Text="＋" FontWeight="Bold" Foreground="#2E7D32" Margin="0,0,4,0"/>
-                                                    <TextBlock Text="新規連絡を投稿" FontSize="12" FontWeight="Bold" Foreground="#2E7D32"/>
+                                                    <TextBlock Text="＋"
+                                                       FontWeight="Bold"
+                                                       Foreground="#2E7D32"
+                                                       Margin="0,0,4,0"/>
+                                                    <TextBlock Text="新規連絡を投稿"
+                                                       FontSize="12"
+                                                       FontWeight="Bold"
+                                                       Foreground="#2E7D32"/>       
                                                 </StackPanel>
                                             </Button>
                                         </Grid>
-
+                                        
                                         <!-- Filter Bar: アクセス区分絞り込み -->
                                         <Border Grid.Row="1" Background="#F1F5F9" BorderBrush="#CBD5E1" BorderThickness="1" Padding="8,4" Margin="0,0,0,8">
                                             <Grid>
@@ -227,11 +278,12 @@
                                                 </StackPanel>
 
                                                 <TextBlock x:Name="lbl_SharedMemoCount"
-                                                           HorizontalAlignment="Right"
-                                                           Text="0 件"
-                                                           FontSize="11"
-                                                           Foreground="#64748B"
-                                                           VerticalAlignment="Center"/>
+                                                       Grid.Column="1"
+                                                       HorizontalAlignment="Right"
+                                                       Text="0 件"
+                                                       FontSize="11"
+                                                       Foreground="#64748B"
+                                                       VerticalAlignment="Center"/>  
                                             </Grid>
                                         </Border>
 
@@ -360,39 +412,48 @@
 
                                         <!-- Header of Personal Memo -->
                                         <Grid Grid.Row="0" Margin="0,0,0,8">
-                                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                                <TextBlock Text="📝" FontSize="16" Margin="0,0,6,0" VerticalAlignment="Center"/>
-                                                <TextBlock x:Name="lbl_PersonalMemoHeader"
-                                                           Text="個人メモ（自分専用）"
-                                                           FontSize="14"
-                                                           FontWeight="Bold"
-                                                           Foreground="#0F766E"
-                                                           VerticalAlignment="Center"/>
-                                            </StackPanel>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
 
-                                            <!-- Controls: New & Delete -->
-                                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                            <TextBlock x:Name="lbl_PersonalMemoHeader"
+                                               Grid.Column="0"
+                                               Text="📝 個人メモ（自分専用）"
+                                               FontSize="14"
+                                               FontWeight="Bold"
+                                               Foreground="#0F766E"
+                                               HorizontalAlignment="Left"
+                                               VerticalAlignment="Center"
+                                               TextTrimming="CharacterEllipsis"
+                                               Margin="0,0,6,0"/>       
+
+                                            <StackPanel Grid.Column="1"
+                                                 Orientation="Horizontal"
+                                                 HorizontalAlignment="Right">    
                                                 <Button x:Name="btn_NewPersonalMemo"
-                                                        Style="{StaticResource ClassicWinFormsButtonStyle}"
-                                                        Height="28"
-                                                        Margin="0,0,4,0"
-                                                        Padding="8,1"
-                                                        Click="btn_NewPersonalMemo_Click"
-                                                        ToolTip="新しい個人メモを作成します">
-                                                    <TextBlock Text="＋ 新規" FontSize="11.5"/>
+                                                    Style="{StaticResource ClassicWinFormsButtonStyle}"
+                                                    Height="28"
+                                                    Margin="0,0,4,0"
+                                                    Padding="8,1"
+                                                    Click="btn_NewPersonalMemo_Click"
+                                                    ToolTip="新しい個人メモを作成します" Width="80">        
+                                                    <TextBlock Text="新規" FontSize="11.5"/>
                                                 </Button>
+
                                                 <Button x:Name="btn_DeletePersonalMemo"
-                                                        Style="{StaticResource ClassicWinFormsButtonStyle}"
-                                                        Height="28"
-                                                        Margin="0"
-                                                        Padding="8,1"
-                                                        Click="btn_DeletePersonalMemo_Click"
-                                                        ToolTip="選択中の個人メモを削除します">
-                                                    <TextBlock Text="🗑 削除" FontSize="11.5"/>
+                                                    Style="{StaticResource ClassicWinFormsButtonStyle}"
+                                                    Width="70"
+                                                    Height="28"
+                                                    Margin="0"
+                                                    Padding="8,1"
+                                                    Click="btn_DeletePersonalMemo_Click"
+                                                    ToolTip="選択中の個人メモを削除します">       
+                                                    <TextBlock Text=" 削除" FontSize="11.5"/>
                                                 </Button>
                                             </StackPanel>
                                         </Grid>
-
+                                        
                                         <!-- Memo Selector & Title Input -->
                                         <Grid Grid.Row="1" Margin="0,0,0,8">
                                             <Grid.ColumnDefinitions>
